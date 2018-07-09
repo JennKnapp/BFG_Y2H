@@ -1,3 +1,4 @@
-./summary/*
+summary/*
 *.pyc
-./ref/*
+ref/*
+*.swp
