@@ -1,5 +1,12 @@
 ###################################
 
+# fastq file path (if not using cluster)
+r1 = "/home/rothlab/rli/01_ngsdata/180709_merged_yAD1DB4/yAD1DB4_presort_R1.fastq.gz"
+r2 = "/home/rothlab/rli/01_ngsdata/180709_merged_yAD1DB4/yAD1DB4_presort_R2.fastq.gz"
+
+
+###################################
+
 # program path
 
 BOWTIE2 = "/home/rothlab/rli/lib/bowtie2-2.3.4.1-linux-x86_64/bowtie2 "

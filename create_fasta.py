@@ -51,7 +51,7 @@ def build_index(fasta_file, output_dir):
     Bowtie build for fasta_file
     """
     basename = os.path.basename(fasta_file).split(".")[0]
-    print basename
+    #print basename
     cmd = BOWTIE2_BUILD+fasta_file+" "+os.path.join(output_dir,basename)
-    print cmd
+    #print cmd
     os.system(cmd)
