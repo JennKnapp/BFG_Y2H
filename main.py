@@ -1,5 +1,5 @@
 import argparse
-from alignment import *
+from create_fasta import *
 from param import *
 
 if __name__ == "__main__":
