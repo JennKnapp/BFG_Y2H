@@ -46,8 +46,12 @@ def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0",
             db.write(DB_Dn1+row.DnTag_Sequence+DB_Dn2+"\n")
 
 
-def build_index(fasta_file):
+def build_index(fasta_file, output_dir):
     """
     Bowtie build for fasta_file
     """
-    pass
+    basename = os.path.basename(fasta_file).split(".")[0]
+    print basename
+    cmd = BOWTIE2_BUILD+fasta_file+" "+os.path.join(output_dir,basename)
+    print cmd
+    os.system(cmd)

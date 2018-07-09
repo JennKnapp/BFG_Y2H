@@ -1,5 +1,13 @@
 ###################################
 
+# program path
+
+BOWTIE2 = "/home/rothlab/rli/lib/bowtie2-2.3.4.1-linux-x86_64/bowtie2 "
+BOWTIE2_BUILD = "/home/rothlab/rli/lib/bowtie2-2.3.4.1-linux-x86_64/bowtie2-build "
+
+
+###################################
+
 # reference path
 
 AD_REF = "./ref/AD_all/y_AD_all"
