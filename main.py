@@ -14,15 +14,13 @@ if __name__ == "__main__":
 
     summary = args.create
 
-    for f in summary:
-        if "AD" in f:
-            AD_summary = f
-        elif "DB" in f:
-            DB_summary = f
-        else:
-            output = f
+    if summary is not None:
+        for f in summary:
+            if "AD" in f:
+                AD_summary = f
+            elif "DB" in f:
+                DB_summary = f
+            else:
+                output = f
 
-    print AD_summary
-    print DB_summary
-    print output
-    create_fasta(AD_summary, DB_summary, output)
+        create_fasta(AD_summary, DB_summary, output, group_spec=True, AD="G1", DB="G4")

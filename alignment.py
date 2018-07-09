@@ -18,7 +18,7 @@ def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0",
         DB_summary = DB_summary[DB_summary.Group==DB]
         # fasta filename
         f_ad = "y_AD_"+AD+".fasta" 
-        f_db = "y_AD_"+DB+".fasta"
+        f_db = "y_DB_"+DB+".fasta"
     else:
         f_ad = "y_AD_all.fasta"
         f_db = "y_DB_all.fasta"
