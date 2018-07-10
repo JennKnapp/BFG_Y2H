@@ -1,4 +1,5 @@
 from param import *
+import os
 
 def bowtie_align(fastq, ref, output):
     """
@@ -7,15 +8,16 @@ def bowtie_align(fastq, ref, output):
     """
     basename = os.path.basename(fastq)
 
-    param = "-q --norc --local --very-sensitive-local -k 1 -t -p 23 --reorder "
     if "R1" in fastq:
+        param = "-q --norc --local --very-sensitive-local -k 1 -t -p 23 --reorder "
         sam_file = basename.replace('.fastq.gz','_AD_BC.sam')
     elif "R2" in fastq:
+        param = "-q --nofw --local --very-sensitive-local -k 1 -t -p 23 --reorder "
         sam_file = basename.replace('.fastq.gz','_DB_BC.sam')
 
     input_f = "-x " + ref + " -U " + fastq + " -S " + os.path.join(output, sam_file)
     
-    log_f = os.path.join(output, sam_file.replace(".sam", ".log"))
+    log_f = os.path.join(output, sam_file.replace(".sam", "_bowtie.log"))
 
     command = BOWTIE2 + param + input_f + " 2> " + log_f
 

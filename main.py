@@ -1,6 +1,7 @@
 import argparse
 from create_fasta import *
 from param import *
+from alignment import *
 
 if __name__ == "__main__":
 
@@ -9,7 +10,7 @@ if __name__ == "__main__":
     # make fasta from summary file (AD and DB)
     # if no summary file provided, skip this step
     parser.add_argument('--create', help="Summary file for making referece fasta", nargs=3)
-    parser.add_argument('--buildindex'. help="Path to fasta file")
+    parser.add_argument('--build', help="Path to fasta file")
     
     parser.add_argument("--ad", help="Read one and corresponding reference file", nargs=2)
     parser.add_argument("--db", help="Read two and corresponding reference file", nargs=2)
@@ -34,7 +35,7 @@ if __name__ == "__main__":
         create_fasta(AD_summary, DB_summary, fasta_output, group_spec=True, AD="G1", DB="G4")
 
     if fasta_output is None:
-        fasta_output = args.buildindex
+        fasta_output = args.build
 
     if fasta_output is not None:
         list_fasta = os.listdir(fasta_output)
@@ -53,4 +54,3 @@ if __name__ == "__main__":
         bowtie_align(db[0], db[1], sam_output)
 
     # Read counts
-
