@@ -11,11 +11,13 @@
 
 #### bowtie alignment and read counts ####
 
+
 Notes before running ..
 
   * **PLEASE PROVIDE ABSOLUTE PATHS**
   * The pipeline aligns AD and DB separately, please make two separate reference files
   * All of the fastq files must have the name: `*_R1.fastq.gz` or `*_R2.fastq.gz`
+
 
 * To run the pipeline with **one pair** of AD/DB fastq file, please goto `param.py` and change the 
 path for AD/DB fastq file, then run the following command:
