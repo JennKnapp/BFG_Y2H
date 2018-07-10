@@ -19,11 +19,17 @@ Notes before running ..
   * All of the fastq files must have the name: `*_R1.fastq.gz` or `*_R2.fastq.gz`
 
 
-* To run the pipeline with **one pair** of AD/DB fastq file, please goto `param.py` and change the 
+To run the pipeline with **one pair** of AD/DB fastq file, please goto `param.py` and change the 
 path for AD/DB fastq file, then run the following command:
 
   ` python ./src/main.py --output output_path `
 
-* To run this on **sge**
+To run this on **sge**
 
   `./sge,sh fastq_file_path output_path `
+
+Output:
+
+  * For each set of fastq files, one folder will be created with the sample name in the `output path`
+  * The alignement log and main log will be generated in each dir
+
