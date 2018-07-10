@@ -12,9 +12,8 @@ if __name__ == "__main__":
     parser.add_argument('--create', help="Summary file for making referece fasta", nargs=3)
     parser.add_argument('--build', help="Path to fasta file")
     
-    parser.add_argument("--ad", help="Read one and corresponding reference file", nargs=2)
-    parser.add_argument("--db", help="Read two and corresponding reference file", nargs=2)
-    
+    # parameters for cluster
+    parser.add_argument("--fastq", help="Path to all fastq files you want to analyze")
     parser.add_argument("--output", help="Output path for sam files")
 
     args = parser.parse_args()

@@ -10,6 +10,19 @@ ANALYSIS = True
 
 ###################################
 
+# file path
+
+ad_fastq = ""
+db_fastq = ""
+
+# ref path
+
+AD_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_AD_all"
+DB_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_DB_all"
+
+
+###################################
+
 # program path
 
 BOWTIE2 = "/home/rothlab/rli/lib/bowtie2-2.3.4.1-linux-x86_64/bowtie2 "

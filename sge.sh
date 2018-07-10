@@ -10,6 +10,6 @@ OUTPUT=$4
 
 for fastq in $FATQ/*R1*.fastq.gz; do
   echo $fastq
-  #qsub -V -e "" -o "" /home/rothlab/rli/py/bin/python2.7 ./src/main.py --fastq $fastq --adref $AD_REF --dbref $DB_REF --output $OUTPUT
+  #qsub -V -e "" -o "" /home/rothlab/rli/py/bin/python2.7 ./src/main.py --fastq $fastq --output $OUTPUT
 done
 

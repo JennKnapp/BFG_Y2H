@@ -11,12 +11,11 @@
 
 #### bowtie alignment and read counts ####
 
-* Set the parameters in `param.py`
+* To run the pipeline with **one pair** of AD/DB fastq file, please goto `param.py` and change the 
+path for AD/DB fastq file, then run the following command:
 
-* To run the pipeline with **one pair** of AD/DB fastq file, please run the following command:
-
-  ` python ./src/main.py --ad ad.fastq ad_ref --db db.fastq db_ref --output output_path `
+  ` python ./src/main.py --output output_path `
 
 * To run this on **sge**
 
-  `./sge,sh fastq_file_path ad_ref db_ref output_path `
+  `./sge,sh fastq_file_path output_path `
