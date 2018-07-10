@@ -1,10 +1,14 @@
 
-0. Creating fasta file and build index
-If you want to create fasta file from csv file run the following command:
+#### Creating fasta file and build index ####
 
-```python main.py --create example_AD.csv example_DB.csv ./path_to_fasta/```
+* If you want to create fasta file from csv file run the following command:
 
-If the fasta files already exist, you can build index by providing the fasta path:
+` python main.py --create ./summary/example_AD.csv ./summary/example_DB.csv ./path_to_fasta/ `
 
-``` python main.py --fasta ./path_to_fasta/ ```
+* If the fasta files already exist, you can build index by providing the fasta path:
+
+` python main.py --fasta ./path_to_fasta/ `
+
+#### bowtie alignment ####
+
 
