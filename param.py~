@@ -1,12 +1,13 @@
 ###################################
 
-# If you want to align the reads 
-# Set this to True
-ALIGN = True
+# single fastq and fasta for testing
 
-# If you want to do the analysis
-# Set this to True
-ANALYSIS = True
+r1 = "/home/rothlab/rli/01_ngsdata/180709_merged_yAD1DB4/yAD1DB4_presort_R1.fastq.gz"
+r2 = "/home/rothlab/rli/01_ngsdata/180709_merged_yAD1DB4/yAD1DB4_presort_R2.fastq.gz"
+
+AD_REF = "./ref/AD_all/y_AD_all"
+DB_REF = "./ref/DB_all/y_DB_all"
+
 
 ###################################
 
