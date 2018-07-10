@@ -9,8 +9,14 @@
 
   ` python ./src/main.py --fasta ./path_to_fasta/ `
 
-#### bowtie alignment ####
+#### bowtie alignment and read counts ####
 
-* To run the pipeline with one pair of AD/DB fastq file, please run the following command:
+* Set the parameters in `param.py`
+
+* To run the pipeline with **one pair** of AD/DB fastq file, please run the following command:
 
   ` python ./src/main.py --ad ad.fastq ad_ref --db db.fastq db_ref --output output_path `
+
+* To run this on **sge**
+
+  `./sge,sh fastq_file_path ad_ref db_ref output_path `
