@@ -17,8 +17,8 @@ db_fastq = ""
 
 # ref path
 
-AD_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_AD_all"
-DB_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_DB_all"
+AD_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ds_ref/ds_AD_ref"
+DB_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ds_ref/ds_DB_ref"
 
 
 ###################################
