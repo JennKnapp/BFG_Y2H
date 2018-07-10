@@ -11,6 +11,8 @@
 
 #### bowtie alignment and read counts ####
 
+* **PLEASE PROVIDE ABSOLUTE PATHS**
+
 * To run the pipeline with **one pair** of AD/DB fastq file, please goto `param.py` and change the 
 path for AD/DB fastq file, then run the following command:
 

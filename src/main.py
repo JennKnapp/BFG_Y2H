@@ -31,7 +31,10 @@ if __name__ == "__main__":
             else:
                 fasta_output = f
         
+        # example of create fasta for AD1DB4
         create_fasta(AD_summary, DB_summary, fasta_output, group_spec=True, AD="G1", DB="G4")
+        # example of create fasta for all 
+        create_fasta(AD_summary, DB_summary, fasta_output)
 
     if fasta_output is None:
         fasta_output = args.build
@@ -39,17 +42,48 @@ if __name__ == "__main__":
     if fasta_output is not None:
         list_fasta = os.listdir(fasta_output)
         for fasta in list_fasta:
-            build_index(os.path.join(output,fasta), output)
+            build_index(os.path.join(fasta_output,fasta), fasta_output)
 
-    
-    # Alignment 
+    ##########################################################
+    ###################### Alignment #########################
+
+    output = args.output
     
     if ALIGN:
-        ad = args.ad
-        db = args.db
-        sam_output = args.output
+        # input fastq is always R1
+        ad = args.fastq
 
-        bowtie_align(ad[0], ad[1], sam_output)
-        bowtie_align(db[0], db[1], sam_output)
+        # grep dir name and basename
+        dir_name = os.path.dirname(ad)
+        basename = os.path.basename(ad)
+
+        # list of files in that dir
+        list_fastq = os.listdir(dir_name)
+        
+        # get base name (sample name)
+        ad_base = basename.split("_R1")[0]
+        
+        # find corresponding R2
+        db = [i for i in list_fastq if "R2" in i and i.split("_R2")[0]==ad_base][0]
+        db = os.path.join(dir_name, db)
+        
+        if output is None: 
+            print "Please specify ouput path"
+            exit(0)
+        else:
+            output_dir = os.path.join(output, ad_base+"/")
+            os.system("mkdir -p "+output_dir)
+        output = output_dir
+        
+        main_log = os.path.join(output, ad_base+"_main.log")
+        with open(main_log, "w") as log:
+            log.write("R1: "+ad+"\n")
+            log.write("R2: "+db+"\n")
+            log.write("Output: "+output+"\n")
+            log.write("Starting alignments ...\n")
+        
+            bowtie_align(ad, AD_REF, output)
+            bowtie_align(db, DB_REF, output)
+            log.write("Alignment finished ...\n")
 
     # Read counts

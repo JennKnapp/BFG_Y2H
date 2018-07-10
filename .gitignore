@@ -3,3 +3,8 @@ summary/*
 ref/*
 *.swp
 test_output/*
+*.e*
+*.o*
+ds_*/*
+
+
