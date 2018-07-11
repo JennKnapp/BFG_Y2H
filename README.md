@@ -26,9 +26,9 @@ path for AD/DB fastq file, then run the following command:
 
 To run this on **sge**
 
-  `./sge,sh fastq_file_path output_path `
+  `./sgesh fastq_file_path output_path `
 
-Output:
+Output
 
   * For each set of fastq files, one folder will be created with the sample name in the `output path`
   * The alignement log and main log will be generated in each dir
