@@ -23,13 +23,17 @@ class ParseSam(object):
                     h.write(line+"\n")
                 else:
                     content.append(line)
-        self._file_content = pd.DataFrame(content, columns=headers)
+
+        file_content = pd.DataFrame(nt, columns=headers)
+        return file_content 
+    def _Stat(self):
+        """
+        Return the stat of the sam file
+        """
+        # total samples identified
+        pass
 
     def _FilterQNAME(self, self._file_content, QNAME=""):
         """
-        
         """
-        try:
-            self._file_content[self._file_content.QNAME==QNAME]
-        except Exception as error:
-            
+        pass     

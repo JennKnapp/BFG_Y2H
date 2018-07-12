@@ -10,6 +10,13 @@ ANALYSIS = True
 
 ###################################
 
+# default size for AD and DB
+# the matrix is built with col=DB_SIZE and row=AD_SIZE
+# you can change this in read_counts.
+
+AD_SIZE = 2491
+DB_SIZE = 2510
+
 # file path
 
 ad_fastq = ""
