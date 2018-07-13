@@ -1,14 +1,21 @@
 import argparse
+import logging
+import logging.config
 from create_fasta import *
 from param import *
 from alignment import *
 
 if __name__ == "__main__":
 
+    # logging #
+    logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf")
+    log = logging.getLogger("root")
+
     parser = argparse.ArgumentParser(description='BFG-Y2H')
     
     # make fasta from summary file (AD and DB)
-    # if no summary file provided, skip this step
+    # -- create: creates fasta file from summary.csv
+    # -- build: if the fasta files already exist, build index files for them
     parser.add_argument('--create', help="Summary file for making referece fasta", nargs=3)
     parser.add_argument('--build', help="Path to fasta file")
     
@@ -31,18 +38,26 @@ if __name__ == "__main__":
             else:
                 fasta_output = f
         
+        log.info("Creating fasta file based on summary files: %s , %s", AD_summary, DB_summary)
+        log.info("Ouput fasta files will be saved into: %s", fasta_output)
+
         # example of create fasta for AD1DB4
         create_fasta(AD_summary, DB_summary, fasta_output, group_spec=True, AD="G1", DB="G4")
         # example of create fasta for all 
         create_fasta(AD_summary, DB_summary, fasta_output)
+        log.info("Fasta files created")
 
     if fasta_output is None:
         fasta_output = args.build
 
     if fasta_output is not None:
         list_fasta = os.listdir(fasta_output)
+        log.info("Building index for: %s", ", ".join(list_fasta))
+
         for fasta in list_fasta:
             build_index(os.path.join(fasta_output,fasta), fasta_output)
+        
+        log.info("Index files built")
 
     ##########################################################
     ###################### Alignment #########################
@@ -75,15 +90,17 @@ if __name__ == "__main__":
             os.system("mkdir -p "+output_dir)
         output = output_dir
         
-        main_log = os.path.join(output, ad_base+"_main.log")
-        with open(main_log, "w") as log:
-            log.write("R1: "+ad+"\n")
-            log.write("R2: "+db+"\n")
-            log.write("Output: "+output+"\n")
-            log.write("Starting alignments ...\n")
+        os.chdir(output)
+        logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf")
+        align_log = logging.getLogger("alignments")
+        align_log.info("Starts aligning...")
+        align_log.info("R1: %s", ad)
+        align_log.info("R2: %s", db)
+        align_log.info("Output: %s", output)
         
-            bowtie_align(ad, AD_REF, output)
-            bowtie_align(db, DB_REF, output)
-            log.write("Alignment finished ...\n")
+        bowtie_align(ad, AD_REF, output)
+        bowtie_align(db, DB_REF, output)
+            
+        align_log.info("Alignment finished")
 
     # Read counts

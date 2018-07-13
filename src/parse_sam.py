@@ -26,6 +26,7 @@ class ParseSam(object):
 
         file_content = pd.DataFrame(nt, columns=headers)
         return file_content 
+    
     def _Stat(self):
         """
         Return the stat of the sam file

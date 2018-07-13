@@ -6,7 +6,7 @@ ALIGN = True
 
 # If you want to do the analysis
 # Set this to True
-ANALYSIS = True
+ANALYSIS = False
 
 ###################################
 

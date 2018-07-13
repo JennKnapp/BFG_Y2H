@@ -10,6 +10,7 @@ class Read_Count(object):
         self._r2 = r2 # sam file for r2
         self._ad_size = AD_SIZE # number of genes in AD group
         self._db_size = DB_SIZE # number of genes in DB group
+        
         self._ad_genes = AD_GENES # list of AD gene names
         self._db_genes = DB_GENES # list of DB gene names 
 

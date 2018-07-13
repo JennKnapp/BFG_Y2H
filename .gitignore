@@ -6,5 +6,5 @@ test_output/*
 *.e*
 *.o*
 ds_*/*
-
+*.log
 
