@@ -20,10 +20,10 @@ if __name__ == "__main__":
     # -- build: if the fasta files already exist, build index files for them
     parser.add_argument("--ad", help="Summary file for AD")
     parser.add_argument("--db", help="Summary file for DB")
-    parser.add_argument('--build', help="Path to fasta file")
+    parser.add_argument('--pfasta', help="Path to fasta file")
     
     # parameters for cluster
-    parser.add_argument("--fastq", help="Path to all fastq files you want to analyze")
+    parser.add_argument("--pfastq", help="Path to all fastq files you want to analyze")
     parser.add_argument("--output", help="Output path for sam files")
     
     # for analysis
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     DB_summary = args.db
     fasta_output = args.build
     
-    if BUILD_FASTA:
+    if MAKE_FASTA:
         
         log.info("Creating fasta file based on summary files: %s , %s", AD_summary, DB_summary)
         log.info("Ouput fasta files will be saved into: %s", fasta_output)
@@ -47,6 +47,8 @@ if __name__ == "__main__":
         # example of create fasta for all 
         create_fasta(AD_summary, DB_summary, fasta_output)
         log.info("Fasta files created")
+
+    if BUILD:
 
         list_fasta = os.listdir(fasta_output)
         log.info("Building index for: %s", ", ".join(list_fasta))
@@ -106,5 +108,8 @@ if __name__ == "__main__":
         # the analysis function should take three parameters: R1, R2, group summary
         r1_sam = args.r1
         r2_sam = args.r2
-        
+        AD_summary = args.ad
+        DB_summary = args.db
 
+        logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf")
+        analysis_log = logging.getlogger("")

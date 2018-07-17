@@ -1,13 +1,24 @@
+#### Before running the pipeline ####
+
+* Please goto `param.py` to set the boolean parameters
+* Boolean parameters:
+  * `MAKE_FASTA` set to True if you want to make fasta reference from summary file.
+  * `BUILD` set to True if you want to build index files for fasta
+  * `ALIGN` set to True if you want to align the reads
+  * `ANALYSIS` set to True if you want to analyze the output (see **analysis** for detail
+* Other varianbles
+  * 
+  
 
 #### Creating fasta file and build index ####
 
 * If you want to create fasta file from csv file run the following command:
 
-  ` python ./src/main.py --create ./summary/example_AD.csv ./summary/example_DB.csv ./path_to_fasta/ `
+  ` python ./src/main.py --ad ./summary/example_AD.csv --db ./summary/example_DB.csv --pfasta ./path_to_fasta/ `
 
 * If the fasta files already exist, you can build index by providing the fasta path:
 
-  ` python ./src/main.py --fasta ./path_to_fasta/ `
+  ` python ./src/main.py --pfasta ./path_to_fasta/ `
 
 #### bowtie alignment and read counts ####
 

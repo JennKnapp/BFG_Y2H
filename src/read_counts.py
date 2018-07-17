@@ -22,6 +22,9 @@ class Read_Count(object):
         uptag_matrix = pd.DataFrame(0, index=self._ad_genes, columns=self._db_genes)
         dntag_matrix = pd.DataFrame(0, index=self._ad_genes, columns=self._db_genes)
                 
+
+    def _ReadCounts(self):
+
         r1_sam = ParseSam(r1)
         r2_sam = ParseSam(r2)
 
@@ -36,4 +39,20 @@ class Read_Count(object):
             # find query from r2
             # check quality (>3)
             # check if both mapped to up or both mapped to dn
-            pass
+            try:
+                r2_read = r2_sam_content[r2_sam_content.QNAME== read_name]
+                print r2_read
+            except Exception:
+                break
+
+            break
+
+
+def RCmain(r1, r2, AD_genes, DB_genes):
+
+    rc = Read_Count(AD_genes, DB_genes, r1, r2)
+    
+    # create empty matrix
+    empty_matrix = rc._BuildMatrix()
+    # create 
+    count_reads = rc._ReadCountsi()
