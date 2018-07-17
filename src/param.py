@@ -1,5 +1,11 @@
 ###################################
 
+# if you want to create fasta file from summary
+MAKE_FASTA = False
+
+# if you want to build index
+BUILD = False
+
 # If you want to align the reads 
 # Set this to True
 ALIGN = True
@@ -9,6 +15,11 @@ ALIGN = True
 ANALYSIS = False
 
 ###################################
+
+# AD and DB group
+# if it's set to G0, means all
+AD_GROUP="G01"
+DB_GROUP="G04"
 
 # default size for AD and DB
 # the matrix is built with col=DB_SIZE and row=AD_SIZE

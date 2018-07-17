@@ -4,6 +4,8 @@ import logging.config
 from create_fasta import *
 from param import *
 from alignment import *
+from suppliments import *
+
 
 if __name__ == "__main__":
 
@@ -16,27 +18,26 @@ if __name__ == "__main__":
     # make fasta from summary file (AD and DB)
     # -- create: creates fasta file from summary.csv
     # -- build: if the fasta files already exist, build index files for them
-    parser.add_argument('--create', help="Summary file for making referece fasta", nargs=3)
+    parser.add_argument("--ad", help="Summary file for AD")
+    parser.add_argument("--db", help="Summary file for DB")
     parser.add_argument('--build', help="Path to fasta file")
     
     # parameters for cluster
     parser.add_argument("--fastq", help="Path to all fastq files you want to analyze")
     parser.add_argument("--output", help="Output path for sam files")
+    
+    # for analysis
+    parser.add_argument("--r1", help=".sam file for read one")
+    parser.add_argument("--r2", help=".sam file for read two")
 
     args = parser.parse_args()
     
     # processing fasta file
-    summary = args.create
-    fasta_output = None
-
-    if summary is not None:
-        for f in summary:
-            if "AD" in f:
-                AD_summary = f
-            elif "DB" in f:
-                DB_summary = f
-            else:
-                fasta_output = f
+    AD_summary = args.ad
+    DB_summary = args.db
+    fasta_output = args.build
+    
+    if BUILD_FASTA:
         
         log.info("Creating fasta file based on summary files: %s , %s", AD_summary, DB_summary)
         log.info("Ouput fasta files will be saved into: %s", fasta_output)
@@ -47,10 +48,6 @@ if __name__ == "__main__":
         create_fasta(AD_summary, DB_summary, fasta_output)
         log.info("Fasta files created")
 
-    if fasta_output is None:
-        fasta_output = args.build
-
-    if fasta_output is not None:
         list_fasta = os.listdir(fasta_output)
         log.info("Building index for: %s", ", ".join(list_fasta))
 
@@ -105,9 +102,9 @@ if __name__ == "__main__":
 
     # Read counts
     if ANALYSIS:
-        # list all samples in output dir 
-        samples = os.listdir(output)
         # for each sample, do the analysis. 
         # the analysis function should take three parameters: R1, R2, group summary
+        r1_sam = args.r1
+        r2_sam = args.r2
         
 
