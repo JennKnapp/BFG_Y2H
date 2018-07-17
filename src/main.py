@@ -104,3 +104,10 @@ if __name__ == "__main__":
         align_log.info("Alignment finished")
 
     # Read counts
+    if ANALYSIS:
+        # list all samples in output dir 
+        samples = os.listdir(output)
+        # for each sample, do the analysis. 
+        # the analysis function should take three parameters: R1, R2, group summary
+        
+
