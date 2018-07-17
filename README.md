@@ -7,8 +7,9 @@
   * `ALIGN` set to True if you want to align the reads
   * `ANALYSIS` set to True if you want to analyze the output (see **analysis** for detail
 * Other varianbles
-  * 
-  
+  * `AD_GROUP` and `DB_GROUP` responsible for building fasta reference and analysis. 
+  * `AD_SIZE` and `DB_SIZE` default number of ORFs in each group
+  * `AD_REF` and `DB_REF` reference for alignments
 
 #### Creating fasta file and build index ####
 
