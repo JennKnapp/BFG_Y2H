@@ -1,4 +1,4 @@
-#### Before running the pipeline ####
+### Before running the pipeline ###
 
 * Please goto `param.py` to set the boolean parameters
 * Boolean parameters:
@@ -11,7 +11,7 @@
   * `AD_SIZE` and `DB_SIZE` default number of ORFs in each group
   * `AD_REF` and `DB_REF` reference for alignments
 
-#### Creating fasta file and build index ####
+### Creating fasta file and build index ###
 
 * If you want to create fasta file from csv file run the following command:
 
@@ -21,20 +21,13 @@
 
   ` python ./src/main.py --pfasta ./path_to_fasta/ `
 
-#### bowtie alignment and read counts ####
-
+### bowtie alignment and read counts ###
 
 Notes before running ..
 
   * **PLEASE PROVIDE ABSOLUTE PATHS**
   * The pipeline aligns AD and DB separately, please make two separate reference files
   * All of the fastq files must have the name: `*_R1.fastq.gz` or `*_R2.fastq.gz`
-
-
-To run the pipeline with **one pair** of AD/DB fastq file, please goto `param.py` and change the 
-path for AD/DB fastq file, then run the following command:
-
-  ` python ./src/main.py --output output_path `
 
 To run this on **sge**
 
