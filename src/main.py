@@ -112,4 +112,7 @@ if __name__ == "__main__":
         DB_summary = args.db
 
         logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf")
-        analysis_log = logging.getlogger("")
+        analysis_log = logging.getlogger("analysis")
+        
+        RCmain(r1, r2, AD_genes, DB_genes)
+

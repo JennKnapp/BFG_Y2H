@@ -8,11 +8,11 @@ BUILD = False
 
 # If you want to align the reads 
 # Set this to True
-ALIGN = True
+ALIGN = False
 
 # If you want to do the analysis
 # Set this to True
-ANALYSIS = False
+ANALYSIS = True
 
 ###################################
 
