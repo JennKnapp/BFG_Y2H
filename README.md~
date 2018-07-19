@@ -2,10 +2,10 @@
 
 * Please goto `param.py` to set the boolean parameters
 * Boolean parameters:
-  * `MAKE_FASTA` set to `True` if you want to make fasta reference from summary file.
-  * `BUILD` set to `True` if you want to build index files for fasta
-  * `ALIGN` set to `True` if you want to align the reads
-  * `ANALYSIS` set to `True` if you want to analyze the output (see **analysis** for detail
+  * `MAKE_FASTA` set to True if you want to make fasta reference from summary file.
+  * `BUILD` set to True if you want to build index files for fasta
+  * `ALIGN` set to True if you want to align the reads
+  * `ANALYSIS` set to True if you want to analyze the output (see **analysis** for detail
 * Other varianbles
   * `AD_GROUP` and `DB_GROUP` responsible for building fasta reference and analysis. 
   * `AD_SIZE` and `DB_SIZE` default number of ORFs in each group
@@ -36,7 +36,6 @@ optional arguments:
 * If the fasta files already exist, you can build index by providing the fasta path:
 
   ` python ./src/main.py --pfasta ./path_to_fasta/ `
-
 
 ### bowtie alignment and read counts ###
 
