@@ -45,6 +45,7 @@ DB_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_DB_G4"
 
 BOWTIE2 = "/home/rothlab/rli/lib/bowtie2-2.3.4.1-linux-x86_64/bowtie2 "
 BOWTIE2_BUILD = "/home/rothlab/rli/lib/bowtie2-2.3.4.1-linux-x86_64/bowtie2-build "
+SAMTOOLS = "/home/rothlab/rli/lib/samtools-1.4.1/samtools "
 
 ###################################
 
