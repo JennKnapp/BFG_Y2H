@@ -23,7 +23,7 @@ if __name__ == "__main__":
     parser.add_argument('--pfasta', help="Path to fasta file")
     
     # parameters for cluster
-    parser.add_argument("--pfastq", help="Path to all fastq files you want to analyze")
+    parser.add_argument("--fastq", help="Path to all fastq files you want to analyze")
     parser.add_argument("--output", help="Output path for sam files")
     
     # for analysis

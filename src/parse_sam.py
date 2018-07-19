@@ -1,12 +1,14 @@
 import os
 import pandas as pd
+from itertools import izip
 
 class ParseSam(object):
 
-    def __init__(self, sam_file):
-        self._sam_file = sam_file
+    def __init__(self, r1_sam, r2_sam):
+        self._r1_sam = r1_sam
+        self._r2_sam = r2_sam
 
-    def _Parse(self):
+    def _LoadFile(self):
         """ 
         Read the header of sam file and save it in a separate file
         Read the content of sam file and load as a dictionary
@@ -16,18 +18,27 @@ class ParseSam(object):
                 "RNEXT", "PNEXT", "TLEN", "SEQ", "QUAL"]
 
         content = []
-        filename = os.path.basename(self._sam_file).split(".")[0]
-        with open(self._sam_file, "r") as f:
-            for line in f:
-                if "@" in line:
+        filename = os.path.basename(self._r1_sam).split(".")[0]
+        with open(self._r1_sam, "r") as f, open(self._r2_sam, "r") as f2:
+            for r1, r2 in izip(f, f2):
+                if "@" in r1:
                     continue
-                    #h.write(line+"\n")
-                else:
-                    content.append(line)
+                if "@" in r2:
+                    continue
+                print r1.strip()
+                print r2.strip()
+                break
+                content.append(line.strip().split("\t"))
 
-        file_content = pd.DataFrame(nt, columns=headers)
-        return file_content 
+        self._r1_content = pd.DataFrame(content, columns=header)
     
+    def _ReadCounts(self):
+        """
+        """
+        for index, row in self._r1_content.iterrows():
+            pass 
+
+
     def _Stat(self):
         """
         Return the stat of the sam file

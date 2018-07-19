@@ -8,11 +8,11 @@ BUILD = False
 
 # If you want to align the reads 
 # Set this to True
-ALIGN = False
+ALIGN = True
 
 # If you want to do the analysis
 # Set this to True
-ANALYSIS = True
+ANALYSIS = False
 
 ###################################
 
@@ -35,8 +35,8 @@ db_fastq = ""
 
 # ref path
 
-AD_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ds_ref/ds_AD_ref"
-DB_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ds_ref/ds_DB_ref"
+AD_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_AD_G1"
+DB_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_DB_G4"
 
 
 ###################################

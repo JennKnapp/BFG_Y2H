@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # script for submitting jobs to sge cluster
-# each cluster takes two fastq files ( r1 and r2 )
+# each cluster takes two fastq files, r1 and r2
 
 FASTQ=$1
 OUTPUT=$2

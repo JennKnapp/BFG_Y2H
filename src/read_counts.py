@@ -25,13 +25,15 @@ class Read_Count(object):
 
     def _ReadCounts(self):
 
-        r1_sam = ParseSam(self._r1)
-        r2_sam = ParseSam(self._r2)
+        r1_sam = ParseSam(self._r1, self._r2)
+        #r2_sam = ParseSam()
 
-        r1_sam_content = r1_sam._Parse()
-        r2_sam_content = r2_sam._Parse()
+        r1_sam_content = r1_sam._LoadFile()
+        print "loaded"
+        #r2_sam_content = r2_sam._Parse()
 
         for index, row in r1_sam_content.iterrows():
+            pass
             read_name = row["QNAME"]
             quality = row["MAPQ"]
             mapped_gene = row["RNAME"]
