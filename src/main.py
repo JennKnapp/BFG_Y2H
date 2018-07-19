@@ -5,7 +5,7 @@ from create_fasta import *
 from param import *
 from alignment import *
 from supplements import *
-
+from read_counts import *
 
 if __name__ == "__main__":
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     # processing fasta file
     AD_summary = args.ad
     DB_summary = args.db
-    fasta_output = args.build
+    fasta_output = args.pfasta
     
     if MAKE_FASTA:
         
@@ -112,7 +112,9 @@ if __name__ == "__main__":
         DB_summary = args.db
 
         logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf")
-        analysis_log = logging.getlogger("analysis")
+        analysis_log = logging.getLogger("analysis")
         
-        RCmain(r1, r2, AD_genes, DB_genes)
+        AD_genes, DB_genes = read_summary(AD_summary, DB_summary, AD_group="G1", DB_group="G4")
+
+        RCmain(r1_sam, r2_sam, AD_genes, DB_genes)
 

@@ -1,3 +1,4 @@
+import pandas as pd
 
 def read_summary(AD_sum, DB_sum, AD_group="G0", DB_group="G0"):
     """
@@ -6,8 +7,8 @@ def read_summary(AD_sum, DB_sum, AD_group="G0", DB_group="G0"):
     If group == G0, grep all
     """
     
-    AD_summary = pd.read_table(AD_summary, sep="\t")
-    DB_summary = pd.read_table(DB_summary, sep="\t")
+    AD_summary = pd.read_table(AD_sum, sep="\t")
+    DB_summary = pd.read_table(DB_sum, sep="\t")
 
     # grep group 
     if AD_group!="G0":

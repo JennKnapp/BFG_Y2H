@@ -6,7 +6,7 @@ class ParseSam(object):
     def __init__(self, sam_file):
         self._sam_file = sam_file
 
-    def _Parse(self, self._sam_file):
+    def _Parse(self):
         """ 
         Read the header of sam file and save it in a separate file
         Read the content of sam file and load as a dictionary
@@ -17,10 +17,11 @@ class ParseSam(object):
 
         content = []
         filename = os.path.basename(self._sam_file).split(".")[0]
-        with open(self._sam_file, "r") as f, open(filename+".header", "r") as h:
+        with open(self._sam_file, "r") as f:
             for line in f:
                 if "@" in line:
-                    h.write(line+"\n")
+                    continue
+                    #h.write(line+"\n")
                 else:
                     content.append(line)
 
@@ -34,7 +35,7 @@ class ParseSam(object):
         # total samples identified
         pass
 
-    def _FilterQNAME(self, self._file_content, QNAME=""):
+    def _FilterQNAME(self, QNAME=""):
         """
         """
         pass     

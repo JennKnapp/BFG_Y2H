@@ -25,8 +25,8 @@ class Read_Count(object):
 
     def _ReadCounts(self):
 
-        r1_sam = ParseSam(r1)
-        r2_sam = ParseSam(r2)
+        r1_sam = ParseSam(self._r1)
+        r2_sam = ParseSam(self._r2)
 
         r1_sam_content = r1_sam._Parse()
         r2_sam_content = r2_sam._Parse()
@@ -55,4 +55,4 @@ def RCmain(r1, r2, AD_genes, DB_genes):
     # create empty matrix
     empty_matrix = rc._BuildMatrix()
     # create 
-    count_reads = rc._ReadCountsi()
+    count_reads = rc._ReadCounts()
