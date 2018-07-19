@@ -4,7 +4,7 @@ import logging.config
 from create_fasta import *
 from param import *
 from alignment import *
-from suppliments import *
+from supplements import *
 
 
 if __name__ == "__main__":
