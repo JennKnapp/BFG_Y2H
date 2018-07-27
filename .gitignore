@@ -2,7 +2,7 @@ summary/*
 *.pyc
 ref/*
 *.swp
-test_output/*
+*_output/*
 *.e*
 *.o*
 ds_*/*

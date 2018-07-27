@@ -10,10 +10,10 @@ def bowtie_align(fastq, ref, output):
     basename = os.path.basename(fastq)
 
     if "R1" in fastq:
-        param = "-q --no-sq --norc --local --very-sensitive-local -k 1 -t -p 23 --reorder "
+        param = "-q --no-sq --norc --local --very-sensitive-local -t -p 23 --reorder "
         sam_file = basename.replace('.fastq.gz','_AD_BC.sam')
     elif "R2" in fastq:
-        param = "-q --no-sq --nofw --local --very-sensitive-local -k 1 -t -p 23 --reorder "
+        param = "-q --no-sq --nofw --local --very-sensitive-local -t -p 23 --reorder "
         sam_file = basename.replace('.fastq.gz','_DB_BC.sam')
 
     input_f = "-x " + ref + " -U " + fastq + " -S " + os.path.join(output, sam_file)
