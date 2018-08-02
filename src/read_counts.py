@@ -22,51 +22,62 @@ class Read_Count(object):
         self._uptag_matrix = pd.DataFrame(0, index=self._ad_genes, columns=self._db_genes)
         self._dntag_matrix = pd.DataFrame(0, index=self._ad_genes, columns=self._db_genes)
                 
+        print self._uptag_matrix.shape
 
     def _ReadCounts(self):
         
         f1 = open(self._r1, "rb")
         f2 = open(self._r2, "rb")
-        
-        while 1:
+        i=1
+        while i:
             r1_line = f1.readline() # AD
             r2_line = f2.readline() # DB
             
-            if "@HD" or "@PG" in r1_line:
-                continue
-            
-            if not r1_line or not r2_line:
+            if r1_line == ""  or r2_line == "":
+                print i
+                i = False
                 break
 
-            r1_line = r1_line.split("\t")
-            r2_line = r2_line.split("\t")
-            
+            r1_line = r1_line.strip().split("\t")
+            r2_line = r2_line.strip().split("\t")
             # both files are sorted by name, if name is different, log error
             if r1_line[0] != r2_line[0]:
                 #log error and exit
+                i = False
                 break
 
-            if int(r1_line[2]) < 3 or int(r2_line[2]) < 3: # check quality
+            if int(r1_line[4]) < 3 or int(r2_line[4]) < 3: # check quality
                 continue
 
-            if r1_line[4] == "*" or r2_line[4] =="*": # if one of the read didnt map
+            if r1_line[2] == "*" or r2_line[2] =="*": # if one of the read didnt map
                 continue
             
-            r1_name = r1_line[4].split(";")
-            r2_name = r2_line[4].split(";")
+            r1_name = r1_line[2].split(";")
+            r2_name = r2_line[2].split(";")
 
             if r1_name[-1] == r2_name[-1]:
+                #print r1_name[1]
                 if r1_name[-1] == "dn":
-                    self._dntag_matrix.loc[[r1_name[1]], [r2_name[1]]] +=1
+                    self._dntag_matrix.loc[r1_name[1], r2_name[1]] +=1
+                    #print self._dntag_matrix.loc[r1_name[1], r2_name[1]]
+
                 else:
-                    self._uptag_matrix.loc[[r1_name[1]], [r2_name[1]]] +=1
+#                    print r1_name in self._ad_genes
+#                    print r1_name in self._db_genes
+                    self._uptag_matrix.loc[r1_name[1], r2_name[1]] +=1
+        f1.close()
+        f2.close()
+        return self._dntag_matrix, self._uptag_matrix
 
 
 def RCmain(r1, r2, AD_genes, DB_genes):
-
     rc = Read_Count(AD_genes, DB_genes, r1, r2)
-    
     # create empty matrix
-    empty_matrix = rc._BuildMatrix()
+    rc._BuildMatrix()
     # create 
-    count_reads = rc._ReadCounts()
+    print "start reading.."
+    dn_matrix, up_matrix = rc._ReadCounts()
+    dn_matrix.to_csv("temp_dn.csv")
+    up_matrix.to_csv("temp_up.csv")
+
+    return dn_matrix, up_matrix

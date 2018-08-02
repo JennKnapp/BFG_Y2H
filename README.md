@@ -10,7 +10,6 @@
   * `AD_GROUP` and `DB_GROUP` responsible for building fasta reference and analysis. 
   * `AD_SIZE` and `DB_SIZE` default number of ORFs in each group
   * `AD_REF` and `DB_REF` reference for alignments
-
 ```
 usage: main.py [-h] [--ad AD] [--db DB] [--pfasta PFASTA] [--pfastq PFASTQ]
                [--output OUTPUT] [--r1 R1] [--r2 R2]
@@ -21,7 +20,7 @@ optional arguments:
   --ad AD          Summary file for AD
   --db DB          Summary file for DB
   --pfasta PFASTA  Path to fasta file
-  --pfastq PFASTQ  Path to all fastq files you want to analyze
+  --fastq FASTQ  Path to all fastq files you want to analyze
   --output OUTPUT  Output path for sam files
   --r1 R1          .sam file for read one
   --r2 R2          .sam file for read two

@@ -8,18 +8,18 @@ BUILD = False
 
 # If you want to align the reads 
 # Set this to True
-ALIGN = True
+ALIGN = False
 
 # If you want to do the analysis
 # Set this to True
-ANALYSIS = False
+ANALYSIS = True
 
 ###################################
 
 # AD and DB group
 # if it's set to G0, means all
-AD_GROUP="G01"
-DB_GROUP="G04"
+AD_GROUP="G1"
+DB_GROUP="G4"
 
 # default size for AD and DB
 # the matrix is built with col=DB_SIZE and row=AD_SIZE
@@ -29,7 +29,6 @@ AD_SIZE = 2491
 DB_SIZE = 2510
 
 # file path
-
 ad_fastq = ""
 db_fastq = ""
 

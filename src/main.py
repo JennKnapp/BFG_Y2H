@@ -37,13 +37,17 @@ if __name__ == "__main__":
     DB_summary = args.db
     fasta_output = args.pfasta
     
+    print args.r1
+    print args.r2
+
+
     if MAKE_FASTA:
         
         log.info("Creating fasta file based on summary files: %s , %s", AD_summary, DB_summary)
         log.info("Ouput fasta files will be saved into: %s", fasta_output)
 
         # example of create fasta for AD1DB4
-        create_fasta(AD_summary, DB_summary, fasta_output, group_spec=True, AD="G1", DB="G4")
+        create_fasta(AD_summary, DB_summary, fasta_output, group_spec=True, AD=AD_GROUP, DB=DB_GROUP)
         # example of create fasta for all 
         create_fasta(AD_summary, DB_summary, fasta_output)
         log.info("Fasta files created")
@@ -113,8 +117,37 @@ if __name__ == "__main__":
 
         logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf")
         analysis_log = logging.getLogger("analysis")
+        dir_name = os.path.dirname(r1_sam)
+#        print dir_name
+        r1_basename = os.path.basename(r1_sam)
+        r2_basename = os.path.basename(r2_sam)
+
+        # sort r1_sam
+        analysis_log.info("sorting..")
+        sorted_r1 = os.path.join(dir_name, r1_basename.replace(".sam", "_sorted.sam"))
+        sort_r1 = SAMTOOLS+"sort -n -o "+sorted_r1+" "+r1_sam
+        analysis_log.info(sorted_r1)
+        # sort r2_sam
+        sorted_r2 = os.path.join(dir_name, r2_basename.replace(".sam", "_sorted.sam"))
+        sort_r2 = SAMTOOLS+"sort -n -o "+sorted_r2+" "+r2_sam
+        analysis_log.info(sorted_r2)
+        analysis_log.info("sorted")
         
+        # remove headers
+        r1 = os.path.join(dir_name, r1_basename.replace(".sam", "_noh.sam")) 
+        r2 = os.path.join(dir_name, r2_basename.replace(".sam", "_noh.sam")) 
+        
+        #os.system(sort_r1)
+        #os.system(sort_r2)
+        
+        #os.system("grep -v \"^@\" "+sorted_r1+" > "+r1)
+        #os.system("grep -v \"^@\" "+sorted_r2+" > "+r2)
+        print r1
+        print r2
+        analysis_log.info(r1)
+        analysis_log.info(r2)
+
         AD_genes, DB_genes = read_summary(AD_summary, DB_summary, AD_group="G1", DB_group="G4")
 
-        RCmain(r1_sam, r2_sam, AD_genes, DB_genes)
+        RCmain(r1, r2, AD_genes, DB_genes)
 
