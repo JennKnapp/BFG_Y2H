@@ -1,11 +1,19 @@
 from param import *
 import os
+import logging
+import logging.config
+
+logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf")
+align_log = logging.getLogger("alignments")
 
 def bowtie_align(fastq, ref, output):
     """
     Align r1 and r2 to reference
     Log bowtie output 
     """
+    align_log.info("Starts aligning... %s", fastq)
+    align_log.info("Reference: %s", fastq)
+    align_log.info("Output: %s", output)
 
     basename = os.path.basename(fastq)
 
@@ -23,3 +31,5 @@ def bowtie_align(fastq, ref, output):
     command = BOWTIE2 + param + input_f + " 2> " + log_f
 
     os.system(command)
+
+    align_log.info("Alignment finished for %s", fastq)
