@@ -6,37 +6,23 @@ MAKE_FASTA = False
 # if you want to build index
 BUILD = False
 
-# If you want to align the reads 
+# If you want to do analysis 
 # Set this to True
-ALIGN = False
+ANALYSIS = False
 
-# If you want to do the analysis
-# Set this to True
-ANALYSIS = True
+###################################
 
+AD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_AD.csv"
+DB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_DB_AA.csv"
+
+AD_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_AD_G1"
+DB_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_DB_G4"
 ###################################
 
 # AD and DB group
 # if it's set to G0, means all
 AD_GROUP="G1"
 DB_GROUP="G4"
-
-# default size for AD and DB
-# the matrix is built with col=DB_SIZE and row=AD_SIZE
-# you can change this in read_counts.
-
-AD_SIZE = 2491
-DB_SIZE = 2510
-
-# file path
-ad_fastq = ""
-db_fastq = ""
-
-# ref path
-
-AD_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_AD_G1"
-DB_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_DB_G4"
-
 
 ###################################
 

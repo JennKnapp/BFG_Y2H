@@ -18,8 +18,6 @@ if __name__ == "__main__":
     # make fasta from summary file (AD and DB)
     # -- create: creates fasta file from summary.csv
     # -- build: if the fasta files already exist, build index files for them
-    parser.add_argument("--ad", help="Summary file for AD")
-    parser.add_argument("--db", help="Summary file for DB")
     parser.add_argument('--pfasta', help="Path to fasta file")
     
     # parameters for cluster
@@ -33,13 +31,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # processing fasta file
-    AD_summary = args.ad
-    DB_summary = args.db
     fasta_output = args.pfasta
     
-    print args.r1
-    print args.r2
-
+    log.info("Input parameters for this run..:")
+    log.info("Make fasta: %s", str(MAKE_FASTA))
+    log.info("Building fasta: %s", str(BUILD))
+    log.info("Aligning: %s", str(ALIGN))
+    log.info("Analysis: %s", str(ANALYSIS))
 
     if MAKE_FASTA:
         
@@ -67,7 +65,7 @@ if __name__ == "__main__":
 
     output = args.output
     
-    if ALIGN:
+    if ANALYSIS:
         # input fastq is always R1
         ad = args.fastq
 
@@ -91,6 +89,7 @@ if __name__ == "__main__":
         else:
             output_dir = os.path.join(output, ad_base+"/")
             os.system("mkdir -p "+output_dir)
+        
         output = output_dir
         
         os.chdir(output)
@@ -99,8 +98,7 @@ if __name__ == "__main__":
         bowtie_align(db, DB_REF, output)
             
 
-    # Read counts
-    if ANALYSIS:
+        # Read counts
         # for each sample, do the analysis. 
         # the analysis function should take three parameters: R1, R2, group summary
         r1_sam = args.r1
@@ -113,6 +111,7 @@ if __name__ == "__main__":
         r1_basename = os.path.basename(r1_sam)
         r2_basename = os.path.basename(r2_sam)
 
+        
         # sort r1_sam
         sorted_r1 = os.path.join(dir_name, r1_basename.replace(".sam", "_sorted.sam"))
         sort_r1 = SAMTOOLS+"sort -n -o "+sorted_r1+" "+r1_sam
