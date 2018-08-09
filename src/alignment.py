@@ -33,3 +33,5 @@ def bowtie_align(fastq, ref, output):
     os.system(command)
 
     align_log.info("Alignment finished for %s", fastq)
+
+    return os.path.join(output, sam_file)

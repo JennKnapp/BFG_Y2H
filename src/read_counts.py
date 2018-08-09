@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from parse_sam import *
+import os
 from param import *
 import logging
 import logging.config
@@ -14,8 +14,6 @@ class Read_Count(object):
     def __init__(self, AD_GENES, DB_GENES, r1, r2):
         self._r1 = r1 # sorted sam file for r1
         self._r2 = r2 # sorted sam file for r2
-        self._ad_size = AD_SIZE # number of genes in AD group
-        self._db_size = DB_SIZE # number of genes in DB group
         
         self._ad_genes = AD_GENES # list of AD gene names
         self._db_genes = DB_GENES # list of DB gene names 
@@ -54,6 +52,7 @@ class Read_Count(object):
             # both files are sorted by name, if name is different, log error
             if r1_line[0] != r2_line[0]:
                 #log error and exit
+                i = False
                 analysis_log.error("# READ ID DOES NOT MATCH #")
                 analysis_log.error("From read one (AD): %s", r1_line[0])
                 analysis_log.error("From read two (DB): %s", r2_line[0])
@@ -86,13 +85,14 @@ def RCmain(r1, r2, AD_genes, DB_genes):
     # create 
     dn_matrix, up_matrix = rc._ReadCounts()
     
+    basename = os.path.basename(r1).replace("_noh.sam", "")
     # save files to csv
     # create CSV file names
-    uptag_file = ""
-    dntag_file = ""
+    uptag_file = "./uptag_rawcounts.csv"
+    dntag_file = "./dntag_rawcounts.csv"
 
-    dn_matrix.to_csv(uptag_file)
-    up_matrix.to_csv(dntag_file)
+    dn_matrix.to_csv(dntag_file)
+    up_matrix.to_csv(uptag_file)
     
     analysis_log.info("Matrix built")
 

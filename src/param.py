@@ -1,28 +1,31 @@
+from main import *
+
 ###################################
 
 # if you want to create fasta file from summary
 MAKE_FASTA = False
 
-# if you want to build index
-BUILD = False
-
-# If you want to do analysis 
+# If you want to do alignments
 # Set this to True
-ANALYSIS = False
+ALIGNMENT = False
+
+# if you want to do read counts
+READ_COUNT = True
 
 ###################################
+
+#AD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_AD.csv"
+#DB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_DB_AA.csv"
 
 AD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_AD.csv"
 DB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_DB_AA.csv"
 
-AD_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_AD_G1"
-DB_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_DB_G4"
-###################################
+AD_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_AD_"+AD_GROUP
+DB_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_DB_"+DB_GROUP
 
-# AD and DB group
-# if it's set to G0, means all
-AD_GROUP="G1"
-DB_GROUP="G4"
+#AD_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ds_ref/y_AD_all"
+#DB_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ds_ref/y_DB_all"
+
 
 ###################################
 
