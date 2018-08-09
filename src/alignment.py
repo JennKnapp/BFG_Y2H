@@ -3,7 +3,7 @@ import os
 import logging
 import logging.config
 
-logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf")
+#logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf")
 align_log = logging.getLogger("alignments")
 
 def bowtie_align(fastq, ref, output):
@@ -12,7 +12,7 @@ def bowtie_align(fastq, ref, output):
     Log bowtie output 
     """
     align_log.info("Starts aligning... %s", fastq)
-    align_log.info("Reference: %s", fastq)
+    align_log.info("Reference: %s", ref)
     align_log.info("Output: %s", output)
 
     basename = os.path.basename(fastq)

@@ -13,7 +13,7 @@ DB=$4
 
 # create the directory and run script
 # attention: if outpur dir exists it will be removed
-rm -r $OUTPUT; mkdir $OUTPUT
+#rm -r $OUTPUT; mkdir $OUTPUT
 for fastq in $FASTQ/*R1*.fastq.gz; do
   echo $fastq
   #/home/rothlab/rli/py/bin/python2.7 ./src/main.py --fastq $fastq --output $OUTPUT

@@ -34,9 +34,13 @@ if __name__ == "__main__":
     AD_GROUP = args.adgroup
     DB_GROUP = args.dbgroup
 
+    AD_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_AD_"+AD_GROUP
+    DB_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_DB_"+DB_GROUP
+
+
     # processing fasta file
     fasta_output = args.pfasta
-     
+         
     if MAKE_FASTA:
         # example of create fasta for AD1DB4
         create_fasta(AD_summary, DB_summary, fasta_output, group_spec=True, AD=AD_GROUP, DB=DB_GROUP)
@@ -53,10 +57,6 @@ if __name__ == "__main__":
     ###################### Alignment #########################
 
     output = args.output
-    r1_csv = ""
-    r2_csv = ""
-
-    #if ANALYSIS:
 
     # input fastq is always R1
     ad = args.fastq
@@ -79,6 +79,7 @@ if __name__ == "__main__":
         exit(0)
     else:
         output_dir = os.path.join(output, ad_base+"/")
+        
         if not os.path.isdir(output_dir):
             os.system("mkdir -p "+output_dir)
         
@@ -86,7 +87,7 @@ if __name__ == "__main__":
         
     os.chdir(output)
         
-    logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf")  
+    logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf", disable_existing_loggers=False)  
     log = logging.getLogger("root")
 
     if ALIGNMENT:
@@ -141,10 +142,6 @@ if __name__ == "__main__":
                 r2_csv = f
 
     if READ_COUNT:
-        
-        if r1_csv == "": #traverse the files
-           r1_csv = args.r1
-           r2_csv = args.r2
         
         log.info("Counting reads for %s, %s", r1_csv, r2_csv)
 

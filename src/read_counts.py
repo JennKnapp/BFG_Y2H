@@ -1,11 +1,13 @@
 import numpy as np
 import pandas as pd
 import os
+import datetime
 from param import *
+#from main import *
 import logging
 import logging.config
 
-logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf")
+#logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf")
 analysis_log = logging.getLogger("analysis")
 
 
@@ -29,7 +31,7 @@ class Read_Count(object):
         """
         self._uptag_matrix = pd.DataFrame(0, index=self._ad_genes, columns=self._db_genes)
         self._dntag_matrix = pd.DataFrame(0, index=self._ad_genes, columns=self._db_genes)
-                
+        print "Matrix build" 
         analysis_log.info("Matrix build with AD: %s, DB: %s", str(self._uptag_matrix.shape[0]), str(self._uptag_matrix.shape[1]))
 
     def _ReadCounts(self):
@@ -38,12 +40,20 @@ class Read_Count(object):
         f2 = open(self._r2, "rb")
         
         i=True
-        while i:
+        lines = 0
+        print datetime.datetime.now()
+        while 1:
+            lines+=1
+            if lines % 1000000 ==0:
+                print lines
+                print datetime.datetime.now()
+            
             r1_line = f1.readline() # AD
             r2_line = f2.readline() # DB
             
             if r1_line == ""  or r2_line == "":
                 i = False
+                print "end of file"
                 break
 
             r1_line = r1_line.strip().split("\t")
@@ -68,32 +78,37 @@ class Read_Count(object):
             r2_name = r2_line[2].split(";")
 
             if r1_name[-1] == r2_name[-1]:
+                #print r1_name
                 if r1_name[-1] == "dn":
                     self._dntag_matrix.loc[r1_name[1], r2_name[1]] +=1
                 else:
                     self._uptag_matrix.loc[r1_name[1], r2_name[1]] +=1
+        
+        print "file read"
         f1.close()
         f2.close()
-        return self._dntag_matrix, self._uptag_matrix
+        uptag_file = "./uptag_rawcounts.csv"
+        dntag_file = "./dntag_rawcounts.csv"
+        self._dntag_matrix.to_csv(dntag_file)
+        self._uptag_matrix.to_csv(uptag_file)
+        print "matrix saved"
+        #return self._dntag_matrix, self._uptag_matrix
 
 
 def RCmain(r1, r2, AD_genes, DB_genes):
+    analysis_log.info("test")
     rc = Read_Count(AD_genes, DB_genes, r1, r2)
     # create empty matrix
     rc._BuildMatrix()
     
     # create 
-    dn_matrix, up_matrix = rc._ReadCounts()
-    
-    basename = os.path.basename(r1).replace("_noh.sam", "")
-    # save files to csv
-    # create CSV file names
-    uptag_file = "./uptag_rawcounts.csv"
-    dntag_file = "./dntag_rawcounts.csv"
+    rc._ReadCounts()
 
-    dn_matrix.to_csv(dntag_file)
-    up_matrix.to_csv(uptag_file)
-    
-    analysis_log.info("Matrix built")
-
-    return dn_matrix, up_matrix
+if __name__ == "__main__":
+    # test rc main
+    r1_csv = "/home/rothlab/rli/02_dev/08_bfg_y2h/yAD1DB4_output/yAD1DB4_GFP_high/yAD1DB4_GFP_high_R1_AD_BC_noh.csv"
+    r2_csv = "/home/rothlab/rli/02_dev/08_bfg_y2h/yAD1DB4_output/yAD1DB4_GFP_high/yAD1DB4_GFP_high_R2_DB_BC_noh.csv"
+    AD_genes, DB_genes = read_summary(AD_summary, DB_summary, AD_group="G1", DB_group="G4")
+    print AD_genes
+    print DB_genes
+    dn_matrix, up_matrix = RCmain(r1_csv, r2_csv, AD_genes, DB_genes)
