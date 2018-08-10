@@ -34,9 +34,8 @@ if __name__ == "__main__":
     AD_GROUP = args.adgroup
     DB_GROUP = args.dbgroup
 
-    AD_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_AD_"+AD_GROUP
-    DB_REF = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/y_DB_"+DB_GROUP
-
+    AD_REF = REF_PATH+"y_AD_"+AD_GROUP
+    DB_REF = REF_PATH+"y_DB_"+DB_GROUP
 
     # processing fasta file
     fasta_output = args.pfasta

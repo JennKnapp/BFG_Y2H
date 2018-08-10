@@ -15,6 +15,7 @@ READ_COUNT = True
 AD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_AD.csv"
 DB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_DB_AA.csv"
 
+REF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/"
 
 ###################################
 
