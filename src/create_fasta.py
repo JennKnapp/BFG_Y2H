@@ -20,8 +20,8 @@ def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0",
         f_ad = "y_AD_"+AD+".fasta" 
         f_db = "y_DB_"+DB+".fasta"
     else:
-        f_ad = "y_AD_all.fasta"
-        f_db = "y_DB_all.fasta"
+        f_ad = "y_AD_G0.fasta"
+        f_db = "y_DB_G0.fasta"
 
     with open(os.path.join(output_path,f_ad), "w") as ad:
             

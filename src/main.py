@@ -41,7 +41,7 @@ if __name__ == "__main__":
     # processing fasta file
     fasta_output = args.pfasta
          
-    if MAKE_FASTA:
+    if fasta_output is not None:
         # example of create fasta for AD1DB4
         create_fasta(AD_summary, DB_summary, fasta_output, group_spec=True, AD=AD_GROUP, DB=DB_GROUP)
 

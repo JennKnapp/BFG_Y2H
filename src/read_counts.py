@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import datetime
 from param import *
-#from main import *
+from main import *
 import logging
 import logging.config
 
@@ -21,8 +21,8 @@ class Read_Count(object):
         self._db_genes = DB_GENES # list of DB gene names 
         
         ####### log ########
-        analysis_log.info("r1 sam file: %s", r1)
-        analysis_log.info("r2 sam file: %s", r2)
+        analysis_log.info("r1 csv file: %s", r1)
+        analysis_log.info("r2 csv file: %s", r2)
         
     def _BuildMatrix(self):
         """
@@ -31,7 +31,7 @@ class Read_Count(object):
         """
         self._uptag_matrix = pd.DataFrame(0, index=self._ad_genes, columns=self._db_genes)
         self._dntag_matrix = pd.DataFrame(0, index=self._ad_genes, columns=self._db_genes)
-        print "Matrix build" 
+        #print "Matrix build" 
         analysis_log.info("Matrix build with AD: %s, DB: %s", str(self._uptag_matrix.shape[0]), str(self._uptag_matrix.shape[1]))
 
     def _ReadCounts(self):
@@ -41,12 +41,12 @@ class Read_Count(object):
         
         i=True
         lines = 0
+        dn_pairs = {}
+        up_pairs = {}
         print datetime.datetime.now()
+        fail =0
+        dn_count = 0
         while 1:
-            lines+=1
-            if lines % 1000000 ==0:
-                print lines
-                print datetime.datetime.now()
             
             r1_line = f1.readline() # AD
             r2_line = f2.readline() # DB
@@ -69,34 +69,58 @@ class Read_Count(object):
                 break
 
             if int(r1_line[4]) < 3 or int(r2_line[4]) < 3: # check quality
+                fail += 1
                 continue
 
             if r1_line[2] == "*" or r2_line[2] =="*": # if one of the read didnt map
+                fail+=1
                 continue
             
             r1_name = r1_line[2].split(";")
             r2_name = r2_line[2].split(";")
 
-            if r1_name[-1] == r2_name[-1]:
+#            if r1_name[-1] == r2_name[-1]:
                 #print r1_name
+#                if r1_name[-1] == "dn":
+#                    self._dntag_matrix.loc[r1_name[1], r2_name[1]] +=1
+#                else:
+#                    self._uptag_matrix.loc[r1_name[1], r2_name[1]] +=1
+            if r1_name[-1] == r2_name[-1]:
                 if r1_name[-1] == "dn":
-                    self._dntag_matrix.loc[r1_name[1], r2_name[1]] +=1
+                    dn_count += 1
+                    dn_pairs[(r2_name[1], r1_name[1])] = dn_pairs.get((r2_name[1], r1_name[1]), 0) + 1
                 else:
-                    self._uptag_matrix.loc[r1_name[1], r2_name[1]] +=1
+                    up_pairs[(r2_name[1], r1_name[1])] = up_pairs.get((r2_name[1], r1_name[1]), 0) + 1
+        #print "===="
+        #print fail
+        #print dn_count
+        analysis_log.info("Total reads for dn tags: %s", str(sum(dn_pairs.values())))
+        analysis_log.info("Total reads for up tags: %s", str(sum(dn_pairs.values())))
+        #print self._dntag_matrix.shape
+        #dntag_matrix = pd.Series(dn_pairs).unstack().T.combine_first(self._dntag_matrix)
+        #uptag_matrix = pd.Series(up_pairs).unstack().T.combine_first(self._uptag_matrix)
+        #print dntag_matrix.shape
+        #print dn_pairs[('YDL021W_BC-2', 'YJL096W_BC-2')] 
+        dntag_matrix = (pd.Series(dn_pairs)
+                .unstack(fill_value=0)
+                .T
+                .reindex(index=self._dntag_matrix.index, columns=self._dntag_matrix.columns, fill_value=0))
+        #print dntag_matrix.shape
+        uptag_matrix = (pd.Series(up_pairs)
+                .unstack(fill_value=0)
+                .T
+                .reindex(index=self._uptag_matrix.index, columns=self._uptag_matrix.columns, fill_value=0))
         
-        print "file read"
         f1.close()
         f2.close()
         uptag_file = "./uptag_rawcounts.csv"
         dntag_file = "./dntag_rawcounts.csv"
-        self._dntag_matrix.to_csv(dntag_file)
-        self._uptag_matrix.to_csv(uptag_file)
-        print "matrix saved"
-        #return self._dntag_matrix, self._uptag_matrix
-
+        dntag_matrix.to_csv(dntag_file)
+        uptag_matrix.to_csv(uptag_file)
+        analysis_log.info("Matrix saved to files")
 
 def RCmain(r1, r2, AD_genes, DB_genes):
-    analysis_log.info("test")
+#    analysis_log.info("test")
     rc = Read_Count(AD_genes, DB_genes, r1, r2)
     # create empty matrix
     rc._BuildMatrix()
@@ -106,9 +130,9 @@ def RCmain(r1, r2, AD_genes, DB_genes):
 
 if __name__ == "__main__":
     # test rc main
-    r1_csv = "/home/rothlab/rli/02_dev/08_bfg_y2h/yAD1DB4_output/yAD1DB4_GFP_high/yAD1DB4_GFP_high_R1_AD_BC_noh.csv"
-    r2_csv = "/home/rothlab/rli/02_dev/08_bfg_y2h/yAD1DB4_output/yAD1DB4_GFP_high/yAD1DB4_GFP_high_R2_DB_BC_noh.csv"
+    r1_csv = "/home/rothlab/rli/02_dev/08_bfg_y2h/yAD1DB4_output/yAD1DB4_presort/yAD1DB4_presort_R1_AD_BC_noh.csv"
+    r2_csv = "/home/rothlab/rli/02_dev/08_bfg_y2h/yAD1DB4_output/yAD1DB4_presort/yAD1DB4_presort_R2_DB_BC_noh.csv"
     AD_genes, DB_genes = read_summary(AD_summary, DB_summary, AD_group="G1", DB_group="G4")
-    print AD_genes
-    print DB_genes
-    dn_matrix, up_matrix = RCmain(r1_csv, r2_csv, AD_genes, DB_genes)
+#    print AD_genes
+#    print DB_genes
+    RCmain(r1_csv, r2_csv, AD_genes, DB_genes)

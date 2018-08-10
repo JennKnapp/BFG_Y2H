@@ -3,20 +3,18 @@
 * Please goto `param.py` to set the boolean parameters
 * Boolean parameters:
   * `MAKE_FASTA` set to `True` if you want to make fasta reference from summary file.
-  * `ANALYSIS` set to `True` if you want to analyze the output (see **analysis** for detail
-* Other varianbles
-  * `AD_GROUP` and `DB_GROUP` responsible for building fasta reference and analysis. 
-  * `AD_REF` and `DB_REF` reference for alignments
+  * `ALIGNMENT` set to `True` if you want to analyze the output (see **analysis** for detail
+  * `READ_COUNT` set to `True` if you want to do read counts
+
 
 ### Creating fasta file and build index ###
 
-* If you want to create fasta file from csv file run the following command:
+* Before running the pipeline, if you want to use the function to generate reference files, please change the parameter in `param.py`
+and change the 
 
-  ` python ./src/main.py --ad ./summary/example_AD.csv --db ./summary/example_DB.csv --pfasta ./path_to_fasta/ `
+* If you want to create fasta file from csv file, change the parameter in param.py then run the following command:
 
-* If the fasta files already exist, you can build index by providing the fasta path:
-
-  ` python ./src/main.py --pfasta ./path_to_fasta/ `
+  ` python ./src/main.py --adgroup G0 --dbgroup G0 --pfasta ./path_to_fasta/ `
 
 
 ### bowtie alignment and read counts ###
