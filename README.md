@@ -25,8 +25,12 @@ Notes before running ..
 
 To run this on **sge** (make sure you make the output folder becore running)
 
-  `./sgesh fastq_file_path output_path AD_GROUP DB_GROUP`
+  `./sge.sh fastq_file_path output_path AD_GROUP DB_GROUP`
 
+For example:
+
+  `./sge.sh /home/rothlab/rli/01_ngsdata/180709_merged_yAD1DB4/ /home/rothlab/rli/02_dev/08_bfg_y2h/yAD1DB4_output/ G1 G4`
+   
 Output
 
   * For each set of fastq files, one folder will be created with the sample name in the `output path`
