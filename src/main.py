@@ -3,11 +3,13 @@ import logging
 import logging.config
 import os
 import glob
+import re
 from create_fasta import *
 from param import *
 from alignment import *
 from supplements import *
 from read_counts import *
+from plot import *
 
 if __name__ == "__main__":
 
@@ -17,8 +19,8 @@ if __name__ == "__main__":
     # -- create: creates fasta file from summary.csv
     # -- build: if the fasta files already exist, build index files for them
     parser.add_argument('--pfasta', help="Path to fasta file")
-    parser.add_argument("--adgroup", help="AD group number", required=True)
-    parser.add_argument("--dbgroup", help="DB group number", required=True)
+#    parser.add_argument("--adgroup", help="AD group number", required=True)
+#    parser.add_argument("--dbgroup", help="DB group number", required=True)
 
     # parameters for cluster
     parser.add_argument("--fastq", help="Path to all fastq files you want to analyze")
@@ -31,11 +33,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # required arguments
-    AD_GROUP = args.adgroup
-    DB_GROUP = args.dbgroup
+    #AD_GROUP = args.adgroup
+    #DB_GROUP = args.dbgroup
 
-    AD_REF = REF_PATH+"y_AD_"+AD_GROUP
-    DB_REF = REF_PATH+"y_DB_"+DB_GROUP
+    #AD_REF = REF_PATH+"y_AD_"+AD_GROUP
+    #DB_REF = REF_PATH+"y_DB_"+DB_GROUP
 
     # processing fasta file
     fasta_output = args.pfasta
@@ -73,7 +75,18 @@ if __name__ == "__main__":
     # find corresponding R2
     db = [i for i in list_fastq if "R2" in i and i.split("_R2")[0]==ad_base][0]
     db = os.path.join(dir_name, db)
-        
+
+    m = re.match(r"yAD([1-9])DB([1-9])", ad_base)
+    
+    AD_GROUP = "G"+m.group(1)
+    DB_GROUP = "G"+m.group(2)
+    #print AD_GROUP
+    #print DB_GROUP
+
+    AD_REF = REF_PATH+"y_AD_"+AD_GROUP
+    DB_REF = REF_PATH+"y_DB_"+DB_GROUP
+
+
     if output is None: 
         exit(0)
     else:
@@ -145,6 +158,13 @@ if __name__ == "__main__":
         log.info("Counting reads for %s, %s", r1_csv, r2_csv)
 
         AD_genes, DB_genes = read_summary(AD_summary, DB_summary, AD_group=AD_GROUP, DB_group=DB_GROUP)
-        dn_matrix, up_matrix = RCmain(r1_csv, r2_csv, AD_genes, DB_genes)
+        up_matrix, dn_matrix = RCmain(r1_csv, r2_csv, AD_genes, DB_genes)
         
-        
+        basename = r1_csv.split("R1")[0]
+
+        # plot up and dn corr
+        # sample_bc_corr.png
+        bc_corr(basename, up_matrix, dn_matrix)
+
+        log.info("Barcode counts corr plot")
+

@@ -2,7 +2,7 @@
 
 # If you want to do alignments
 # Set this to True
-ALIGNMENT = True
+ALIGNMENT = False
 
 # if you want to do read counts
 READ_COUNT = True

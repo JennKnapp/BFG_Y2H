@@ -16,8 +16,10 @@ DB=$4
 #rm -r $OUTPUT; mkdir $OUTPUT
 for fastq in $FASTQ/*R1*.fastq.gz; do
   echo $fastq
+  # get AD and DB group info from file name
+
   #/home/rothlab/rli/py/bin/python2.7 ./src/main.py --fastq $fastq --output $OUTPUT
-  qsub -N $(basename $fastq .fastq.gz) ./sge_sub.sh $fastq $OUTPUT $AD $DB
+  qsub -N $(basename $fastq .fastq.gz) ./sge_sub.sh $fastq $OUTPUT
 done
 
 

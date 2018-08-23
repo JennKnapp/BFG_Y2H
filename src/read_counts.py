@@ -118,6 +118,8 @@ class Read_Count(object):
         dntag_matrix.to_csv(dntag_file)
         uptag_matrix.to_csv(uptag_file)
         analysis_log.info("Matrix saved to files")
+        
+        return uptag_matrix, dntag_matrix
 
 def RCmain(r1, r2, AD_genes, DB_genes):
 #    analysis_log.info("test")
@@ -126,7 +128,7 @@ def RCmain(r1, r2, AD_genes, DB_genes):
     rc._BuildMatrix()
     
     # create 
-    rc._ReadCounts()
+    return rc._ReadCounts()
 
 if __name__ == "__main__":
     # test rc main
