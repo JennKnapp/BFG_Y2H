@@ -21,8 +21,8 @@ def bc_corr(sample_name, uptag_matrix, dntag_matrix):
 
     plt.text(1, 14, "pcc:"+str(round(pcc[0], 2))+" RC:"+str(sum(up_tag_list)))
 
-    plt.title(sample_name+"_bc_corr (log)", fontsize= 16)
-    plt.savefig(sample_name+"_bc_corr.png")
+    plt.title(sample_name+"bc_corr (log)", fontsize= 16)
+    plt.savefig(sample_name+"bc_corr.png")
     plt.close()
 
 if __name__ == "__main__":

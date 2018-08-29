@@ -5,7 +5,10 @@
 ALIGNMENT = False
 
 # if you want to do read counts
-READ_COUNT = True
+READ_COUNT = False
+
+# if you want to calculate the scores
+SCORES = True
 
 ###################################
 
