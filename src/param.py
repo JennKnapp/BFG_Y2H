@@ -2,13 +2,11 @@
 
 # If you want to do alignments
 # Set this to True
-ALIGNMENT = False
+ALIGNMENT = True
 
 # if you want to do read counts
-READ_COUNT = False
+READ_COUNT = True
 
-# if you want to calculate the scores
-SCORES = True
 
 ###################################
 

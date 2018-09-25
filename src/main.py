@@ -169,22 +169,3 @@ if __name__ == "__main__":
         log.info("Barcode counts corr plot")
     
         
-
-    if SCORE:
-
-        log.info("Concatenate samples ... ")
-        samples = {}
-        for d in os.listdir(args.output):
-            print d
-            sample_name = d.split("_")[0]
-            matrix = d+"/combined_counts.csv"
-            try:
-                samples[sample_name].append(matrix)
-            except Exception:
-                samples[sample_name] = [matrix]
-
-        print samples
-            
-
-
-

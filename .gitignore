@@ -8,3 +8,5 @@ ref/*
 ds_*/*
 *.log
 *.csv
+*_retest/
+*_analysis/
