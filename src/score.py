@@ -37,16 +37,32 @@ def marginal_freq(matrix):
 def load_YI1(yi):
     "Load gold standard for yi1"
     yi = pd.read_table(yi, sep="\t")
-    AD_GOLD = yi.AD_ORF_ID.tolist()
-    DB_GOLD = yi.DB_ORF_ID.tolist()
-
-    return AD_GOLD, DB_GOLD
+    yi.columns = ["AD", "DB"]
+    yi["Interactions"] = yi[['AD', 'DB']].apply(lambda x: '-'.join(x), axis=1)
+    return yi
 
 
 def rename(df):
     """remove _BC-* from orf names"""
     return df.rename(columns = lambda x : str(x)[:-5], index = lambda x : str(x)[:-5])
 
+
+def bar_freq(pre_freq, med_freq, high_freq):
+    # convert matrix to list and remove zeros
+    all_freq = [pre_freq, med_freq, high_freq]
+    
+    for i in all_freq:
+        l = i.values.tolist()
+        l = reduce(lambda x,y:x+y,l)
+        l = filter(lambda a: a != 0, x)
+        
+        # make a bar plot
+
+    pass
+
+def heat_freq(freq_matrix):
+
+    pass
 
 def calculate_freq(GFP_pre, GFP_high, GFP_med):
     
@@ -59,7 +75,12 @@ def calculate_freq(GFP_pre, GFP_high, GFP_med):
     # for GFP_high
     high_freq = freq(GFP_high)
 
-    return row_freq, col_freq, med_freq, high_freq
+    med_freq_renamed = rename(freq(GFP_med))
+
+    AD_NAMES = list(med_freq_renamed.index)
+    DB_NAMES = list(med_freq_renamed)
+
+    return row_freq, col_freq, med_freq, high_freq, AD_NAMES, DB_NAMES
 
 def plot_prc(precision, recall, output_file):
 
@@ -72,19 +93,23 @@ def plot_prc(precision, recall, output_file):
     plt.close()
 
 
-def get_mcc(dicts, gold_st, output_name):
+def get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut, output_name):
     # dicts contains intereactions and scores for each index 
     # compare to gold standard and plot PRC
     mcc = []
+    AD_GOLD = gold_st.AD.tolist()
+    DB_GOLD = gold_st.DB.tolist()
     for i in dicts.keys():
         # convert i to df
         # (AD, DB): score
+        print i
         sort_is = pd.Series(dicts[i]).reset_index()
+        sort_is.columns = ["AD_name", "DB_name", "Score"]
         # convert values to numbers
-        sort_is[["Score"]] = sort_is[["Score"]].apply(pd.to_numeric)
+        sort_is.Score = sort_is.Score.apply(pd.to_numeric)
         # split bc and orf name
-        sort_is[["AD","AD_BC"]] = sort_is["AD_name"].str.split("_",expand=True)
-        sort_is[["DB","DB_BC"]] = sort_is["DB_name"].str.split("_",expand=True)
+        sort_is[["AD","AD_BC"]] = sort_is.AD_name.str.split("_",expand=True)
+        sort_is[["DB","DB_BC"]] = sort_is.DB_name.str.split("_",expand=True)
 
         # merge for interactions
         sort_is["Interactions"] = sort_is[["AD", "DB"]].apply(lambda x: "-".join(x),axis=1)
@@ -128,8 +153,8 @@ def get_mcc(dicts, gold_st, output_name):
         
 
         # make a plot
-
-        plot_prc(precision, recall, output_name)
+        
+        #plot_prc(precision, recall, output_name)
 
     
         mcc.append((i, mcc_s))
@@ -170,7 +195,7 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, yi_gold, output)
     comb = list(itertools.product(*l))
     
     # get frequencies
-    row_freq, col_freq, med_freq, high_freq = calculate_freq(GFP_pre, GFP_high, GFP_med)
+    row_freq, col_freq, med_freq, high_freq, AD_NAMES, DB_NAMES = calculate_freq(GFP_pre, GFP_high, GFP_med)
     
     shape = GFP_pre.shape
     total_rows = shape[0] #AD
@@ -180,22 +205,23 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, yi_gold, output)
     col_sorted = sorted(col_freq.tolist())
     
     # get gold standard
-    AD_GOLD, DB_GOLD = load_YI1(yi_gold)
-    # create df for gold standard
-    gold_st = pd.DataFrame({"AD":AD_GOLD, "DB":DB_GOLD})
-    gold_st["Interactions"] = gold_st[['AD', 'DB']].apply(lambda x: '-'.join(x), axis=1)
-    # get ad and db genes
-    
-    AD_NAMES = list(med_freq_renamed.index) # rownames
-    DB_NAMES = list(med_freq_renamed) #colnames
-    
+    gold_st = load_YI1(yi_gold)
+    AD_GOLD = gold_st.AD.tolist()
+    DB_GOLD = gold_st.DB.tolist()
+
     # find intersection
     AD_intersect = list(set(AD_GOLD) & set(AD_NAMES))
     DB_intersect = list(set(DB_GOLD) & set(DB_NAMES))
+    
+    all_pairs = list(itertools.product(AD_intersect, DB_intersect))
+    
     mix_index = [0,1,2,3]
     
     # optimization
+ 
+    output_csv = []
     for s in comb:
+        print(datetime.datetime.now())
         weight = s[0]
         floor = s[1]
         
@@ -231,6 +257,7 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, yi_gold, output)
         
         # test which set of bc we want to use
         # in this case, we will have max 4 min 1 score(s) for each orf pair
+        
         dicts = test_index(IS_normed, all_pairs, mix_index)
         
         AD_freq = AD_freq.to_frame()
@@ -239,9 +266,15 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, yi_gold, output)
         AD_freq["AD_name"] = AD_freq.index
         DB_freq["DB_name"] = DB_freq.index
         
+        output_name = ""
+        mcc_list = get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut, output_name)
+        
+        for i in mcc_list:
+            output_csv.append([weight, floor, i[0], i[1]])
+            print [weight, floor, i[0], i[1]]
 
-        mcc_list = get_mcc(dicts, gold_st, output_name)
-        break
+    print output_csv
+        #break
 
 if __name__ == "__main__":
     
@@ -274,6 +307,7 @@ if __name__ == "__main__":
     yi = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/YI_1.txt"
     yi_GOLD = load_YI1(yi)
     for key in samples.keys():
+        print key
         for matrix in samples[key]:
             fname = "./"+matrix
             if "pre" in matrix:
