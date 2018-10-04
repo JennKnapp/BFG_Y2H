@@ -79,28 +79,14 @@ class Read_Count(object):
             r1_name = r1_line[2].split(";")
             r2_name = r2_line[2].split(";")
 
-#            if r1_name[-1] == r2_name[-1]:
-                #print r1_name
-#                if r1_name[-1] == "dn":
-#                    self._dntag_matrix.loc[r1_name[1], r2_name[1]] +=1
-#                else:
-#                    self._uptag_matrix.loc[r1_name[1], r2_name[1]] +=1
             if r1_name[-1] == r2_name[-1]:
                 if r1_name[-1] == "dn":
                     dn_count += 1
                     dn_pairs[(r2_name[1], r1_name[1])] = dn_pairs.get((r2_name[1], r1_name[1]), 0) + 1
                 else:
                     up_pairs[(r2_name[1], r1_name[1])] = up_pairs.get((r2_name[1], r1_name[1]), 0) + 1
-        #print "===="
-        #print fail
-        #print dn_count
         analysis_log.info("Total reads for dn tags: %s", str(sum(dn_pairs.values())))
         analysis_log.info("Total reads for up tags: %s", str(sum(dn_pairs.values())))
-        #print self._dntag_matrix.shape
-        #dntag_matrix = pd.Series(dn_pairs).unstack().T.combine_first(self._dntag_matrix)
-        #uptag_matrix = pd.Series(up_pairs).unstack().T.combine_first(self._uptag_matrix)
-        #print dntag_matrix.shape
-        #print dn_pairs[('YDL021W_BC-2', 'YJL096W_BC-2')] 
         dntag_matrix = (pd.Series(dn_pairs)
                 .unstack(fill_value=0)
                 .T
