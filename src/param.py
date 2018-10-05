@@ -1,11 +1,24 @@
+import numpy as np
+
 ###################################
 
 # If you want to do alignments
 # Set this to True
-ALIGNMENT = True
+ALIGNMENT = False
 
 # if you want to do read counts
 READ_COUNT = True
+
+##################################
+
+# for score optimization
+
+# gold standard to use
+GOLD="/home/rothlab/rli/02_dev/08_bfg_y2h/summary/YI_1.txt"
+
+# weights to test
+weights = np.arange(0, 2.4, 0.4)
+floor_perc = np.arange(5,25,5)
 
 
 ###################################

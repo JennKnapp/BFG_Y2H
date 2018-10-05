@@ -76,6 +76,8 @@ if __name__ == "__main__":
     db = [i for i in list_fastq if "R2" in i and i.split("_R2")[0]==ad_base][0]
     db = os.path.join(dir_name, db)
 
+    db_base = db.split("_R2")[0]
+
     m = re.match(r"yAD([1-9])DB([1-9])", ad_base)
     
     AD_GROUP = "G"+m.group(1)
@@ -90,7 +92,7 @@ if __name__ == "__main__":
     if output is None: 
         exit(0)
     else:
-        output_dir = os.path.join(output, ad_base+"/")
+        output_dir = os.path.join(output, ad_base.split("_")[0]+"/")
         
         if not os.path.isdir(output_dir):
             os.system("mkdir -p "+output_dir)
@@ -148,10 +150,11 @@ if __name__ == "__main__":
     
     else:
         for f in os.listdir(output_dir):
-            if "R1" in f and ".csv" in f:
-                r1_csv = f
-            if "R2" in f and ".csv" in f:
-                r2_csv = f
+            if ad_base in f:
+                if "R1" in f and ".csv" in f:
+                    r1_csv = f
+                if "R2" in f and ".csv" in f:
+                    r2_csv = f
 
     if READ_COUNT:
         
@@ -160,6 +163,16 @@ if __name__ == "__main__":
         AD_genes, DB_genes = read_summary(AD_summary, DB_summary, AD_group=AD_GROUP, DB_group=DB_GROUP)
         up_matrix, dn_matrix = RCmain(r1_csv, r2_csv, AD_genes, DB_genes)
         
+        uptag_file = "./"+ad_base+"_uptag_rawcounts.csv"
+        dntag_file = "./"+ad_base+"_dntag_rawcounts.csv"
+        
+        dn_matrix.to_csv(dntag_file)
+        up_matrix.to_csv(uptag_file)
+
+        combined = up_matrix + dn_matrix
+
+        combined.to_csv("./"+ad_base+"_combined_counts.csv")
+        
         basename = r1_csv.split("R1")[0]
 
         # plot up and dn corr
@@ -167,5 +180,3 @@ if __name__ == "__main__":
         bc_corr(basename, up_matrix, dn_matrix)
 
         log.info("Barcode counts corr plot")
-    
-        

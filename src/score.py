@@ -9,6 +9,7 @@ import logging
 import logging.config
 import itertools
 from plot import *
+from param import *
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import matthews_corrcoef
@@ -182,7 +183,7 @@ def test_index(IS_normed, all_pairs, mix_index):
     return dicts
 
 
-def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, yi_gold, output):
+def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st, output):
         
     # to find optimum set of parameters
     # we test all possible combinations
@@ -202,7 +203,6 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, yi_gold, output)
     col_sorted = sorted(col_freq.tolist())
     
     # get gold standard
-    gold_st = load_YI1(yi_gold)
     AD_GOLD = gold_st.AD.tolist()
     DB_GOLD = gold_st.DB.tolist()
 
@@ -271,54 +271,29 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, yi_gold, output)
 if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='BFG-Y2H Scores')
-    parser.add_argument("--counts", help="Path for read counts files")
-    parser.add_argument("--output", help="Path for output files")
+    parser.add_argument("--sample", help="Path for read counts files")
 
     args = parser.parse_args()
-    output = args.output
-    counts = args.counts
+    counts = args.sample
     
-    print "Concatenate samples ... "
-    
-    samples = {}
-
-    for d in os.listdir(counts):
-        sample_name = d.split("_")[0]
-        matrix = d+"/combined_counts.csv"
-        try:
-            samples[sample_name].append(matrix)
-        except Exception:
-            samples[sample_name] = [matrix]
-    print len(samples.keys())
-
-    weights = np.arange(0, 2.4, 0.4)
-    floor_perc = np.arange(5,25,5)
-    #opt_mix = [0,1,2,3]
-
     os.chdir(counts)
-    yi = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/YI_1.txt"
-    yi_GOLD = load_YI1(yi)
-    for key in samples.keys():
-        print key
-        for matrix in samples[key]:
-            fname = "./"+matrix
-            if "pre" in matrix:
-                GFP_pre = pd.read_table(fname, sep=",", index_col=0)
-            elif "med" in matrix:
-                GFP_med = pd.read_table(fname, sep =",", index_col=0)
-            elif "high" in matrix:
-                GFP_high = pd.read_table(fname, sep =",", index_col=0)
-        print GFP_pre.shape, GFP_med.shape, GFP_high.shape
+    yi = load_YI1(GOLD)
+    for f in os.listdir(counts):
+        print f
+        if not f.endswith("_combined_counts.csv"):
+            continue
+        
+        if "pre" in f:
+            GFP_pre = pd.read_table(fname, sep=",", index_col=0)
+        elif "med" in f:
+            GFP_med = pd.read_table(fname, sep =",", index_col=0)
+        elif "high" in f:
+            GFP_high = pd.read_table(fname, sep =",", index_col=0)
         
         output_csv = score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, yi, output)
         df = pd.DataFrame(output_csv).unstack().reset_index()
         df.columns = ["weight", "floor","index", "mcc_list"]
         df[["precision","recall","mcc"]] = pd.DataFrame(df.mcc_list.tolist(), columns=["precision","recall","mcc"])
         df = df.drop(columns=["mcc_list"])
-        print df
         df.to_csv("/home/rothlab/rli/www/html/"+key+".csv")
-        #break
-    #score_main(weights, floor_perc,opt_mix)
-    
-
-
+        ##break
