@@ -132,7 +132,11 @@ if __name__ == "__main__":
         
         os.system(sort_r1)
         os.system(sort_r2)
-        
+
+        # remove original sam file
+        os.system("rm "+r1_sam)
+        os.system("rm "+r2_sam)
+
         log.info("Sam files are sorted")
 
         log.info("Removing header..")
@@ -146,6 +150,9 @@ if __name__ == "__main__":
         os.system("cut -f 1-5 "+r1+" > "+ r1_csv)
         os.system("cut -f 1-5 "+r2+" > "+ r2_csv)
 
+        # remove no header sam file
+        os.system("rm "+r1)
+        os.system("rm "+r2)
         log.info("File shrinked")
     
     else:

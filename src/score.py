@@ -13,7 +13,6 @@ from param import *
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import matthews_corrcoef
-#scores_log = logging.getLogger("scores")
 
 def freq(matrix):
         
@@ -66,7 +65,7 @@ def calculate_freq(GFP_pre, GFP_high, GFP_med):
     return row_freq, col_freq, med_freq, high_freq, AD_NAMES, DB_NAMES
 
 
-def get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut, output_name):
+def get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut):
     # dicts contains intereactions and scores for each index 
     # compare to gold standard and plot PRC
     mcc = {}
@@ -75,7 +74,6 @@ def get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut, output_name):
     for i in dicts.keys():
         # convert i to df
         # (AD, DB): score
-        print i
         sort_is = pd.Series(dicts[i]).reset_index()
         sort_is.columns = ["AD_name", "DB_name", "Score"]
         # convert values to numbers
@@ -114,11 +112,12 @@ def get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut, output_name):
         
         # screen 
         y_network = sort_is.loc[sort_is.screen == 1].ishit_interaction.tolist()
-        print len(y_network)
+        
         # scores
         y_score = sort_is.Score.tolist()
         MAXMCC = prcmcc(y_network, 1000)
         mcc[i] = MAXMCC
+    
     return mcc
 
 
@@ -126,7 +125,8 @@ def prcmcc(label, test_range):
     # pred: predicted labels
     # label: actual labels
     PRCMCC = []
-    if len(label) < test_range:
+    total_screen = len(label)
+    if total_screen < test_range:
         return [0,0,0]
     
     for i in range(1,test_range+1):
@@ -148,14 +148,13 @@ def prcmcc(label, test_range):
         MCC= (TP*TN-FP*FN)/math.sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))*100 
         PRCMCC.append([precision, recall, MCC])
     
-    
-    
     df = pd.DataFrame(PRCMCC, columns=["precision", "recall", "MCC"])
 
     MAXid = df.MCC.idxmax()
     #print MAXid
     MAXMCC = df.loc[MAXid].tolist()
     #all_mcc.append(MAXMCC) 
+    MAXMCC.insert(0, total_screen)
     return MAXMCC
 
 
@@ -183,7 +182,7 @@ def test_index(IS_normed, all_pairs, mix_index):
     return dicts
 
 
-def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st, output):
+def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st):
         
     # to find optimum set of parameters
     # we test all possible combinations
@@ -192,7 +191,7 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st, output)
     comb = list(itertools.product(*l))
     
     # get frequencies
-    print "Getting frequencies"
+
     row_freq, col_freq, med_freq, high_freq, AD_NAMES, DB_NAMES = calculate_freq(GFP_pre, GFP_high, GFP_med)
     
     shape = GFP_pre.shape
@@ -218,7 +217,6 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st, output)
  
     output_csv = {}
     for s in comb:
-        print(datetime.datetime.now())
         weight = s[0]
         floor = s[1]
         
@@ -264,7 +262,7 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st, output)
         DB_freq["DB_name"] = DB_freq.index
         
         output_name = ""
-        mcc_list = get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut, output_name)
+        mcc_list = get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut)
         output_csv[(weight, floor)] = mcc_list
     return output_csv
 
@@ -275,25 +273,32 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     counts = args.sample
+
+    sample_name = os.path.basename(counts)    
     
     os.chdir(counts)
+    # find the optimized parameters
     yi = load_YI1(GOLD)
     for f in os.listdir(counts):
-        print f
         if not f.endswith("_combined_counts.csv"):
             continue
-        
+        fname = "./"+f        
         if "pre" in f:
             GFP_pre = pd.read_table(fname, sep=",", index_col=0)
         elif "med" in f:
             GFP_med = pd.read_table(fname, sep =",", index_col=0)
         elif "high" in f:
             GFP_high = pd.read_table(fname, sep =",", index_col=0)
-        
-        output_csv = score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, yi, output)
-        df = pd.DataFrame(output_csv).unstack().reset_index()
-        df.columns = ["weight", "floor","index", "mcc_list"]
-        df[["precision","recall","mcc"]] = pd.DataFrame(df.mcc_list.tolist(), columns=["precision","recall","mcc"])
-        df = df.drop(columns=["mcc_list"])
-        df.to_csv("/home/rothlab/rli/www/html/"+key+".csv")
-        ##break
+    
+    output_csv = score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, yi)
+    df = pd.DataFrame(output_csv).unstack().reset_index()
+    df.columns = ["weight", "floor","index", "mcc_list"]
+    df[["total_screen", "precision","recall","mcc"]] = pd.DataFrame(df.mcc_list.tolist(), columns=["total_screen", "precision","recall","mcc"])
+    df = df.drop(columns=["mcc_list"])
+    df["sample"] = sample_name
+    df.to_csv("./score_optimization_all.csv", index=False)
+    
+    # get the top 3 MCC for this sample and save to a different file
+
+    maxdf = df.nlargest(5, "mcc")
+    maxdf.to_csv("./score_optimization_max.csv", index=False)
