@@ -6,6 +6,8 @@ Before running the pipeline, goto `param.py` to set up variables.
 
 ##### 2. Run this pipeline on SGE #####
 
+*You will need to change the path to python2.7 in `sge_sub.sh` and `sge_score_sub.sh`*
+`
 `./sge.sh path_to_fastq path_to_output`
 
 The pipeline has two parts: 
