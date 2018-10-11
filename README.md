@@ -1,5 +1,11 @@
 ### BFG Y2H Analysis Pipeline ###
 
+**Requirements**
+
+* Python 2.7
+* Bowtie 2 and Bowtie2 build (change path in `param.py`
+* Samtools1.4 (change path in `param.py`
+
 #### 1. Set up parameters in `param.py` ####
 
 Before running the pipeline, goto `param.py` to set up variables. 
@@ -22,7 +28,7 @@ jobs for score optimizations.
 
 #### 3. Output ####
 
-2.a. A folder will be generated for each group. Including all the alignment summary files and raw barcode
+For `2.a.` A folder will be generated for each group. Including all the alignment summary files and raw barcode
 counts
 
-2.b. Summary of top 5 mcc for each group can be found in the output folder (`summary_maxmcc.csv`)
+For `2.b.` Summary of top 5 mcc for each group can be found in the output folder (`summary_maxmcc.csv`)
