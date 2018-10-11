@@ -1,13 +1,15 @@
-#### BFG Y2H Analysis Pipeline ####
+### BFG Y2H Analysis Pipeline ###
 
-##### 1. Set up parameters in `param.py` #####
+#### 1. Set up parameters in `param.py` ####
 
 Before running the pipeline, goto `param.py` to set up variables. 
 
-##### 2. Run this pipeline on SGE #####
+#### 2. Run this pipeline on SGE ####
 
-*You will need to change the path to python2.7 in `sge_sub.sh` and `sge_score_sub.sh`*
-`
+More about [Sun Grid Engine](http://gridscheduler.sourceforge.net/howto/GridEngineHowto.html) 
+
+You probably want to change the path to python2.7 in `sge_sub.sh` and `sge_score_sub.sh`
+
 `./sge.sh path_to_fastq path_to_output`
 
 The pipeline has two parts: 
@@ -18,5 +20,9 @@ align the fastq files to reference and count barcodes from output sam files
 b. After all the alignments finished, the pipeline will submit another batch of 
 jobs for score optimizations. 
 
-##### 3. Output #####
+#### 3. Output ####
 
+2.a. A folder will be generated for each group. Including all the alignment summary files and raw barcode
+counts
+
+2.b. Summary of top 5 mcc for each group can be found in the output folder (`summary_maxmcc.csv`)
