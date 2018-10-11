@@ -3,8 +3,8 @@
 **Requirements**
 
 * Python 2.7
-* Bowtie 2 and Bowtie2 build (change path in `param.py`
-* Samtools1.4 (change path in `param.py`
+* Bowtie 2 and Bowtie2 build (change path in `param.py`)
+* Samtools1.4 (change path in `param.py`)
 
 #### 1. Set up parameters in `param.py` ####
 
@@ -32,3 +32,9 @@ For `2.a.` A folder will be generated for each group. Including all the alignmen
 counts
 
 For `2.b.` Summary of top 5 mcc for each group can be found in the output folder (`summary_maxmcc.csv`)
+
+#### 4. Special case ####
+
+If you want to run the code on just one sample:
+
+`/home/rothlab/rli/py/bin/python2.7 ./src/main.py --fastq fastq_read_one --output output_dir`

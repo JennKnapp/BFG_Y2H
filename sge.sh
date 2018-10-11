@@ -8,17 +8,16 @@ OUTPUT=$2
 
 # check output dir
 
-
 # create the directory and run script
 # attention: if outpur dir exists it will be removed
 #rm -r $OUTPUT; mkdir $OUTPUT
-#for fastq in $FASTQ/*R1*.fastq.gz; do
-#  echo $fastq
+for fastq in $FASTQ/*R1*.fastq.gz; do
+  echo $fastq
   # get AD and DB group info from file name
 
   #/home/rothlab/rli/py/bin/python2.7 ./src/main.py --fastq $fastq --output $OUTPUT
-#  qsub -N $(basename $fastq .fastq.gz) ./sge_sub.sh $fastq $OUTPUT
-#done
+  qsub -N $(basename $fastq .fastq.gz) ./sge_sub.sh $fastq $OUTPUT
+done
 
 
 # check # jobs running
