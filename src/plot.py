@@ -27,6 +27,43 @@ def bc_corr(sample_name, uptag_matrix, dntag_matrix):
     plt.savefig(sample_name+"bc_corr.png")
     plt.close()
 
+
+def norm_score_corr(sample_name, s, s_prime):
+
+    score = list(s.values.flatten())
+    norm_score = list(s_prime.values.flatten())
+    
+    pcc = pearsonr(score, norm_score)
+    plt.plot(score, norm_score, ".")
+    plt.xlabel("Score")
+    plt.ylabel("Normalized Score")
+
+    plt.text(0, 9, "pcc:"+str(round(pcc[0], 2)))
+    plt.title(sample_name+" corr (log)", fontsize= 16)
+    plt.savefig(sample_name+"_corr.png")
+    plt.close()
+
+
+def freq_corr(freq_one, freq_two):
+    # convert matrix to list
+    freq_one_list = list(freq_one.values.flatten())
+    freq_two_list = list(freq_two.values.flatten())
+    
+    pcc = pearsonr(freq_two_list, freq_one_list)
+    # plot corr
+    plt.plot(np.log(freq_one_list), np.log(freq_two_list), ".")
+    plt.text(-16, -5, "pcc:"+str(round(pcc[0], 2)))
+    plt.savefig("test_freq_corr.png")
+    plt.close()
+
+
+def plot_diff(diff_list):
+    x = range(len(diff_list))
+    plt.plot(x, diff_list)
+    plt.savefig("test_diff.png")
+    plt.close()
+
+
 def bar_freq(pre_freq, med_freq, high_freq):
     # convert matrix to list and remove zeros
     print "Making bar plot"

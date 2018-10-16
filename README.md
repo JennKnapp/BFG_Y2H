@@ -16,7 +16,9 @@ More about [Sun Grid Engine](http://gridscheduler.sourceforge.net/howto/GridEngi
 
 You probably want to change the path to python2.7 in `sge_sub.sh` and `sge_score_sub.sh`
 
-`./sge.sh path_to_fastq path_to_output`
+`./sge.sh -f path_to_fastq -o path_to_output`
+
+**Note:** if only `-o` is provided, the pipeline will only do the score optimizations. 
 
 The pipeline has two parts: 
 

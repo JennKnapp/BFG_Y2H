@@ -18,7 +18,6 @@ def freq(matrix):
         
     # sum of matrix
     total = matrix.values.sum()
-
     freq_df = matrix / total
 
     return freq_df
@@ -27,7 +26,6 @@ def freq(matrix):
 def marginal_freq(matrix):
     # sum of matrix
     total = matrix.values.sum()
-
     col_freq = matrix.sum(axis=0)/total
     row_freq = matrix.sum(axis=1)/total
     return row_freq, col_freq

@@ -18,8 +18,8 @@ READ_COUNT = True
 GOLD="/home/rothlab/rli/02_dev/08_bfg_y2h/summary/YI_1.txt"
 
 # weights to test
-weights = np.arange(0, 2.4, 0.4)
-floor_perc = np.arange(5,25,5)
+weights = np.arange(0, 2.4, 0.2)
+floor_perc = np.arange(5,25,2.5)
 
 # in this case we test all 4 indexes
 
