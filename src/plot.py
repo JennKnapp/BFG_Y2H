@@ -44,6 +44,25 @@ def norm_score_corr(sample_name, s, s_prime):
     plt.close()
 
 
+def plot_rank(df, name):
+
+    # make a bar plot for the ranked scores
+    # x - ranked interaction pairs
+    # y - sorted scores
+    sns.set(style="white", context="talk")
+    f, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+    x = df.interactions.tolist()
+    y1 = df.scores.tolist()
+    sns.bar(x=x,y=y1, palette="rocket", ax=ax1)
+    ax1.set_ylabel("scores")
+
+    gold=df.drop(['Interactions', 'Scores'], axis=1)
+    sns.heatmap(gold, ax=ax2)
+    ax2.set_ylabel("Literature")
+
+    plt.savefig(name)
+    plt.close()
+
 def freq_corr(freq_one, freq_two):
     # convert matrix to list
     freq_one_list = list(freq_one.values.flatten())
@@ -61,6 +80,14 @@ def plot_diff(diff_list):
     x = range(len(diff_list))
     plt.plot(x, diff_list)
     plt.savefig("test_diff.png")
+    plt.close()
+
+
+def plot_s(df, name):
+    scores = df.s_prime.tolist()[:1000]
+    plt.bar(np.arange(len(scores)), scores, align="center")
+    plt.title("S\'")
+    plt.savefig(name)
     plt.close()
 
 
@@ -114,13 +141,30 @@ def rank_prc(precision, recall, output_file):
     plt.savefig(output_file)
     plt.close()
 
+def plot_prcmcc(df, name):
+
+    plt.plot(df.precision.tolist())
+    plt.plot(df.recall.tolist())
+    plt.plot(df.mcc.tolist())
+
+    plt.savefig(name)
+    plt.close()
 
 if __name__ == "__main__":
-    sample_name = "yAD1DB4_high" 
-    uptag_matrix = "/home/rothlab/rli/02_dev/08_bfg_y2h/allbyall_output/yAD1DB4_high/uptag_rawcounts.csv"
-    dntag_matrix = "/home/rothlab/rli/02_dev/08_bfg_y2h/allbyall_output/yAD1DB4_high/dntag_rawcounts.csv"
+    #sample_name = "yAD1DB4_high" 
+    #uptag_matrix = "/home/rothlab/rli/02_dev/08_bfg_y2h/allbyall_output/yAD1DB4_high/uptag_rawcounts.csv"
+    #dntag_matrix = "/home/rothlab/rli/02_dev/08_bfg_y2h/allbyall_output/yAD1DB4_high/dntag_rawcounts.csv"
 
-    uptag_matrix = pd.read_csv(uptag_matrix, index_col=0).astype(int)
-    dntag_matrix = pd.read_csv(dntag_matrix, index_col=0).astype(int)
+    #uptag_matrix = pd.read_csv(uptag_matrix, index_col=0).astype(int)
+    #dntag_matrix = pd.read_csv(dntag_matrix, index_col=0).astype(int)
 
-    bc_corr(sample_name, uptag_matrix, dntag_matrix)
+    #bc_corr(sample_name, uptag_matrix, dntag_matrix)
+
+    # test plot_rank
+    # generating 'a to z' small_chars.
+    i = [chr(item) for item in range(ord('a'), ord('z')+1)]
+    s = np.arange(0, 1, 0.01)
+    data = {"Interactions":i, "scores":[]}
+    df = pd.DataFrame(data)
+
+    

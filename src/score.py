@@ -35,7 +35,7 @@ def load_YI1(yi):
     "Load gold standard for yi1"
     yi = pd.read_table(yi, sep="\t")
     yi.columns = ["AD", "DB"]
-    yi["Interactions"] = yi[['AD', 'DB']].apply(lambda x: '-'.join(x), axis=1)
+    yi["Interactions"] = yi[['AD', 'DB']].apply(lambda x: '_'.join(x), axis=1)
     return yi
 
 
@@ -69,53 +69,38 @@ def get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut):
     mcc = {}
     AD_GOLD = gold_st.AD.tolist()
     DB_GOLD = gold_st.DB.tolist()
-    for i in dicts.keys():
-        # convert i to df
-        # (AD, DB): score
-        sort_is = pd.Series(dicts[i]).reset_index()
-        sort_is.columns = ["AD_name", "DB_name", "Score"]
-        # convert values to numbers
-        sort_is.Score = sort_is.Score.apply(pd.to_numeric)
-        # split bc and orf name
-        sort_is[["AD","AD_BC"]] = sort_is.AD_name.str.split("_",expand=True)
-        sort_is[["DB","DB_BC"]] = sort_is.DB_name.str.split("_",expand=True)
-
-        # merge for interactions
-        sort_is["Interactions"] = sort_is[["AD", "DB"]].apply(lambda x: "-".join(x),axis=1)
-
+    for j in dicts.keys():
+        i = dicts[j]
+        #i["Interaction"] = i.index
+        i = i.reset_index()
         # compare gold with our set
-        sort_is["ishit_interaction"] = sort_is.Interactions.isin(gold_st.Interactions).astype(int)
-
+        i["ishit_interaction"] = i.Interaction.isin(gold_st.Interactions).astype(int)
+        
         ## build screen set
         # AD has to appear in AD_GOLD at least once
         # DB has to appear in DB_GOLD at least once
-        sort_is["is_AD"] = sort_is.AD.isin(AD_GOLD)
-        sort_is["is_DB"] = sort_is.DB.isin(DB_GOLD)
-
+        i["is_AD"] = i.AD_x.isin(AD_GOLD)
+        i["is_DB"] = i.DB_x.isin(DB_GOLD)
+         
         # frequencies should be greater than floow
-        sort_is = pd.merge(sort_is, AD_freq, on="AD_name")
-        sort_is = pd.merge(sort_is, DB_freq, on="DB_name")
-
-        sort_is.rename(columns={"0_x":"AD_mfreq", "0_y":"DB_mfreq"}, inplace=True)
-        sort_is["AD_cut"] = sort_is.AD_mfreq > row_cut
-        sort_is["DB_cut"] = sort_is.DB_mfreq >col_cut
+        i = pd.merge(i, AD_freq, on="AD_name")
+        i = pd.merge(i, DB_freq, on="DB_name")
         
+        i.rename(columns={"0_x":"AD_mfreq", "0_y":"DB_mfreq"}, inplace=True)
+        i["AD_cut"] = i.AD_mfreq > row_cut
+        i["DB_cut"] = i.DB_mfreq > col_cut
         # get union
-        sort_is["screen"] = (sort_is.is_AD & sort_is.is_DB & sort_is.AD_cut & sort_is.DB_cut).astype(int)
-        sort_is = sort_is.sort_values(by="Score", ascending=False)  
-        sort_is = sort_is.reset_index(drop=True)
-        #print sort_is 
+        
+        i["screen"] = (i.is_AD & i.is_DB & i.AD_cut & i.DB_cut).astype(int)
+        i = i.sort_values(by="Score", ascending=False)  
         # hit
-        y_pred = sort_is.ishit_interaction.tolist()
-        
+        y_pred = i.ishit_interaction.tolist()
         # screen 
-        y_network = sort_is.loc[sort_is.screen == 1].ishit_interaction.tolist()
-        
+        y_network = i.loc[i.screen == 1].ishit_interaction.tolist()
         # scores
-        y_score = sort_is.Score.tolist()
+        y_score = i.Score.tolist()
         MAXMCC = prcmcc(y_network, 1000)
-        mcc[i] = MAXMCC
-    
+        mcc[j] = MAXMCC
     return mcc
 
 
@@ -125,7 +110,7 @@ def prcmcc(label, test_range):
     PRCMCC = []
     total_screen = len(label)
     if total_screen < test_range:
-        return [0,0,0]
+        test_range = total_screen-1
     
     for i in range(1,test_range+1):
 
@@ -156,27 +141,29 @@ def prcmcc(label, test_range):
     return MAXMCC
 
 
-def test_index(IS_normed, all_pairs, mix_index):
+def test_rank(IS_normed, all_pairs, mix_index):
 
     dicts = {"is_{}".format(i): {} for i in mix_index}
-    for pair in all_pairs:
-        # 0 is AD ; 1 is DB
-        # get this pair from IS_normed
-        s = IS_normed.loc[[pair[0]+"_BC-1",pair[0]+"_BC-2"], [pair[1]+"_BC-1", pair[1]+"_BC-2"]]
-        s = s.unstack().reset_index()
-        s.columns = ["DB","AD", "Score"]
-        scores = s.sort_values(by="Score", ascending=False).reset_index(drop=True)
+    all_pairs = pd.DataFrame(all_pairs, columns=['AD', 'DB'])
+    all_pairs['Interaction'] = all_pairs.AD.str.cat(all_pairs.DB, sep="_")
 
-        for i in mix_index:
-            d_name = "is_{}".format(i)
-            try:
-                s = scores.loc[i,:]
-            except Exception:
-                continue
+    transform = IS_normed.unstack().reset_index()
+    transform.columns = ['DB_name', 'AD_name', 'Score']
+    # drop nan score
+    #transform = transform.dropna(how='any')
+    # split cols
+    transform[['DB', 'DB_BC']] = transform['DB_name'].str.split('_', expand=True)
+    transform[['AD', 'AD_BC']] = transform['AD_name'].str.split('_', expand=True)
+    # merge cols
+    transform['Interaction'] = transform.AD.str.cat(transform.DB, sep="_")
+    merged = pd.merge(all_pairs, transform, on="Interaction")
+    g = merged.sort_values(["Score"], ascending=False).groupby(['Interaction'])
+    
 
-            if str(s.Score) != "nan":
-                dicts[d_name][(s.AD, s.DB)] = s.Score
-
+    for i in mix_index:
+        d_name = "is_{}".format(i)
+        dicts[d_name] = g.nth(i).dropna(how='any')
+    
     return dicts
 
 
@@ -251,7 +238,7 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st):
         # test which set of bc we want to use
         # in this case, we will have max 4 min 1 score(s) for each orf pair
         
-        dicts = test_index(IS_normed, all_pairs, mix_index)
+        dicts = test_rank(IS_normed, all_pairs, mix_index)
         
         AD_freq = AD_freq.to_frame()
         DB_freq = DB_freq.to_frame()

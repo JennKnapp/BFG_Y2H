@@ -109,7 +109,10 @@ def main(GFP_pre, GFP_med, GFP_high):
     norm_s = norm_score(s, 0.75)
     rank = get_rank(norm_s)
 
+    rank = rank.sort_values(by=['s_prime'], ascending=False)
     print rank
+    plot_s(rank, "s_prime_sorted.png")
+
 #    print norm_s
     # test different rho
 #    for p in percentile:
@@ -123,7 +126,7 @@ def main(GFP_pre, GFP_med, GFP_high):
 
 if __name__ == "__main__":
     # test on yAD2 DB1
-    test_dir = "/home/rothlab/rli/02_dev/08_bfg_y2h/rerun_analysis/yAD2DB1/"
+    test_dir = "/home/rothlab/rli/02_dev/08_bfg_y2h/rerun_analysis/yAD4DB1/"
     
     os.chdir(test_dir)
     for f in os.listdir(test_dir):
