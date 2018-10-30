@@ -249,6 +249,7 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st):
         output_name = ""
         mcc_list = get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut)
         output_csv[(weight, floor)] = mcc_list
+
     return output_csv
 
 if __name__ == "__main__":

@@ -3,11 +3,19 @@ import pandas as pd
 import numpy as np
 import os
 import datetime
+import math
 from plot import *
-
+from param import *
 # calculating scores based on nozomu's paper
 # load the file in the same way as score.py
 # detail about how to calculate the score on google doc
+
+def load_YI1(yi):
+    "Load gold standard for yi1"
+    yi = pd.read_table(yi, sep="\t")
+    yi.columns = ["AD", "DB"]
+    yi["Interactions"] = yi[['AD', 'DB']].apply(lambda x: '_'.join(x), axis=1)
+    return yi
 
 def pre_freq(rc_pre):
     """
@@ -54,7 +62,6 @@ def norm_score(s, q):
     beta = s[s>med]-med
     
     beta_q = beta.quantile(q)
-    
     # if s_ij - med(s_i) < beta_i
     m1 = (s-med) < beta_q
     # if s_ij - med(s_i) >= beta_i
@@ -62,16 +69,18 @@ def norm_score(s, q):
 
     s[m1] = 1
     s[m2] = (s-med)/beta_q
-    
+    s = s.replace(np.inf, np.nan) 
     return s
 
 
-def get_rank(norm_s):
+def get_rank(norm_s, rank=range(0,4)):
     """
     In total we have 4 ranks for each protein pair
     aBC1-bBC1, aBC1-bBC2, aBC2-bBC1, aBC2-bBC2 
+    norm_s: normalized score s'
+    rank: range(0, 4)
     """
-    print datetime.datetime.now()
+    output={}
     # unstack the matrix
     transform = norm_s.unstack().reset_index()
     # rename col
@@ -82,11 +91,88 @@ def get_rank(norm_s):
     
     # merge cols
     transform['Interaction'] = transform.AD.str.cat(transform.DB, sep="_")
-    print len(transform.groupby(['Interaction']).groups.keys())
-    print datetime.datetime.now()
-    return transform
+    
+    # sort by group
+    sort = transform.sort_values(["s_prime"], ascending=False).groupby("Interaction")
 
-def main(GFP_pre, GFP_med, GFP_high):
+    for i in rank:
+        d_name="rank_{}".format(i)
+        scores = sort.nth(i).dropna(how="any").sort_values(["s_prime"], ascending=False)
+        #output[d_name] = scores[scores.s_prime > 1]
+
+        output[d_name] = scores
+    
+    return output
+
+
+def get_screen(dict_s, gold_st):
+
+    """
+    Get screening set
+    """
+    prcmcc = pd.DataFrame({}, columns=["precision","recall","MCC","rank"])
+    AD_GOLD = gold_st.AD.tolist()
+    DB_GOLD = gold_st.DB.tolist()
+    for key in dict_s.keys():
+        s_prime = dict_s[key]
+        s_prime = s_prime.reset_index()
+        s_prime["is_hit"] = s_prime.Interaction.isin(gold_st.Interactions).astype(int)
+        
+        s_prime["is_AD"] = s_prime.AD.isin(AD_GOLD)
+        s_prime["is_DB"] = s_prime.DB.isin(DB_GOLD)
+
+        s_prime["screen"] = (s_prime.is_AD & s_prime.is_DB).astype(int)
+
+        network_orfs = s_prime.loc[s_prime.screen == 1].is_hit.tolist()
+        #print sum(network_orfs)
+        #print sum(s_prime.is_hit.tolist())
+
+        MAXMCC = prcMCC(network_orfs, 1000)
+        MAXMCC["rank"] = key
+        prcmcc = prcmcc.append(MAXMCC)
+    
+    prcmcc = prcmcc.reset_index(drop=True)
+    return prcmcc
+
+
+def prcMCC(label, test_range):
+    """
+    GOLD: list of genes in YI1
+    ranked_scores: top 1000 scores from our experiment
+    """
+
+    PRCMCC = []
+    
+    # use the same screening set as in DK's code
+    total_screen = len(label)
+    if total_screen < test_range:
+        test_range = total_screen-1
+    for i in range(1,test_range+1):
+        test_screen = label[:i]
+        test_nonscreen = label[i:]
+        # true positive: condition positive and predicted pos
+        TP = sum(test_screen)
+        # true negative: condition negative and predicted neg
+        TN = test_nonscreen.count(0)
+        # false positive: condition negative and predicted pos
+        FP = test_screen.count(0)
+        # false negative: condition positive and predicted neg
+        FN = sum(test_nonscreen)
+        # precision = TP / (TP+FP)
+        precision = sum(test_screen)/i * 100
+        # recall = TP / (TP+FN)
+        recall = sum(test_screen)/sum(label) * 100
+        MCC= (TP*TN-FP*FN)/math.sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))*100
+        PRCMCC.append([precision, recall, MCC])
+    df = pd.DataFrame(PRCMCC, columns=["precision", "recall", "mcc"])
+#    MAXid = df.MCC.idxmax()
+#    MAXMCC = df.loc[MAXid].tolist()
+    #all_mcc.append(MAXMCC)
+#    MAXMCC.insert(0, total_screen)
+    return df
+
+
+def main(GFP_pre, GFP_med, GFP_high, gold_st):
 
     #calculate GFP_pre freq
     row_freq, col_freq = pre_freq(GFP_pre)
@@ -103,30 +189,41 @@ def main(GFP_pre, GFP_med, GFP_high):
     s = get_score(GFP_pre_freq, med_freq, high_freq)
     test = s.values.flatten()
     test.sort()
-    plot_diff(test)
+    #plot_diff(test)
     
     percentile = np.arange(0.1, 1.0, 0.05)
-    norm_s = norm_score(s, 0.75)
-    rank = get_rank(norm_s)
-
-    rank = rank.sort_values(by=['s_prime'], ascending=False)
-    print rank
-    plot_s(rank, "s_prime_sorted.png")
-
-#    print norm_s
-    # test different rho
-#    for p in percentile:
+    mcc_summary = pd.DataFrame({}, columns=["precision","recall","mcc","rank","rho"])
+    # test different rho to optimize mcc
+    for p in percentile:
         # get normalized scores
-#        norm_s = norm_score(s, p)
-#        sample_name = "rho = "+ str(p)
+        norm_s = norm_score(s, p)
+        sample_name = "rho_"+ str(p)
         # test corr of score and normed score
-#        norm_score_corr(sample_name, s, norm_s)
+        # norm_score_corr(sample_name, s, norm_s)
+        output_rank = get_rank(norm_s, rank=range(0,4))
+        mcc = get_screen(output_rank, gold_st)
+        mcc["rho"] = p
+        mcc_summary = mcc_summary.append(mcc)
+        #print datetime.datetime.now()
+        #print mcc_summary
+        
+    return mcc_summary
 
-
+def load_summary(mcc_sum):
+    mcc_summary = pd.read_csv(mcc_sum)
+    MAX = mcc_summary.loc[mcc_summary["mcc"].idxmax()]
+    max_rho = MAX.rho
+    max_rank = MAX["rank"]
+    max_mcc = mcc_summary[(mcc_summary.rho == max_rho) & (mcc_summary["rank"] == max_rank)].reset_index(drop=True)
+    # plot max mcc
+    title = max_rank+";rho="+str(max_rho)
+    plot_prc(max_mcc.precision, max_mcc.recall, "./prc_curve.png", title)
+    plot_prcmcc(max_mcc, "./prcmcc_curve.png", title)
+    print "plots made"
 
 if __name__ == "__main__":
-    # test on yAD2 DB1
-    test_dir = "/home/rothlab/rli/02_dev/08_bfg_y2h/rerun_analysis/yAD4DB1/"
+    # test on yAD4 DB1
+    test_dir = "/home/rothlab/rli/02_dev/08_bfg_y2h/rerun_analysis/yAD1DB4/"
     
     os.chdir(test_dir)
     for f in os.listdir(test_dir):
@@ -139,7 +236,8 @@ if __name__ == "__main__":
             GFP_med = pd.read_table(fname, sep =",", index_col=0)
         elif "high" in f:
             GFP_high = pd.read_table(fname, sep =",", index_col=0)
-
-    main(GFP_pre, GFP_med, GFP_high)            
-
-
+    
+    gold_st = load_YI1(GOLD)
+    mcc_summary = main(GFP_pre, GFP_med, GFP_high, gold_st)            
+    mcc_summary.to_csv("noz_mcc_summary.csv")
+    load_summary("noz_mcc_summary.csv")

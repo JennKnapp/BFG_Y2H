@@ -31,10 +31,13 @@ floor_perc = np.arange(5,25,2.5)
 
 MCC_REF = ""
 
-# parameters
+# DK parameters
 weight_fix = 0
 floor_perc_fix = 0 
 index_fix = 0
+
+# nozumu parameters
+rho = ""
 
 ###################################
 # summary files are used to grep gene names, group information 

@@ -119,13 +119,14 @@ def heat_freq(freq_matrix):
     hm.savefig("/home/rothlab/rli/www/html/heatmap_output.png")
     
 
-def plot_prc(precision, recall, output_file):
+def plot_prc(precision, recall, output_file, title):
 
     plt.step(recall, precision, color='b', alpha=0.6,where='post')
     plt.xlabel('Recall')
     plt.ylabel('Precision')
-    plt.ylim([0.0, 1.05])
-    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 105])
+    plt.xlim([0.0, 105])
+    plt.title(title)
     plt.savefig(output_file)
     plt.close()
 
@@ -141,12 +142,14 @@ def rank_prc(precision, recall, output_file):
     plt.savefig(output_file)
     plt.close()
 
-def plot_prcmcc(df, name):
+def plot_prcmcc(df, name, title):
 
-    plt.plot(df.precision.tolist())
-    plt.plot(df.recall.tolist())
-    plt.plot(df.mcc.tolist())
-
+    plt.plot(df.precision.tolist(), ".", label="precision", markersize=0.8)
+    plt.plot(df.recall.tolist(), ".", label="recall", markersize=0.8)
+    plt.plot(df.mcc.tolist(), ".", label="mcc", markersize=0.8)
+    plt.xlabel("ORF pairs ranked by IS")
+    plt.legend(loc="upper right")
+    plt.title(title)
     plt.savefig(name)
     plt.close()
 
