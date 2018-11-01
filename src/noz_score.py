@@ -6,6 +6,8 @@ import datetime
 import math
 from plot import *
 from param import *
+import score
+#from score import *
 # calculating scores based on nozomu's paper
 # load the file in the same way as score.py
 # detail about how to calculate the score on google doc
@@ -49,7 +51,10 @@ def get_score(pre_freq, med_freq, high_freq):
     pre_freq = pd.DataFrame(data = pre_freq, columns=med_freq.columns.tolist(), index=med_freq.index.tolist())
 
     s = (med_freq+high_freq)/pre_freq
+    # save raw score to file
 
+    df = s.unstack.reset_index()
+    df.to_csv("noz_raw_score.csv")
     return s
 
 def norm_score(s, q):
@@ -127,50 +132,12 @@ def get_screen(dict_s, gold_st):
         #print sum(network_orfs)
         #print sum(s_prime.is_hit.tolist())
 
-        MAXMCC = prcMCC(network_orfs, 1000)
+        MAXMCC = score.prcmcc(network_orfs, 1000)
         MAXMCC["rank"] = key
         prcmcc = prcmcc.append(MAXMCC)
     
     prcmcc = prcmcc.reset_index(drop=True)
     return prcmcc
-
-
-def prcMCC(label, test_range):
-    """
-    GOLD: list of genes in YI1
-    ranked_scores: top 1000 scores from our experiment
-    """
-
-    PRCMCC = []
-    
-    # use the same screening set as in DK's code
-    total_screen = len(label)
-    if total_screen < test_range:
-        test_range = total_screen-1
-    for i in range(1,test_range+1):
-        test_screen = label[:i]
-        test_nonscreen = label[i:]
-        # true positive: condition positive and predicted pos
-        TP = sum(test_screen)
-        # true negative: condition negative and predicted neg
-        TN = test_nonscreen.count(0)
-        # false positive: condition negative and predicted pos
-        FP = test_screen.count(0)
-        # false negative: condition positive and predicted neg
-        FN = sum(test_nonscreen)
-        # precision = TP / (TP+FP)
-        precision = sum(test_screen)/i * 100
-        # recall = TP / (TP+FN)
-        recall = sum(test_screen)/sum(label) * 100
-        MCC= (TP*TN-FP*FN)/math.sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))*100
-        PRCMCC.append([precision, recall, MCC])
-    df = pd.DataFrame(PRCMCC, columns=["precision", "recall", "mcc"])
-#    MAXid = df.MCC.idxmax()
-#    MAXMCC = df.loc[MAXid].tolist()
-    #all_mcc.append(MAXMCC)
-#    MAXMCC.insert(0, total_screen)
-    return df
-
 
 def main(GFP_pre, GFP_med, GFP_high, gold_st):
 
@@ -206,7 +173,6 @@ def main(GFP_pre, GFP_med, GFP_high, gold_st):
         mcc_summary = mcc_summary.append(mcc)
         #print datetime.datetime.now()
         #print mcc_summary
-        
     return mcc_summary
 
 def load_summary(mcc_sum):
@@ -216,10 +182,11 @@ def load_summary(mcc_sum):
     max_rank = MAX["rank"]
     max_mcc = mcc_summary[(mcc_summary.rho == max_rho) & (mcc_summary["rank"] == max_rank)].reset_index(drop=True)
     # plot max mcc
-    title = max_rank+";rho="+str(max_rho)
-    plot_prc(max_mcc.precision, max_mcc.recall, "./prc_curve.png", title)
-    plot_prcmcc(max_mcc, "./prcmcc_curve.png", title)
+    title = max_rank+";rho="+str(round(max_rho, 1))
+    plot_prc(max_mcc.precision, max_mcc.recall, "./noz_prc_curve.png", title)
+    plot_prcmcc(max_mcc, "./noz_prcmcc_curve.png", title)
     print "plots made"
+    return max_rho, max_rank
 
 if __name__ == "__main__":
     # test on yAD4 DB1
@@ -240,4 +207,4 @@ if __name__ == "__main__":
     gold_st = load_YI1(GOLD)
     mcc_summary = main(GFP_pre, GFP_med, GFP_high, gold_st)            
     mcc_summary.to_csv("noz_mcc_summary.csv")
-    load_summary("noz_mcc_summary.csv")
+    max_rho, max_rank = load_summary("noz_mcc_summary.csv")

@@ -8,11 +8,14 @@ import pandas as pd
 import logging
 import logging.config
 import itertools
+import noz_score
 from plot import *
 from param import *
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import matthews_corrcoef
+#from noz_score import *
+
 
 def freq(matrix):
         
@@ -66,7 +69,7 @@ def calculate_freq(GFP_pre, GFP_high, GFP_med):
 def get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut):
     # dicts contains intereactions and scores for each index 
     # compare to gold standard and plot PRC
-    mcc = {}
+    MCC = pd.DataFrame({}, columns=["precision","recall","mcc","rank"])
     AD_GOLD = gold_st.AD.tolist()
     DB_GOLD = gold_st.DB.tolist()
     for j in dicts.keys():
@@ -100,8 +103,12 @@ def get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut):
         # scores
         y_score = i.Score.tolist()
         MAXMCC = prcmcc(y_network, 1000)
-        mcc[j] = MAXMCC
-    return mcc
+        MAXMCC["rank"] = j
+        
+        MCC = MCC.append(MAXMCC)
+    MCC = MCC.reset_index(drop=True)
+
+    return MCC
 
 
 def prcmcc(label, test_range):
@@ -131,14 +138,14 @@ def prcmcc(label, test_range):
         MCC= (TP*TN-FP*FN)/math.sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))*100 
         PRCMCC.append([precision, recall, MCC])
     
-    df = pd.DataFrame(PRCMCC, columns=["precision", "recall", "MCC"])
+    df = pd.DataFrame(PRCMCC, columns=["precision", "recall", "mcc"])
 
-    MAXid = df.MCC.idxmax()
+    #MAXid = df.MCC.idxmax()
     #print MAXid
-    MAXMCC = df.loc[MAXid].tolist()
+    #MAXMCC = df.loc[MAXid].tolist()
     #all_mcc.append(MAXMCC) 
-    MAXMCC.insert(0, total_screen)
-    return MAXMCC
+    #MAXMCC.insert(0, total_screen)
+    return df
 
 
 def test_rank(IS_normed, all_pairs, mix_index):
@@ -200,7 +207,7 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st):
     
     # optimization
  
-    output_csv = {}
+    output_csv = pd.DataFrame({}, columns=["precision","recall","mcc","rank","weight", "floor"])
     for s in comb:
         weight = s[0]
         floor = s[1]
@@ -246,11 +253,27 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st):
         AD_freq["AD_name"] = AD_freq.index
         DB_freq["DB_name"] = DB_freq.index
         
-        output_name = ""
         mcc_list = get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut)
-        output_csv[(weight, floor)] = mcc_list
-
+        mcc_list["weight"] = weight
+        mcc_list["floor"] = floor
+        output_csv = output_csv.append(mcc_list)
     return output_csv
+
+
+def load_summary(mcc_sum):
+    mcc_summary = pd.read_csv(mcc_sum)
+    MAX = mcc_summary.loc[mcc_summary["mcc"].idxmax()]
+    max_weight = MAX["weight"]
+    max_rank = MAX["rank"]
+    max_floor = MAX["floor"]
+    max_mcc = mcc_summary[(mcc_summary["weight"] == max_weight) & (mcc_summary["rank"] == max_rank) & (mcc_summary["floor"] == max_floor)].reset_index(drop=True)
+    # plot max mcc
+    title = max_rank+";w="+str(round(max_weight, 1))+";f="+str(round(max_floor, 1))
+    plot_prc(max_mcc.precision, max_mcc.recall, "./dk_prc_curve.png", title)
+    plot_prcmcc(max_mcc, "./dk_prcmcc_curve.png", title)
+    print max_mcc
+    print "plots made"
+    return max_weight, max_rank, max_floor
 
 if __name__ == "__main__":
     
@@ -277,14 +300,11 @@ if __name__ == "__main__":
             GFP_high = pd.read_table(fname, sep =",", index_col=0)
     
     output_csv = score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, yi)
-    df = pd.DataFrame(output_csv).unstack().reset_index()
-    df.columns = ["weight", "floor","index", "mcc_list"]
-    df[["total_screen", "precision","recall","mcc"]] = pd.DataFrame(df.mcc_list.tolist(), columns=["total_screen", "precision","recall","mcc"])
-    df = df.drop(columns=["mcc_list"])
-    df["sample"] = sample_name
-    df.to_csv("./score_optimization_all.csv", index=False)
-    
-    # get the top 3 MCC for this sample and save to a different file
+    output_csv.to_csv("DK_mcc_summary.csv")
+    max_weight, max_rank, max_floor = load_summary("DK_mcc_summary.csv")
 
-    maxdf = df.nlargest(5, "mcc")
-    maxdf.to_csv("./score_optimization_max.csv", index=False)
+    noz_main = noz_score.main(GFP_pre, GFP_med, GFP_high, yi)
+    noz_main.to_csv("noz_mcc_summary.csv")
+    max_rho, max_rank = noz_score.load_summary("noz_mcc_summary.csv")
+
+
