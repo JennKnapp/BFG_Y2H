@@ -26,18 +26,8 @@ floor_perc = np.arange(5,25,2.5)
 ###################################
 
 # for calculating MCC
-# 
-# reference to compare to 
 
-MCC_REF = ""
-
-# DK parameters
-weight_fix = 0
-floor_perc_fix = 0 
-index_fix = 0
-
-# nozumu parameters
-rho = ""
+litBM13="/home/rothlab/rli/02_dev/08_bfg_y2h/summary/litbm_13.txt"
 
 ###################################
 # summary files are used to grep gene names, group information 

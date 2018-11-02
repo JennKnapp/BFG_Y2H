@@ -183,8 +183,8 @@ def load_summary(mcc_sum):
     max_mcc = mcc_summary[(mcc_summary.rho == max_rho) & (mcc_summary["rank"] == max_rank)].reset_index(drop=True)
     # plot max mcc
     title = max_rank+";rho="+str(round(max_rho, 1))
-    plot_prc(max_mcc.precision, max_mcc.recall, "./noz_prc_curve.png", title)
-    plot_prcmcc(max_mcc, "./noz_prcmcc_curve.png", title)
+    plot_prc(max_mcc.precision, max_mcc.recall, "./noz_prc_curve_opt.png", title)
+    plot_prcmcc(max_mcc, "./noz_prcmcc_curve_opt.png", title)
     print "plots made"
     return max_rho, max_rank
 
@@ -206,5 +206,5 @@ if __name__ == "__main__":
     
     gold_st = load_YI1(GOLD)
     mcc_summary = main(GFP_pre, GFP_med, GFP_high, gold_st)            
-    mcc_summary.to_csv("noz_mcc_summary.csv")
-    max_rho, max_rank = load_summary("noz_mcc_summary.csv")
+    mcc_summary.to_csv("noz_mcc_summary_opt.csv")
+    max_rho, max_rank = load_summary("noz_mcc_summary_opt.csv")

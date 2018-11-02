@@ -269,8 +269,8 @@ def load_summary(mcc_sum):
     max_mcc = mcc_summary[(mcc_summary["weight"] == max_weight) & (mcc_summary["rank"] == max_rank) & (mcc_summary["floor"] == max_floor)].reset_index(drop=True)
     # plot max mcc
     title = max_rank+";w="+str(round(max_weight, 1))+";f="+str(round(max_floor, 1))
-    plot_prc(max_mcc.precision, max_mcc.recall, "./dk_prc_curve.png", title)
-    plot_prcmcc(max_mcc, "./dk_prcmcc_curve.png", title)
+    plot_prc(max_mcc.precision, max_mcc.recall, "./dk_prc_curve_opt.png", title)
+    plot_prcmcc(max_mcc, "./dk_prcmcc_curve_opt.png", title)
     print max_mcc
     print "plots made"
     return max_weight, max_rank, max_floor
@@ -300,11 +300,11 @@ if __name__ == "__main__":
             GFP_high = pd.read_table(fname, sep =",", index_col=0)
     
     output_csv = score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, yi)
-    output_csv.to_csv("DK_mcc_summary.csv")
-    max_weight, max_rank, max_floor = load_summary("DK_mcc_summary.csv")
+    output_csv.to_csv("DK_mcc_summary_yi1.csv")
+    max_weight, max_rank, max_floor = load_summary("DK_mcc_summary_yi1.csv")
 
     noz_main = noz_score.main(GFP_pre, GFP_med, GFP_high, yi)
-    noz_main.to_csv("noz_mcc_summary.csv")
-    max_rho, max_rank = noz_score.load_summary("noz_mcc_summary.csv")
+    noz_main.to_csv("noz_mcc_summary_yi1.csv")
+    max_rho, max_rank = noz_score.load_summary("noz_mcc_summary_yi1.csv")
 
 
