@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from param import *
+import param
 
 def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0", DB="G0"):
 
@@ -28,22 +28,22 @@ def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0",
         for index, row in AD_summary.iterrows():
             up_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"up"
             ad.write(up_seq_name+"\n")
-            ad.write(AD_Up1+row.UpTag_Sequence+AD_Up2+"\n") # add padding sequences
+            ad.write(param.AD_Up1+row.UpTag_Sequence+param.AD_Up2+"\n") # add padding sequences
 
             dn_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"dn"
             ad.write(dn_seq_name+"\n")
-            ad.write(AD_Dn1+row.DnTag_Sequence+AD_Dn2+"\n")
+            ad.write(param.AD_Dn1+row.DnTag_Sequence+param.AD_Dn2+"\n")
 
     with open(os.path.join(output_path, f_db), "w") as db:
             
         for index, row in DB_summary.iterrows():
             up_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"up"
             db.write(up_seq_name+"\n")
-            db.write(DB_Up1+row.UpTag_Sequence+DB_Up2+"\n")
+            db.write(param.DB_Up1+row.UpTag_Sequence+param.DB_Up2+"\n")
 
             dn_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"dn"
             db.write(dn_seq_name+"\n")
-            db.write(DB_Dn1+row.DnTag_Sequence+DB_Dn2+"\n")
+            db.write(param.DB_Dn1+row.DnTag_Sequence+param.DB_Dn2+"\n")
 
 
 def build_index(fasta_file, output_dir):
@@ -52,6 +52,6 @@ def build_index(fasta_file, output_dir):
     """
     basename = os.path.basename(fasta_file).split(".")[0]
     #print basename
-    cmd = BOWTIE2_BUILD+fasta_file+" "+os.path.join(output_dir,basename)
+    cmd = param.BOWTIE2_BUILD+fasta_file+" "+os.path.join(output_dir,basename)
     #print cmd
     os.system(cmd)

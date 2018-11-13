@@ -4,12 +4,12 @@ import logging.config
 import os
 import glob
 import re
-from create_fasta import *
-from param import *
-from alignment import *
-from supplements import *
-from read_counts import *
-from plot import *
+import param
+import create_fasta
+import alignment
+import supplements
+import read_counts
+import plot
 
 if __name__ == "__main__":
 
@@ -44,7 +44,7 @@ if __name__ == "__main__":
          
     if fasta_output is not None:
         # example of create fasta for AD1DB4
-        create_fasta(AD_summary, DB_summary, fasta_output, group_spec=True, AD=AD_GROUP, DB=DB_GROUP)
+        create_fasta.create_fasta(AD_summary, DB_summary, fasta_output, group_spec=True, AD=AD_GROUP, DB=DB_GROUP)
 
         # example of create fasta for all 
 #        create_fasta(AD_summary, DB_summary, fasta_output)
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         list_fasta = os.listdir(fasta_output)
 
         for fasta in list_fasta:
-            build_index(os.path.join(fasta_output,fasta), fasta_output)
+            create_fasta.build_index(os.path.join(fasta_output,fasta), fasta_output)
         
     ##########################################################
     ###################### Alignment #########################
@@ -85,8 +85,8 @@ if __name__ == "__main__":
     #print AD_GROUP
     #print DB_GROUP
 
-    AD_REF = REF_PATH+"y_AD_"+AD_GROUP
-    DB_REF = REF_PATH+"y_DB_"+DB_GROUP
+    AD_REF = param.REF_PATH+"y_AD_"+AD_GROUP
+    DB_REF = param.REF_PATH+"y_DB_"+DB_GROUP
 
 
     if output is None: 
@@ -104,9 +104,9 @@ if __name__ == "__main__":
     logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf", disable_existing_loggers=False)  
     log = logging.getLogger("root")
 
-    if ALIGNMENT:
-        r1_sam = bowtie_align(ad, AD_REF, output)
-        r2_sam = bowtie_align(db, DB_REF, output)
+    if param.ALIGNMENT:
+        #r1_sam = alignment.bowtie_align(ad, AD_REF, output)
+        #r2_sam = alignment.bowtie_align(db, DB_REF, output)
         
         # check if sam files exist
         if not os.path.isfile(r1_sam) or not os.path.isfile(r2_sam):
@@ -121,10 +121,10 @@ if __name__ == "__main__":
         # sort r1_sam
         log.info("Sorting sam files..")
         sorted_r1 = os.path.join(dir_name, r1_basename.replace(".sam", "_sorted.sam"))
-        sort_r1 = SAMTOOLS+"sort -n -o "+sorted_r1+" "+r1_sam
+        sort_r1 = param.SAMTOOLS+"sort -n -o "+sorted_r1+" "+r1_sam
         # sort r2_sam
         sorted_r2 = os.path.join(dir_name, r2_basename.replace(".sam", "_sorted.sam"))
-        sort_r2 = SAMTOOLS+"sort -n -o "+sorted_r2+" "+r2_sam
+        sort_r2 = param.SAMTOOLS+"sort -n -o "+sorted_r2+" "+r2_sam
         
         # remove headers
         r1 = os.path.join(dir_name, r1_basename.replace(".sam", "_noh.sam")) 
@@ -163,12 +163,12 @@ if __name__ == "__main__":
                 if "R2" in f and ".csv" in f:
                     r2_csv = f
 
-    if READ_COUNT:
+    if param.READ_COUNT:
         
         log.info("Counting reads for %s, %s", r1_csv, r2_csv)
 
-        AD_genes, DB_genes = read_summary(AD_summary, DB_summary, AD_group=AD_GROUP, DB_group=DB_GROUP)
-        up_matrix, dn_matrix = RCmain(r1_csv, r2_csv, AD_genes, DB_genes)
+        AD_genes, DB_genes = supplements.read_summary(param.AD_summary, param.DB_summary, AD_group=AD_GROUP, DB_group=DB_GROUP)
+        up_matrix, dn_matrix = read_counts.RCmain(r1_csv, r2_csv, AD_genes, DB_genes)
         
         uptag_file = "./"+ad_base+"_uptag_rawcounts.csv"
         dntag_file = "./"+ad_base+"_dntag_rawcounts.csv"
@@ -184,6 +184,6 @@ if __name__ == "__main__":
 
         # plot up and dn corr
         # sample_bc_corr.png
-        bc_corr(basename, up_matrix, dn_matrix)
+        plot.bc_corr(basename, up_matrix, dn_matrix)
 
         log.info("Barcode counts corr plot")

@@ -4,10 +4,9 @@ import numpy as np
 import os
 import datetime
 import math
-from plot import *
-from param import *
+import plot
+import param
 import score
-#from score import *
 # calculating scores based on nozomu's paper
 # load the file in the same way as score.py
 # detail about how to calculate the score on google doc
@@ -50,11 +49,8 @@ def get_score(pre_freq, med_freq, high_freq):
     # convert pre_freq to dataframe
     pre_freq = pd.DataFrame(data = pre_freq, columns=med_freq.columns.tolist(), index=med_freq.index.tolist())
 
-    s = (med_freq+high_freq)/pre_freq
-    # save raw score to file
+    s = (med_freq + high_freq)/pre_freq
 
-    df = s.unstack.reset_index()
-    df.to_csv("noz_raw_score.csv")
     return s
 
 def norm_score(s, q):
@@ -68,9 +64,9 @@ def norm_score(s, q):
     
     beta_q = beta.quantile(q)
     # if s_ij - med(s_i) < beta_i
-    m1 = (s-med) < beta_q
+    m1 = (s-med) <= beta_q
     # if s_ij - med(s_i) >= beta_i
-    m2 = (s-med) >= beta_q
+    m2 = (s-med) > beta_q
 
     s[m1] = 1
     s[m2] = (s-med)/beta_q
@@ -115,7 +111,7 @@ def get_screen(dict_s, gold_st):
     """
     Get screening set
     """
-    prcmcc = pd.DataFrame({}, columns=["precision","recall","MCC","rank"])
+    prcmcc = pd.DataFrame({}, columns=["precision","recall","mcc","rank"])
     AD_GOLD = gold_st.AD.tolist()
     DB_GOLD = gold_st.DB.tolist()
     for key in dict_s.keys():
@@ -127,7 +123,8 @@ def get_screen(dict_s, gold_st):
         s_prime["is_DB"] = s_prime.DB.isin(DB_GOLD)
 
         s_prime["screen"] = (s_prime.is_AD & s_prime.is_DB).astype(int)
-
+        s_prime = s_prime[s_prime["s_prime"]>1]
+        print s_prime
         network_orfs = s_prime.loc[s_prime.screen == 1].is_hit.tolist()
         #print sum(network_orfs)
         #print sum(s_prime.is_hit.tolist())
@@ -154,8 +151,9 @@ def main(GFP_pre, GFP_med, GFP_high, gold_st):
     
     # get raw scores
     s = get_score(GFP_pre_freq, med_freq, high_freq)
-    test = s.values.flatten()
-    test.sort()
+    #print s
+    #test = s.values.flatten()
+    #test.sort()
     #plot_diff(test)
     
     percentile = np.arange(0.1, 1.0, 0.05)
@@ -173,7 +171,8 @@ def main(GFP_pre, GFP_med, GFP_high, gold_st):
         mcc_summary = mcc_summary.append(mcc)
         #print datetime.datetime.now()
         #print mcc_summary
-    return mcc_summary
+        #break
+    return mcc_summary, s
 
 def load_summary(mcc_sum):
     mcc_summary = pd.read_csv(mcc_sum)
@@ -183,9 +182,9 @@ def load_summary(mcc_sum):
     max_mcc = mcc_summary[(mcc_summary.rho == max_rho) & (mcc_summary["rank"] == max_rank)].reset_index(drop=True)
     # plot max mcc
     title = max_rank+";rho="+str(round(max_rho, 1))
-    plot_prc(max_mcc.precision, max_mcc.recall, "./noz_prc_curve_opt.png", title)
-    plot_prcmcc(max_mcc, "./noz_prcmcc_curve_opt.png", title)
-    print "plots made"
+#    plot.plot_prc(max_mcc.precision, max_mcc.recall, "./noz_prc_curve_opt.png", title)
+#    plot.plot_prcmcc(max_mcc, "./noz_prcmcc_curve_opt.png", title)
+#    print "plots made"
     return max_rho, max_rank
 
 if __name__ == "__main__":
@@ -204,7 +203,7 @@ if __name__ == "__main__":
         elif "high" in f:
             GFP_high = pd.read_table(fname, sep =",", index_col=0)
     
-    gold_st = load_YI1(GOLD)
-    mcc_summary = main(GFP_pre, GFP_med, GFP_high, gold_st)            
-    mcc_summary.to_csv("noz_mcc_summary_opt.csv")
+    gold_st = load_YI1(param.GOLD)
+    mcc_summary, s = main(GFP_pre, GFP_med, GFP_high, gold_st)            
+    mcc_summary.to_csv("noz_mcc_summary_opt.csv", index=False)
     max_rho, max_rank = load_summary("noz_mcc_summary_opt.csv")

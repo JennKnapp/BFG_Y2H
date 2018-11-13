@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 import datetime
-from param import *
+import param
 from main import *
 import logging
 import logging.config
@@ -99,14 +99,6 @@ class Read_Count(object):
         
         f1.close()
         f2.close()
-        #uptag_file = "./uptag_rawcounts.csv"
-        #dntag_file = "./dntag_rawcounts.csv"
-        #dntag_matrix.to_csv(dntag_file)
-        #uptag_matrix.to_csv(uptag_file)
-        
-        #combined = uptag_matrix + dntag_matrix
-        #combined.to_csv("./combined_counts.csv")
-        #analysis_log.info("Matrix saved to files")
         
         return uptag_matrix, dntag_matrix
 

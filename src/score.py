@@ -9,8 +9,9 @@ import logging
 import logging.config
 import itertools
 import noz_score
-from plot import *
-from param import *
+import param
+import evaluation
+import plot
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import matthews_corrcoef
@@ -148,6 +149,24 @@ def prcmcc(label, test_range):
     return df
 
 
+def get_norm_score(weight, high_freq, med_freq, pre_freq):
+    IS = ((weight * high_freq) + med_freq) / pre_freq
+
+    # replace with nan
+    IS = IS.replace(0, np.nan)
+
+    # log2 median of DB
+    log_med = np.log2(IS.median(axis=0))
+
+    # log2 of matrix
+    log_is = np.log2(IS)
+
+    # subtract
+    IS_normed = log_is.sub(log_med)
+
+    return IS_normed
+
+
 def test_rank(IS_normed, all_pairs, mix_index):
 
     dicts = {"is_{}".format(i): {} for i in mix_index}
@@ -223,24 +242,7 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st):
         
         pre_freq = pd.DataFrame(data = freq_mx, columns = DB_freq.index.tolist(), index = AD_freq.index.tolist())
     
-        # score
-        IS = ((weight * high_freq) + med_freq) / pre_freq
-        
-        # plot scores (debug)
-
-        # replace with nan
-        IS = IS.replace(0, np.nan)
-        
-        # log2 median of DB
-        log_med = np.log2(IS.median(axis=0))
-        
-        # log2 of matrix
-        log_is = np.log2(IS)
-
-        # subtract
-        IS_normed = log_is.sub(log_med)
-        
-        # plot normalized scores (debug)
+        IS_normed = get_norm_score(weight, high_freq, med_freq, pre_freq)
         
         # test which set of bc we want to use
         # in this case, we will have max 4 min 1 score(s) for each orf pair
@@ -252,12 +254,13 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st):
         
         AD_freq["AD_name"] = AD_freq.index
         DB_freq["DB_name"] = DB_freq.index
-        
+         
         mcc_list = get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut)
         mcc_list["weight"] = weight
         mcc_list["floor"] = floor
         output_csv = output_csv.append(mcc_list)
-    return output_csv
+        #break 
+    return output_csv, row_freq, col_freq, med_freq, high_freq, AD_NAMES, DB_NAMES
 
 
 def load_summary(mcc_sum):
@@ -269,11 +272,12 @@ def load_summary(mcc_sum):
     max_mcc = mcc_summary[(mcc_summary["weight"] == max_weight) & (mcc_summary["rank"] == max_rank) & (mcc_summary["floor"] == max_floor)].reset_index(drop=True)
     # plot max mcc
     title = max_rank+";w="+str(round(max_weight, 1))+";f="+str(round(max_floor, 1))
-    plot_prc(max_mcc.precision, max_mcc.recall, "./dk_prc_curve_opt.png", title)
-    plot_prcmcc(max_mcc, "./dk_prcmcc_curve_opt.png", title)
-    print max_mcc
-    print "plots made"
+    #plot.plot_prc(max_mcc.precision, max_mcc.recall, "./dk_prc_curve_opt.png", title)
+    #plot.plot_prcmcc(max_mcc, "./dk_prcmcc_curve_opt.png", title)
+    #print max_mcc
+    #print "plots made"
     return max_weight, max_rank, max_floor
+
 
 if __name__ == "__main__":
     
@@ -287,7 +291,7 @@ if __name__ == "__main__":
     
     os.chdir(counts)
     # find the optimized parameters
-    yi = load_YI1(GOLD)
+    yi = load_YI1(param.GOLD)
     for f in os.listdir(counts):
         if not f.endswith("_combined_counts.csv"):
             continue
@@ -299,12 +303,19 @@ if __name__ == "__main__":
         elif "high" in f:
             GFP_high = pd.read_table(fname, sep =",", index_col=0)
     
-    output_csv = score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, yi)
-    output_csv.to_csv("DK_mcc_summary_yi1.csv")
+    output_csv, row_freq, col_freq, med_freq, high_freq, AD_NAMES, DB_NAMES = score_main(GFP_pre, GFP_high, GFP_med, param.weights, param.floor_perc, yi)
+    output_csv.to_csv("DK_mcc_summary_yi1.csv", index=False)
     max_weight, max_rank, max_floor = load_summary("DK_mcc_summary_yi1.csv")
+    print "max param found"
+    # evaluation
+    litbm = evaluation.load_litbm(param.litBM13)
+    evaluation.dk_main(litbm, max_weight, max_rank, max_floor, high_freq, med_freq, row_freq, col_freq, AD_NAMES, DB_NAMES, "dk_mcc_summary_litbm13")
 
-    noz_main = noz_score.main(GFP_pre, GFP_med, GFP_high, yi)
-    noz_main.to_csv("noz_mcc_summary_yi1.csv")
+    noz_main, raw_scores = noz_score.main(GFP_pre, GFP_med, GFP_high, yi)
+    #print raw_scores
+    df = raw_scores.unstack().reset_index()
+    df.to_csv("noz_raw_score.csv", index=False)
+    noz_main.to_csv("noz_mcc_summary_yi1.csv", index=False)
     max_rho, max_rank = noz_score.load_summary("noz_mcc_summary_yi1.csv")
-
-
+    # evaluation    
+    evaluation.noz_main(litbm, raw_scores, max_rank, max_rho, "noz_mcc_summary_litbm13")

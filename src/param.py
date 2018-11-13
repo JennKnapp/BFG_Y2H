@@ -4,7 +4,7 @@ import numpy as np
 
 # If you want to do alignments
 # Set this to True
-ALIGNMENT = False
+ALIGNMENT = True
 
 # if you want to do read counts
 # Set this to True

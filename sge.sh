@@ -53,6 +53,7 @@ while [ $i -eq 1 ]; do
       qsub -N $(basename $sample) ./sge_score_sub.sh $sample
       #/home/rothlab/rli/py/bin/python2.7 ./src/score.py --sample $sample 
     done
+    i=0
   else
     sleep 1800
   fi
