@@ -105,8 +105,8 @@ if __name__ == "__main__":
     log = logging.getLogger("root")
 
     if param.ALIGNMENT:
-        #r1_sam = alignment.bowtie_align(ad, AD_REF, output)
-        #r2_sam = alignment.bowtie_align(db, DB_REF, output)
+        r1_sam = alignment.bowtie_align(ad, AD_REF, output)
+        r2_sam = alignment.bowtie_align(db, DB_REF, output)
         
         # check if sam files exist
         if not os.path.isfile(r1_sam) or not os.path.isfile(r2_sam):

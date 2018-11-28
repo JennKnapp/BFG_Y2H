@@ -119,7 +119,7 @@ def prcmcc(label, test_range):
     total_screen = len(label)
     if total_screen < test_range:
         test_range = total_screen-1
-    
+
     for i in range(1,test_range+1):
 
         test_screen = label[:i]
@@ -136,9 +136,12 @@ def prcmcc(label, test_range):
         precision = sum(test_screen)/i * 100
         # recall = TP / (TP+FN)
         recall = sum(test_screen)/sum(label) * 100
-        MCC= (TP*TN-FP*FN)/math.sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))*100 
-        PRCMCC.append([precision, recall, MCC])
-    
+        try:
+            MCC= (TP*TN-FP*FN)/math.sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))*100 
+            PRCMCC.append([precision, recall, MCC])
+        except Exception:
+            PRCMCC.append([np.nan, np.nan, np.nan])
+
     df = pd.DataFrame(PRCMCC, columns=["precision", "recall", "mcc"])
 
     #MAXid = df.MCC.idxmax()
@@ -303,19 +306,23 @@ if __name__ == "__main__":
         elif "high" in f:
             GFP_high = pd.read_table(fname, sep =",", index_col=0)
     
-    output_csv, row_freq, col_freq, med_freq, high_freq, AD_NAMES, DB_NAMES = score_main(GFP_pre, GFP_high, GFP_med, param.weights, param.floor_perc, yi)
-    output_csv.to_csv("DK_mcc_summary_yi1.csv", index=False)
+#    output_csv, row_freq, col_freq, med_freq, high_freq, AD_NAMES, DB_NAMES = score_main(GFP_pre, GFP_high, GFP_med, param.weights, param.floor_perc, yi)
+#    output_csv.to_csv("DK_mcc_summary_yi1.csv", index=False)
     max_weight, max_rank, max_floor = load_summary("DK_mcc_summary_yi1.csv")
+    maxmcc = pd.DataFrame({"max_weight": [max_weight], "max_rank": [max_rank], "max_floor": [max_floor]})
     print "max param found"
     # evaluation
     litbm = evaluation.load_litbm(param.litBM13)
-    evaluation.dk_main(litbm, max_weight, max_rank, max_floor, high_freq, med_freq, row_freq, col_freq, AD_NAMES, DB_NAMES, "dk_mcc_summary_litbm13")
-
+#    evaluation.dk_main(litbm, max_weight, max_rank, max_floor, high_freq, med_freq, row_freq, col_freq, AD_NAMES, DB_NAMES, "dk_mcc_summary_litbm13")
+    
     noz_main, raw_scores = noz_score.main(GFP_pre, GFP_med, GFP_high, yi)
-    #print raw_scores
-    df = raw_scores.unstack().reset_index()
-    df.to_csv("noz_raw_score.csv", index=False)
+#    df = raw_scores.copy()
+#    df = df.unstack().reset_index()
+#    df.to_csv("noz_raw_score.csv", index=False)
     noz_main.to_csv("noz_mcc_summary_yi1.csv", index=False)
     max_rho, max_rank = noz_score.load_summary("noz_mcc_summary_yi1.csv")
+    maxmcc["max_rho"] = [max_rho]
+    maxmcc["noz_max_rank"] = [max_rank]
+    maxmcc.to_csv("max_parameters.csv", index=False)
     # evaluation    
     evaluation.noz_main(litbm, raw_scores, max_rank, max_rho, "noz_mcc_summary_litbm13")

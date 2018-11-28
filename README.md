@@ -20,6 +20,10 @@ You probably want to change the path to python2.7 in `sge_sub.sh` and `sge_score
 
 **Note:** if only `-o` is provided, the pipeline will only do the score optimizations. 
 
+To run score optimization on single group:
+
+`python ./src/score.py --sample path_to_sample_output_folder`
+
 The pipeline has two parts: 
 
 a. After you submit the job to cluster, the pipeline will first 

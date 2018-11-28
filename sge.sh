@@ -35,6 +35,8 @@ if [[ ! -z "${FASTQ// }" ]]; then
 done
 fi
 
+exit 1
+
 # check # jobs running
 i=1
 while [ $i -eq 1 ]; do
@@ -59,20 +61,6 @@ while [ $i -eq 1 ]; do
   fi
 done
 
-
-# check # jobs running
-#i=1
-#while [ $i -eq 1 ]; do
-#  COMMAND=$(qstat -u rli |wc -l)
-#  echo "Total jobs running... : "$COMMAND # DEBUG MEG
-#  if [ $COMMAND -eq 0 ]; then
-#    i=0
-#    find . -mindepth 2  -name "score_optimization_all.csv" -type f -exec cat {} > $OUTPUT/summary_all.csv \;
-#    find . -mindepth 2  -name "score_optimization_max.csv" -type f -exec cat {} > $OUTPUT/summary_maxmcc.csv \;
-#  else
-#    sleep 600
-#  fi
-#done
 
 
 echo "Job Finished!"

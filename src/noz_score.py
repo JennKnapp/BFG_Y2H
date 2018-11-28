@@ -24,7 +24,6 @@ def pre_freq(rc_pre):
     in Nozomu's paper: use marginal frequencies
     """
     total_reads = rc_pre.values.sum()
-
     col_freq = rc_pre.sum(axis=0)/total_reads
     row_freq = rc_pre.sum(axis=1)/total_reads
     return row_freq, col_freq
@@ -50,14 +49,14 @@ def get_score(pre_freq, med_freq, high_freq):
     pre_freq = pd.DataFrame(data = pre_freq, columns=med_freq.columns.tolist(), index=med_freq.index.tolist())
 
     s = (med_freq + high_freq)/pre_freq
-
     return s
 
-def norm_score(s, q):
+def norm_score(raw_s, q):
     """
     Normalize the raw score matrix s
     q: float, quantile 
     """
+    s = raw_s.copy()
     # get median of all DB scores 
     med = s.median(axis=0)
     beta = s[s>med]-med
@@ -124,7 +123,6 @@ def get_screen(dict_s, gold_st):
 
         s_prime["screen"] = (s_prime.is_AD & s_prime.is_DB).astype(int)
         s_prime = s_prime[s_prime["s_prime"]>1]
-        print s_prime
         network_orfs = s_prime.loc[s_prime.screen == 1].is_hit.tolist()
         #print sum(network_orfs)
         #print sum(s_prime.is_hit.tolist())
@@ -141,7 +139,6 @@ def main(GFP_pre, GFP_med, GFP_high, gold_st):
     #calculate GFP_pre freq
     row_freq, col_freq = pre_freq(GFP_pre)
     GFP_pre_freq = np.outer(row_freq, col_freq)
-
     med_freq = freq(GFP_med)
     high_freq = freq(GFP_high)
 
@@ -150,18 +147,20 @@ def main(GFP_pre, GFP_med, GFP_high, gold_st):
     # freq_corr(high_freq, med_freq)
     
     # get raw scores
-    s = get_score(GFP_pre_freq, med_freq, high_freq)
-    #print s
+    raw_s = get_score(GFP_pre_freq, med_freq, high_freq)
+    df = raw_s.copy()
+    df = df.unstack().reset_index()
+    df.to_csv("noz_raw_score.csv", index=False)
     #test = s.values.flatten()
     #test.sort()
     #plot_diff(test)
     
-    percentile = np.arange(0.1, 1.0, 0.05)
+    percentile = np.arange(0.1, 0.8, 0.05)
     mcc_summary = pd.DataFrame({}, columns=["precision","recall","mcc","rank","rho"])
     # test different rho to optimize mcc
     for p in percentile:
         # get normalized scores
-        norm_s = norm_score(s, p)
+        norm_s = norm_score(raw_s, p)
         sample_name = "rho_"+ str(p)
         # test corr of score and normed score
         # norm_score_corr(sample_name, s, norm_s)
@@ -172,7 +171,7 @@ def main(GFP_pre, GFP_med, GFP_high, gold_st):
         #print datetime.datetime.now()
         #print mcc_summary
         #break
-    return mcc_summary, s
+    return mcc_summary, raw_s
 
 def load_summary(mcc_sum):
     mcc_summary = pd.read_csv(mcc_sum)
@@ -189,7 +188,7 @@ def load_summary(mcc_sum):
 
 if __name__ == "__main__":
     # test on yAD4 DB1
-    test_dir = "/home/rothlab/rli/02_dev/08_bfg_y2h/rerun_analysis/yAD1DB4/"
+    test_dir = "/home/rothlab/rli/02_dev/08_bfg_y2h/181109_test/yAD1DB3/"
     
     os.chdir(test_dir)
     for f in os.listdir(test_dir):
@@ -206,4 +205,4 @@ if __name__ == "__main__":
     gold_st = load_YI1(param.GOLD)
     mcc_summary, s = main(GFP_pre, GFP_med, GFP_high, gold_st)            
     mcc_summary.to_csv("noz_mcc_summary_opt.csv", index=False)
-    max_rho, max_rank = load_summary("noz_mcc_summary_opt.csv")
+    ho, max_rank = load_summary("noz_mcc_summary_opt.csv")
