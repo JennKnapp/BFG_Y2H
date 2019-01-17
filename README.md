@@ -8,17 +8,17 @@
 
 ### Create fasta files from summary table ###
 
-a. In param.py, set full path to `AD/DB_summary.csv`
+a) In param.py, set full path to `AD/DB_summary.csv`
 
-b. In param.py, set path to reference (`REF_PATH`:A folder to save the output fasta filees)
+b) In param.py, set path to reference (`REF_PATH`:A folder to save the output fasta filees)
 
-c. In param.py, set padding sequences (optional)
+c) In param.py, set padding sequences (optional)
 
-d. In the summary table (AD and DB), the following columns are required: Group, Locus, Index
+d) In the summary table (AD and DB), the following columns are required: Group, Locus, Index
 
-e. Run the command: `python create_fasta.py`
+e) Run the command: `python create_fasta.py`
 
-f. An example sequence in output fasta file:
+f) An example sequence in output fasta file:
 ```
 >G1;YDL169C_BC-1;7;up
 CCCTTAGAACCGAGAGTGTGGGTTAAATGGGTGAATTCAGGGATTCACTCCGTTCGTCACTCAATAA
