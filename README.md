@@ -6,7 +6,7 @@
 * Bowtie 2 and Bowtie2 build (change path in `param.py`)
 * Samtools1.4 (change path in `param.py`)
 
-#### Create fasta files from summary table ####
+### Create fasta files from summary table ###
 
 a. In param.py, set full path to `AD/DB_summary.csv`
 
@@ -24,7 +24,7 @@ f. An example sequence in output fasta file:
 CCCTTAGAACCGAGAGTGTGGGTTAAATGGGTGAATTCAGGGATTCACTCCGTTCGTCACTCAATAA
 ```
 
-#### Running the pipeline  ####
+### Running the pipeline  ###
 
 a. Set parameters in param.py (refer to the comments)
 
@@ -52,8 +52,20 @@ d. To run the pipeline on sge
 ```
 (NOTE: More about [Sun Grid Engine](http://gridscheduler.sourceforge.net/howto/GridEngineHowto.html)) 
 
-#### 4. Special case ####
+### Output files  ###
 
-If you want to run the code on just one sample:
+a. After running the pipeline, one folder will be generated for each group pair (yAD*DB*)
+b. In the output folder for each group pair, we aligned R1 and R2 separately to the reference sequences for GFP_pre, GFP_med and GFP_high.
+c. `*_sorted.sam`: Raw sam files generated from bowtie2
+d. `*_noh.csv`: shrinked sam files, used for scoring
+e. `*_counts.csv`: barcode counts for uptags, dntags, and combined (up+dn)
+f. `raw_score.csv`: raw scores (see supplimentary docs for calculating scores)
+g. `Noz/DK_norm_score.csv`: normalized scores based on Nozumu or DK's method
+h. `*_mcc_summary.csv`: precision, recall and MCC calculated based on DK/nozumu's method
+i. `max_parameters.csv`: optimized parameters
 
-`/home/rothlab/rli/py/bin/python2.7 ./src/main.py --fastq fastq_read_one --output output_dir`
+### Other docs ###
+
+a. Flowchart of the pipeline
+a. Calulating scores
+
