@@ -17,33 +17,35 @@ READ_COUNT = True
 # gold standard to use
 GOLD="/home/rothlab/rli/02_dev/08_bfg_y2h/summary/YI_1.txt"
 
-# weights to test
+# parameters to test DK's normalization method
 weights = np.arange(0, 2.4, 0.2)
 floor_perc = np.arange(5,25,2.5)
 
+# Our ORFs are double barcoded and 
 # in this case we test all 4 indexes
-
-###################################
 
 # for calculating MCC
 
 litBM13="/home/rothlab/rli/02_dev/08_bfg_y2h/summary/litbm_13.txt"
 
 ###################################
-# summary files are used to grep gene names, group information 
-# and to create fasta reference files
 
-# in the summary files, the following columns must exist: 
+# summary files are used to grep gene names, group information 
+# and to create fasta reference files if needed
+
+# in the summary files, the following columns must exist: Group, Locus, Index
 # summary for AD (all the genes and group)
 AD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_AD.csv"
 # summary for DB (all the genes and group)
 DB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_DB_AA.csv"
 
+# Directory to store all the reference sequences
 REF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/ref/"
 
 ###################################
 
-# program path
+# program path 
+# change according to your system
 
 BOWTIE2 = "/home/rothlab/rli/lib/bowtie2-2.3.4.1-linux-x86_64/bowtie2 "
 BOWTIE2_BUILD = "/home/rothlab/rli/lib/bowtie2-2.3.4.1-linux-x86_64/bowtie2-build "

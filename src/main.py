@@ -17,10 +17,7 @@ if __name__ == "__main__":
     
     # make fasta from summary file (AD and DB)
     # -- create: creates fasta file from summary.csv
-    # -- build: if the fasta files already exist, build index files for them
-    parser.add_argument('--pfasta', help="Path to fasta file")
-#    parser.add_argument("--adgroup", help="AD group number", required=True)
-#    parser.add_argument("--dbgroup", help="DB group number", required=True)
+    # parser.add_argument('--pfasta', help="Path to fasta file")
 
     # parameters for cluster
     parser.add_argument("--fastq", help="Path to all fastq files you want to analyze")
@@ -32,28 +29,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     
-    # required arguments
-    #AD_GROUP = args.adgroup
-    #DB_GROUP = args.dbgroup
-
-    #AD_REF = REF_PATH+"y_AD_"+AD_GROUP
-    #DB_REF = REF_PATH+"y_DB_"+DB_GROUP
-
-    # processing fasta file
-    fasta_output = args.pfasta
-         
-    if fasta_output is not None:
-        # example of create fasta for AD1DB4
-        create_fasta.create_fasta(AD_summary, DB_summary, fasta_output, group_spec=True, AD=AD_GROUP, DB=DB_GROUP)
-
-        # example of create fasta for all 
-#        create_fasta(AD_summary, DB_summary, fasta_output)
-
-        list_fasta = os.listdir(fasta_output)
-
-        for fasta in list_fasta:
-            create_fasta.build_index(os.path.join(fasta_output,fasta), fasta_output)
-        
     ##########################################################
     ###################### Alignment #########################
 
@@ -78,7 +53,7 @@ if __name__ == "__main__":
 
     db_base = db.split("_R2")[0]
 
-    m = re.match(r"yAD([1-9])DB([1-9])", ad_base)
+    m = re.match(r"yAD([1-9]|M)DB([1-9]|M)", ad_base)
     
     AD_GROUP = "G"+m.group(1)
     DB_GROUP = "G"+m.group(2)
@@ -150,7 +125,7 @@ if __name__ == "__main__":
         os.system("cut -f 1-5 "+r1+" > "+ r1_csv)
         os.system("cut -f 1-5 "+r2+" > "+ r2_csv)
 
-        # remove no header sam file
+ # remove no header sam file
         os.system("rm "+r1)
         os.system("rm "+r2)
         log.info("File shrinked")
@@ -181,7 +156,6 @@ if __name__ == "__main__":
         combined.to_csv("./"+ad_base+"_combined_counts.csv")
         
         basename = r1_csv.split("R1")[0]
-
         # plot up and dn corr
         # sample_bc_corr.png
         plot.bc_corr(basename, up_matrix, dn_matrix)

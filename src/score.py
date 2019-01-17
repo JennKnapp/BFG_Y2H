@@ -306,14 +306,14 @@ if __name__ == "__main__":
         elif "high" in f:
             GFP_high = pd.read_table(fname, sep =",", index_col=0)
     
-#    output_csv, row_freq, col_freq, med_freq, high_freq, AD_NAMES, DB_NAMES = score_main(GFP_pre, GFP_high, GFP_med, param.weights, param.floor_perc, yi)
-#    output_csv.to_csv("DK_mcc_summary_yi1.csv", index=False)
+    output_csv, row_freq, col_freq, med_freq, high_freq, AD_NAMES, DB_NAMES = score_main(GFP_pre, GFP_high, GFP_med, param.weights, param.floor_perc, yi)
+    output_csv.to_csv("DK_mcc_summary_yi1.csv", index=False)
     max_weight, max_rank, max_floor = load_summary("DK_mcc_summary_yi1.csv")
     maxmcc = pd.DataFrame({"max_weight": [max_weight], "max_rank": [max_rank], "max_floor": [max_floor]})
     print "max param found"
     # evaluation
     litbm = evaluation.load_litbm(param.litBM13)
-#    evaluation.dk_main(litbm, max_weight, max_rank, max_floor, high_freq, med_freq, row_freq, col_freq, AD_NAMES, DB_NAMES, "dk_mcc_summary_litbm13")
+    evaluation.dk_main(litbm, max_weight, max_rank, max_floor, high_freq, med_freq, row_freq, col_freq, AD_NAMES, DB_NAMES, "dk_mcc_summary_litbm13")
     
     noz_main, raw_scores = noz_score.main(GFP_pre, GFP_med, GFP_high, yi)
 #    df = raw_scores.copy()

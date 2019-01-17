@@ -40,6 +40,7 @@ exit 1
 # check # jobs running
 i=1
 while [ $i -eq 1 ]; do
+  # change user name here
   COMMAND=$(qstat -u rli |wc -l)
   echo "Total jobs running... : "$COMMAND # DEBUG MEG
   if [ $COMMAND -eq 0 ]; then

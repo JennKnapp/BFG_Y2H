@@ -150,7 +150,7 @@ def main(GFP_pre, GFP_med, GFP_high, gold_st):
     raw_s = get_score(GFP_pre_freq, med_freq, high_freq)
     df = raw_s.copy()
     df = df.unstack().reset_index()
-    df.to_csv("noz_raw_score.csv", index=False)
+    df.to_csv("raw_score.csv", index=False)
     #test = s.values.flatten()
     #test.sort()
     #plot_diff(test)

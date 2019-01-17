@@ -2,12 +2,14 @@ summary/*
 *.pyc
 ref/*
 *.swp
-*_output/*
+output/*
+tmp/*
 *_test/*
 *.e*
 *.o*
-ds_*/*
+DK_pipeline/*
 *.log
 *.csv
 *_retest/
 *_analysis/
+*.txt
