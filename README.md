@@ -55,17 +55,26 @@ d. To run the pipeline on sge
 ### Output files  ###
 
 a. After running the pipeline, one folder will be generated for each group pair (yAD*DB*)
+
 b. In the output folder for each group pair, we aligned R1 and R2 separately to the reference sequences for GFP_pre, GFP_med and GFP_high.
+
 c. `*_sorted.sam`: Raw sam files generated from bowtie2
+
 d. `*_noh.csv`: shrinked sam files, used for scoring
+
 e. `*_counts.csv`: barcode counts for uptags, dntags, and combined (up+dn)
+
 f. `raw_score.csv`: raw scores (see supplimentary docs for calculating scores)
+
 g. `Noz/DK_norm_score.csv`: normalized scores based on Nozumu or DK's method
+
 h. `*_mcc_summary.csv`: precision, recall and MCC calculated based on DK/nozumu's method
+
 i. `max_parameters.csv`: optimized parameters
 
-### Other docs ###
+### Supplimentary documents ###
 
-a. Flowchart of the pipeline
-a. Calulating scores
+a. [Flowchart of the pipeline](https://docs.google.com/presentation/d/1Mq1AKUprorP4ogN_J6207qoM5w3asWGtySbuzTitibs/edit?usp=sharing)
+
+b. [Calulating scores](https://docs.google.com/document/d/1w9PZou3icaU2AYSyzv1xSJa6oN9RlrFMkvfpLUnas_I/edit?usp=sharing)
 
