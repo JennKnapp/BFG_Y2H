@@ -20,6 +20,7 @@ if __name__ == "__main__":
     # parser.add_argument('--pfasta', help="Path to fasta file")
 
     # parameters for cluster
+    #parser.add_argument("--mode", help="human or yeast")
     parser.add_argument("--fastq", help="Path to all fastq files you want to analyze")
     parser.add_argument("--output", help="Output path for sam files")
     
@@ -33,6 +34,7 @@ if __name__ == "__main__":
     ###################### Alignment #########################
 
     output = args.output
+    #mode = args.mode
 
     # input fastq is always R1
     ad = args.fastq
@@ -63,12 +65,11 @@ if __name__ == "__main__":
     AD_REF = param.REF_PATH+"y_AD_"+AD_GROUP
     DB_REF = param.REF_PATH+"y_DB_"+DB_GROUP
 
-
+    output_dir_name = ad_base.split("_GFP_")[0]+"/"
     if output is None: 
         exit(0)
     else:
-        output_dir = os.path.join(output, ad_base.split("_")[0]+"/")
-        
+        output_dir = os.path.join(output, output_dir_name)
         if not os.path.isdir(output_dir):
             os.system("mkdir -p "+output_dir)
         

@@ -35,7 +35,7 @@ if [[ ! -z "${FASTQ// }" ]]; then
 done
 fi
 
-exit 1
+#exit 1
 
 # check # jobs running
 i=1
@@ -61,8 +61,3 @@ while [ $i -eq 1 ]; do
     sleep 1800
   fi
 done
-
-
-
-echo "Job Finished!"
-

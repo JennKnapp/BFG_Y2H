@@ -18,8 +18,11 @@ READ_COUNT = True
 GOLD="/home/rothlab/rli/02_dev/08_bfg_y2h/summary/YI_1.txt"
 
 # parameters to test DK's normalization method
-weights = np.arange(0, 2.4, 0.2)
-floor_perc = np.arange(5,25,2.5)
+#weights = np.arange(0, 2.4, 0.2)
+#floor_perc = np.arange(5,25,2.5)
+
+weights = [1.0]
+floor_perc = [5.0]
 
 # Our ORFs are double barcoded and 
 # in this case we test all 4 indexes
@@ -70,3 +73,14 @@ AD_Up1 = "CCCTTAGAACCGAGAGTGTG"
 AD_Up2 = "CACTCCGTTCGTCACTCAATAA"
 
 ###################################
+
+# padding sequence for human
+
+# DB down tags
+DB_Dn1 = "TCGATAGGTGCGTGTGAAGG"
+DB_Dn2 = "CCTCAGTCGCTCAGTCAAG"
+# DB up tags
+
+# AD down tags
+
+# AD up tags

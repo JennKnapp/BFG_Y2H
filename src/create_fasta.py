@@ -18,15 +18,14 @@ def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0",
         AD_summary = AD_summary[AD_summary.Group==AD]
         DB_summary = DB_summary[DB_summary.Group==DB]
         # fasta filename
-        f_ad = "y_AD_"+AD+".fasta" 
-        f_db = "y_DB_"+DB+".fasta"
+        f_ad = "h_AD_"+AD+".fasta" 
+        f_db = "h_DB_"+DB+".fasta"
     else:
-        f_ad = "y_AD_G0.fasta"
-        f_db = "y_DB_G0.fasta"
+        f_ad = "h_AD_G0.fasta"
+        f_db = "h_DB_G0.fasta"
 
     with open(os.path.join(output_path,f_ad), "w") as ad:
         # grep sequence and sequence name from summary file
-        # iGrou.e
         # >G1;YDL169C_BC-1;7;up
         # CCCTTAGAACCGAGAGTGTGGGTTAAATGGGTGAATTCAGGGATTCACTCCGTTCGTCACTCAATAA
         for index, row in AD_summary.iterrows():

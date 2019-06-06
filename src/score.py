@@ -185,6 +185,12 @@ def test_rank(IS_normed, all_pairs, mix_index):
     transform[['AD', 'AD_BC']] = transform['AD_name'].str.split('_', expand=True)
     # merge cols
     transform['Interaction'] = transform.AD.str.cat(transform.DB, sep="_")
+    
+    # only get certain index
+    sort = transform.sort_values(["Score"], ascending=False).groupby(['Interaction'])
+    df = sort.nth(1).dropna(how="any")
+    df[["AD_name", "DB_name", "Score"]].to_csv("DK_norm_score_bc2.csv", index=False)
+
     merged = pd.merge(all_pairs, transform, on="Interaction")
     g = merged.sort_values(["Score"], ascending=False).groupby(['Interaction'])
     
@@ -192,7 +198,7 @@ def test_rank(IS_normed, all_pairs, mix_index):
     for i in mix_index:
         d_name = "is_{}".format(i)
         dicts[d_name] = g.nth(i).dropna(how='any')
-    
+        print(dicts)    
     return dicts
 
 
@@ -225,8 +231,8 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st):
     
     all_pairs = list(itertools.product(AD_intersect, DB_intersect))
     
-    mix_index = [0,1,2,3]
-    
+    #mix_index = [0,1,2,3]
+    mix_index = [1] 
     # optimization
  
     output_csv = pd.DataFrame({}, columns=["precision","recall","mcc","rank","weight", "floor"])
