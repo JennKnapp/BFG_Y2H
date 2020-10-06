@@ -15,6 +15,7 @@ def load_YI1(yi):
     "Load gold standard for yi1"
     yi = pd.read_table(yi, sep="\t")
     yi.columns = ["AD", "DB"]
+    yi = yi.astype("str")
     yi["Interactions"] = yi[['AD', 'DB']].apply(lambda x: '_'.join(x), axis=1)
     return yi
 
@@ -48,7 +49,8 @@ def get_score(pre_freq, med_freq, high_freq):
     # convert pre_freq to dataframe
     pre_freq = pd.DataFrame(data = pre_freq, columns=med_freq.columns.tolist(), index=med_freq.index.tolist())
 
-    s = (med_freq + high_freq)/pre_freq
+    # moditfied
+    s = (med_freq)/pre_freq
     return s
 
 def norm_score(raw_s, q):
@@ -155,7 +157,7 @@ def main(GFP_pre, GFP_med, GFP_high, gold_st):
     #test.sort()
     #plot_diff(test)
     
-    percentile = np.arange(0.1, 0.8, 0.05)
+    percentile = param.pho
     mcc_summary = pd.DataFrame({}, columns=["precision","recall","mcc","rank","rho"])
     # test different rho to optimize mcc
     for p in percentile:

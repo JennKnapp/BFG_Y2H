@@ -3,50 +3,144 @@ import os
 import param
 
 
-def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0", DB="G0"):
+def reverse_complement(seq):
+    alt_map = {'ins':'0'}
+    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
+    for k,v in alt_map.iteritems():
+        seq = seq.replace(k,v)
+    bases = list(seq)
+    bases = reversed([complement.get(base,base) for base in bases])
+    bases = ''.join(bases)
+    for k,v in alt_map.iteritems():
+        bases = bases.replace(v,k)
+    return bases
+
+def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0", DB="G0", mode=None, null=None):
 
     """
     Generate fasta file from summary
     See example_summary as templete
     """
     # set summary in param.py
-    AD_summary = pd.read_table(AD_summary, sep="\t")
-    DB_summary = pd.read_table(DB_summary, sep="\t")
-    
     if group_spec: # make a group specific fasta file
-        # select the group from AD and DB
-        AD_summary = AD_summary[AD_summary.Group==AD]
-        DB_summary = DB_summary[DB_summary.Group==DB]
-        # fasta filename
-        f_ad = "h_AD_"+AD+".fasta" 
-        f_db = "h_DB_"+DB+".fasta"
+        
+        if not null:
+            AD_summary = pd.read_csv(AD_summary, sep="\t")
+            DB_summary = pd.read_csv(DB_summary, sep="\t")
+
+            print(AD_summary)
+            # select the group from AD and DB
+            AD_summary = AD_summary[AD_summary.Group==AD]
+            DB_summary = DB_summary[DB_summary.Group==DB]
+            # fasta filename
+            # h for human
+            # change to y for yeast
+            if mode == "human":
+                f_ad = "h_AD_"+AD+".fasta" 
+                f_db = "h_DB_"+DB+".fasta"
+
+            if mode == "yeast":
+                f_ad = "y_AD_"+AD+".fasta" 
+                f_db = "y_DB_"+DB+".fasta"
+
+
+        else:
+            AD_summary = pd.read_csv(AD_summary, sep=",")
+            DB_summary = pd.read_csv(DB_summary, sep=",")
+
+            AD_summary = AD_summary[(AD_summary.Group==AD) | (AD_summary.Group=="null_setD")]
+            DB_summary = DB_summary[(DB_summary.Group==DB) | (DB_summary.Group=="null_setD")]
+            if mode == "human":
+                f_ad = "h_AD_wnull_"+AD+".fasta" 
+                f_db = "h_DB_wnull_"+DB+".fasta"
+            if mode == "yeast":
+                f_ad = "y_AD_wnull_"+AD+".fasta" 
+                f_db = "y_DB_wnull_"+DB+".fasta"
+
     else:
-        f_ad = "h_AD_G0.fasta"
-        f_db = "h_DB_G0.fasta"
+        if mode == "human":
+            # can't use G0 for human
+            f_ad = "h_AD_all.fasta"
+            f_db = "h_DB_all.fasta"
+        if mode == "yeast":
+            # can't use G0 for human
+            f_ad = "y_AD_all.fasta"
+            f_db = "y_DB_all.fasta"
 
     with open(os.path.join(output_path,f_ad), "w") as ad:
         # grep sequence and sequence name from summary file
         # >G1;YDL169C_BC-1;7;up
         # CCCTTAGAACCGAGAGTGTGGGTTAAATGGGTGAATTCAGGGATTCACTCCGTTCGTCACTCAATAA
         for index, row in AD_summary.iterrows():
-            up_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"up"
+            up_seq_name = ">"+row.Group+";"+str(row.Locus)+";"+str(row.Index)+";AD;"+"up"
             ad.write(up_seq_name+"\n")
             ad.write(param.AD_Up1+row.UpTag_Sequence+param.AD_Up2+"\n") # add padding sequences
-
-            dn_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"dn"
+            dn_seq_name = ">"+row.Group+";"+str(row.Locus)+";"+str(row.Index)+";AD;"+"dn"
             ad.write(dn_seq_name+"\n")
-            ad.write(param.AD_Dn1+row.DnTag_Sequence+param.AD_Dn2+"\n")
+            
+            if mode == "human": # for human AD barcode, take the RC
+                rc = reverse_complement(row.DnTag_Sequence)
+                ad.write(param.AD_Dn1+rc+param.AD_Dn2+"\n")
+            else:
+                ad.write(param.AD_Dn1+row.DnTag_Sequence+param.AD_Dn2+"\n")
 
     with open(os.path.join(output_path, f_db), "w") as db:
             
         for index, row in DB_summary.iterrows():
-            up_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"up"
+            up_seq_name = ">"+row.Group+";"+str(row.Locus)+";"+str(row.Index)+";DB;"+"up"
             db.write(up_seq_name+"\n")
             db.write(param.DB_Up1+row.UpTag_Sequence+param.DB_Up2+"\n")
 
-            dn_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"dn"
+            dn_seq_name = ">"+row.Group+";"+str(row.Locus)+";"+str(row.Index)+";DB;"+"dn"
             db.write(dn_seq_name+"\n")
             db.write(param.DB_Dn1+row.DnTag_Sequence+param.DB_Dn2+"\n")
+
+def create_fasta_virus(vADNC, vAD2u, vDBNC, output_path):
+    """
+    create fasta reference for these three sets of barcode
+    """
+    vADNC_df = pd.read_csv(vADNC)
+    vADNC_fasta = "v_ADNC.fasta"
+
+    with open(os.path.join(output_path,vADNC_fasta), "w") as adnc:
+        # grep sequence and sequence name from summary file
+        # >ADNC;NSP2;up
+        # CCCTTAGAACCGAGAGTGTGGGTTAAATGGGTGAATTCAGGGATTCACTCCGTTCGTCACTCAATAA
+        for index, row in vADNC_df.iterrows():
+            up_seq_name = ">ADNC;"+str(row.ORF)+";"+"up"
+            adnc.write(up_seq_name+"\n")
+            adnc.write(param.AD_Up1+row.UP+param.AD_Up2+"\n") # add padding sequences
+            dn_seq_name = ">ADNC;"+str(row.ORF)+";"+"dn"
+            adnc.write(dn_seq_name+"\n")
+            adnc.write(param.AD_Dn1+row.DN+param.AD_Dn2+"\n")
+    
+    vAD2u_df = pd.read_csv(vAD2u)
+    vAD2u_fasta = "v_AD2u.fasta"
+
+    with open(os.path.join(output_path, vAD2u_fasta), "w") as ad2u:
+            
+        for index, row in vAD2u_df.iterrows():
+            up_seq_name = ">AD2u;"+str(row.ORF)+";"+"up"
+            ad2u.write(up_seq_name+"\n")
+            ad2u.write(param.AD_Up1+row.UP+param.AD_Up2+"\n")
+
+            dn_seq_name = ">AD2u;"+str(row.ORF)+";"+"dn"
+            ad2u.write(dn_seq_name+"\n")
+            ad2u.write(param.AD_Dn1+row.DN+param.AD_Dn2+"\n")
+
+    vDBNC_df = pd.read_csv(vDBNC)
+    vDBNC_fasta = "v_DBNC.fasta"
+ 
+    with open(os.path.join(output_path, vDBNC_fasta), "w") as dbnc:
+            
+        for index, row in vDBNC_df.iterrows():
+            up_seq_name = ">DBNC;"+str(row.ORF)+";"+"up"
+            dbnc.write(up_seq_name+"\n")
+            dbnc.write(param.DB_Up1+row.UP+param.DB_Up2+"\n")
+
+            dn_seq_name = ">DBNC;"+str(row.ORF)+";"+"dn"
+            dbnc.write(dn_seq_name+"\n")
+            dbnc.write(param.DB_Dn1+row.DN+param.DB_Dn2+"\n")
 
 
 # Modified version to make fasta files for Miha's ORFs. 
@@ -88,15 +182,29 @@ def build_index(fasta_file, output_dir):
     #print cmd
     os.system(cmd)
 
-if __name__ == "__main__":
+def main(mode="n/a", null=False):
+    if mode == "human": 
+        AD_summary = param.hAD_summary
+        DB_summary = param.hDB_summary
+        ref_path = param.hREF_PATH
+    if mode == "yeast":
+        AD_summary = param.yAD_summary
+        DB_summary = param.yDB_summary
+        ref_path = param.yREF_PATH
 
-    AD_summary = param.AD_summary
-    DB_summary = param.DB_summary
     # set for our experiment 
     # AD G1-4
     # DB G1-4
-    for i in range(1,5):
-        create_fasta(AD_summary, DB_summary, param.REF_PATH, group_spec=True, AD="G"+str(i), DB="G"+str(i))
+    if mode == "human":
+        n = 11
+    if mode == "yeast":
+        n = 5
+    for i in range(1,n):
+        if i < 10:
+            create_fasta(AD_summary, DB_summary, ref_path, group_spec=True, AD="G"+str(i), DB="G"+str(i), mode=mode, null=null)
+
+        else:
+            create_fasta(AD_summary, DB_summary, ref_path, group_spec=True, AD="G"+str(i), DB="G"+str(i), mode=mode)
 
     # example of create fasta for all
     # create_fasta(AD_summary, DB_summary, fasta_output)
@@ -105,7 +213,22 @@ if __name__ == "__main__":
     #create_fasta_miha(AD_summary, DB_summary, param.REF_PATH)
 
     # bowtie build
-    list_fasta = os.listdir(param.REF_PATH)
+    list_fasta = os.listdir(ref_path)
     for fasta in list_fasta:
-        create_fasta.build_index(os.path.join(param.REF_PATH, fasta), param.REF_PATH)
+        build_index(os.path.join(ref_path, fasta), ref_path)
+
+def v_main():
+
+    vADNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vADNC_withNull.csv"
+    vAD2u = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vAD2u_withNull.csv"
+    vDBNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vDBNC_withNull.csv"
+    output_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/v_ref/"
+    create_fasta_virus(vADNC, vAD2u, vDBNC, output_path)
+
+
+if __name__ == "__main__":
+
+    main(mode="yeast",null=True)
+    #v_main()
+
 

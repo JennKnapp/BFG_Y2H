@@ -7,8 +7,11 @@ import seaborn as sns
 from scipy.stats.stats import pearsonr
 
 
-def bc_corr(sample_name, uptag_matrix, dntag_matrix):
+def bc_corr(sample_name, uptag_matrix, dntag_matrix, output="./"):
     # convert matrix to list
+    print(uptag_matrix)
+    uptag_matrix = uptag_matrix.astype(int)
+    dntag_matrix = dntag_matrix.astype(int)
     up_tag_list = list(uptag_matrix.values.flatten())
     dn_tag_list = list(dntag_matrix.values.flatten())
     pcc = pearsonr(up_tag_list, dn_tag_list)
@@ -21,10 +24,10 @@ def bc_corr(sample_name, uptag_matrix, dntag_matrix):
     plt.ylim([0, 15])
     plt.xlim([0,15])
 
-    plt.text(1, 14, "pcc:"+str(round(pcc[0], 2))+" RC:"+str(sum(up_tag_list)))
+    plt.text(1, 14, "pcc:"+str(round(pcc[0], 2))+" uptag RC:"+str(sum(up_tag_list))+" dntag RC:"+str(sum(dn_tag_list)))
 
     plt.title(sample_name+"bc_corr (log)", fontsize= 16)
-    plt.savefig(sample_name+"bc_corr.png")
+    plt.savefig(output+sample_name+"_bc_corr.png")
     plt.close()
 
 
@@ -165,9 +168,13 @@ if __name__ == "__main__":
 
     # test plot_rank
     # generating 'a to z' small_chars.
-    i = [chr(item) for item in range(ord('a'), ord('z')+1)]
-    s = np.arange(0, 1, 0.01)
-    data = {"Interactions":i, "scores":[]}
-    df = pd.DataFrame(data)
+#    i = [chr(item) for item in range(ord('a'), ord('z')+1)]
+#    s = np.arange(0, 1, 0.01)
+#    data = {"Interactions":i, "scores":[]}
+#    df = pd.DataFrame(data)
+    
+    up_matrix = pd.read_csv("/home/rothlab/rli/02_dev/08_bfg_y2h/output/190821_y14_drug/yAD1DB4_EdU_med_S121/yAD1DB4_EdU_med_S121_uptag_rawcounts.csv", index_col=0)
+    dn_matrix = pd.read_csv("/home/rothlab/rli/02_dev/08_bfg_y2h/output/190821_y14_drug/yAD1DB4_EdU_med_S121/yAD1DB4_EdU_pre_S97_dntag_rawcounts.csv", index_col=0)
 
+    bc_corr("med_pre_test", up_matrix, dn_matrix)
     

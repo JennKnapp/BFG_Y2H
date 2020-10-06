@@ -3,6 +3,12 @@ summary/*
 ref/*
 *.swp
 output/*
+organized_output/*
+rc_cutoff/*
+reference/*
+test/*
+tmp_sh/*
+diff_cutoff/*
 tmp/*
 *_test/*
 *.e*

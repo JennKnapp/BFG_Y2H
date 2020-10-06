@@ -8,11 +8,13 @@
 
 # getopts
 
-while getopts ":f:o:" opt; do
+while getopts ":f:o:m:" opt; do
   case $opt in 
     f) FASTQ="$OPTARG"
       ;;
     o) OUTPUT="$OPTARG"
+      ;;
+    m) MODE="$OPTARG"
       ;;
     \?) echo "Invalid option -$OPTARG" >&2
   esac
@@ -20,7 +22,7 @@ done
 
 printf "Reading fastq files from %s\n" "$FASTQ"
 printf "The output will be saved to %s\n" "$OUTPUT"
-
+printf "Mode %s" "$FASTQ"
 
 # create the directory and run script
 # attention: if outpur dir exists it will be removed
@@ -31,11 +33,11 @@ if [[ ! -z "${FASTQ// }" ]]; then
   # get AD and DB group info from file name
 
   #/home/rothlab/rli/py/bin/python2.7 ./src/main.py --fastq $fastq --output $OUTPUT
-  qsub -N $(basename $fastq .fastq.gz) ./sge_sub.sh $fastq $OUTPUT
+  qsub -N $(basename $fastq .fastq.gz) ./sge_sub.sh $fastq $OUTPUT $MODE
 done
 fi
 
-#exit 1
+exit 1
 
 # check # jobs running
 i=1

@@ -68,7 +68,7 @@ class Read_Count(object):
                 analysis_log.error("From read two (DB): %s", r2_line[0])
                 break
 
-            if int(r1_line[4]) < 3 or int(r2_line[4]) < 3: # check quality
+            if int(r1_line[4]) < param.cut_off or int(r2_line[4]) < param.cut_off: # check quality
                 fail += 1
                 continue
 
@@ -112,6 +112,7 @@ def RCmain(r1, r2, AD_genes, DB_genes):
     return rc._ReadCounts()
 
 if __name__ == "__main__":
+    
     # test rc main
     r1_csv = "/home/rothlab/rli/02_dev/08_bfg_y2h/yAD1DB4_output/yAD1DB4_presort/yAD1DB4_presort_R1_AD_BC_noh.csv"
     r2_csv = "/home/rothlab/rli/02_dev/08_bfg_y2h/yAD1DB4_output/yAD1DB4_presort/yAD1DB4_presort_R2_DB_BC_noh.csv"

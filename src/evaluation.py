@@ -11,7 +11,10 @@ def load_litbm(lit):
     input cols: AD DB
     output cols: AD DB Interactions
     """
+    print(lit)
     litbm = pd.read_table(lit)
+    litbm = litbm.astype(str) 
+    litbm.columns = ["AD", "DB"]
     litbm["Interactions"] = litbm[['AD', 'DB']].apply(lambda x: '_'.join(x), axis=1)
     return litbm
 
@@ -30,12 +33,12 @@ def noz_main(litbm, score_matrix, max_rank, max_rho, fname):
     # plot prcmcc
     
 
-def dk_main(litbm, max_weight, max_rank, max_floor, high_freq, med_freq, row_freq, col_freq, AD_NAMES, DB_NAMES, fname):
+def dk_main(litbm, max_weight, max_rank, max_floor, high_freq, med_freq, row_freq, col_freq, AD_NAMES, DB_NAMES, fname, mode):
     
     shape = med_freq.shape
     total_rows = shape[0] #AD
     total_cols = shape[1] #DB
-
+    
     AD_intersect = list(set(litbm.AD) & set(AD_NAMES))
     DB_intersect = list(set(litbm.DB) & set(DB_NAMES))
     
@@ -58,7 +61,7 @@ def dk_main(litbm, max_weight, max_rank, max_floor, high_freq, med_freq, row_fre
 
     pre_freq = pd.DataFrame(data = freq_mx, columns = DB_freq.index.tolist(), index = AD_freq.index.tolist())
     
-    IS_normed = score.get_norm_score(max_weight, high_freq, med_freq, pre_freq)
+    IS_normed = score.get_norm_score(max_weight, high_freq, med_freq, pre_freq, mode)
     df = IS_normed.unstack().reset_index()
     df.to_csv("DK_norm_score.csv", index=False)
     
@@ -71,6 +74,5 @@ if __name__ == "__main__":
     
     test_dir = "/home/rothlab/rli/02_dev/08_bfg_y2h/rerun_analysis/yAD1DB1/"
     litbm=load_litbm(param.litBM13)
-    print litbm
     #noz_main()
 

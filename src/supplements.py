@@ -1,4 +1,5 @@
 import pandas as pd
+import param 
 
 def read_summary(AD_sum, DB_sum, AD_group="G0", DB_group="G0"):
     """
@@ -7,26 +8,51 @@ def read_summary(AD_sum, DB_sum, AD_group="G0", DB_group="G0"):
     If group == G0, grep all
     """
     
-    AD_summary = pd.read_table(AD_sum, sep="\t")
-    DB_summary = pd.read_table(DB_sum, sep="\t")
+    AD_summary = pd.read_table(AD_sum, sep=",")
+    DB_summary = pd.read_table(DB_sum, sep=",")
     
     # grep group 
     if AD_group!="G0":
         if AD_group == 'GM':
-            AD_summary = AD_summary[AD_summary.Plate.str.contains("Miha")]
+            AD_summary = AD_summary[(AD_summary.Plate.str.contains("Miha"))|(AD_summary.Group=="null_setD")] 
         else:
-            AD_summary = AD_summary[AD_summary.Group==AD_group]
+            AD_summary = AD_summary[(AD_summary.Group==AD_group) | (AD_summary.Group=="null_setD") ]
     
     if DB_group!="G0":
         if DB_group == 'GM':
-            DB_summary = DB_summary[DB_summary.Plate.str.contains("Miha")]
+            DB_summary = DB_summary[(DB_summary.Plate.str.contains("Miha")) | (DB_summary.Group=="null_setD")] 
         else:
-            DB_summary = DB_summary[DB_summary.Group==DB_group]
+            DB_summary = DB_summary[(DB_summary.Group==DB_group) | (DB_summary.Group=="null_setD") ]
     
     # grep gene names
     AD_genes = AD_summary.Locus.tolist()
     DB_genes = DB_summary.Locus.tolist()
+    return AD_genes, DB_genes
 
+
+def read_summary_virus(AD_sum, DB_sum, AD_group="G0", DB_group="G0"):
+
+    AD_summary = pd.read_table(AD_sum, sep=",")
+    DB_summary = pd.read_table(DB_sum, sep=",")
+    if DB_group == "DBNC":
+        vDBNC_df = pd.read_csv(param.vDBNC)
+        DB_genes = vDBNC_df.ORF.tolist()
+
+    if AD_group == "ADNC":
+        vADNC_df = pd.read_csv(param.vADNC)
+        AD_genes = vADNC_df.ORF.tolist()
+
+    elif AD_group == "AD2u":
+        vAD2u_df = pd.read_csv(param.vAD2u)
+        AD_genes = vAD2u_df.ORF.tolist()
+
+    if "G" in AD_group:
+        AD_summary = AD_summary[(AD_summary.Group==AD_group) | (AD_summary.Group=="null_setD") ]
+        AD_genes = AD_summary.Locus.tolist()
+
+    if "G" in DB_group:
+        DB_summary = DB_summary[(DB_summary.Group==DB_group) | (DB_summary.Group=="null_setD")]
+        DB_genes = DB_summary.Locus.tolist()
     return AD_genes, DB_genes
 
 

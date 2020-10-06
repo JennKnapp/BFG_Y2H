@@ -39,6 +39,7 @@ def load_YI1(yi):
     "Load gold standard for yi1"
     yi = pd.read_table(yi, sep="\t")
     yi.columns = ["AD", "DB"]
+    yi = yi.astype(str)
     yi["Interactions"] = yi[['AD', 'DB']].apply(lambda x: '_'.join(x), axis=1)
     return yi
 
@@ -61,7 +62,7 @@ def calculate_freq(GFP_pre, GFP_high, GFP_med):
 
     AD_NAMES = list(med_freq_renamed.index)
     DB_NAMES = list(med_freq_renamed)
-
+    print(len(AD_NAMES))
     #heat_freq(med_freq)
     
     return row_freq, col_freq, med_freq, high_freq, AD_NAMES, DB_NAMES
@@ -79,14 +80,13 @@ def get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut):
         i = i.reset_index()
         # compare gold with our set
         i["ishit_interaction"] = i.Interaction.isin(gold_st.Interactions).astype(int)
-        
         ## build screen set
         # AD has to appear in AD_GOLD at least once
         # DB has to appear in DB_GOLD at least once
         i["is_AD"] = i.AD_x.isin(AD_GOLD)
         i["is_DB"] = i.DB_x.isin(DB_GOLD)
          
-        # frequencies should be greater than floow
+        # frequencies should be greater than floor
         i = pd.merge(i, AD_freq, on="AD_name")
         i = pd.merge(i, DB_freq, on="DB_name")
         
@@ -103,7 +103,7 @@ def get_mcc(dicts, gold_st, AD_freq, DB_freq, row_cut, col_cut):
         y_network = i.loc[i.screen == 1].ishit_interaction.tolist()
         # scores
         y_score = i.Score.tolist()
-        MAXMCC = prcmcc(y_network, 1000)
+        MAXMCC = prcmcc(y_network, len(y_network))
         MAXMCC["rank"] = j
         
         MCC = MCC.append(MAXMCC)
@@ -119,7 +119,6 @@ def prcmcc(label, test_range):
     total_screen = len(label)
     if total_screen < test_range:
         test_range = total_screen-1
-
     for i in range(1,test_range+1):
 
         test_screen = label[:i]
@@ -132,9 +131,9 @@ def prcmcc(label, test_range):
         FP = test_screen.count(0)
         # false negative: condition positive and predicted neg
         FN = sum(test_nonscreen)
-        # precision = TP / (TP+FP)
+        # Positive predictive value, precision = TP / (TP+FP)
         precision = sum(test_screen)/i * 100
-        # recall = TP / (TP+FN)
+        # True positive rate (probability of detection), recall = TP / (TP+FN)
         recall = sum(test_screen)/sum(label) * 100
         try:
             MCC= (TP*TN-FP*FN)/math.sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))*100 
@@ -152,8 +151,14 @@ def prcmcc(label, test_range):
     return df
 
 
-def get_norm_score(weight, high_freq, med_freq, pre_freq):
-    IS = ((weight * high_freq) + med_freq) / pre_freq
+def get_norm_score(weight, high_freq, med_freq, pre_freq, mode):
+    
+    if mode == "human":
+        # version without GFP high (used for human)
+        IS = med_freq/pre_freq
+    elif mode == "yeast":
+        # with GFP high (for yeast)
+        IS = ((weight * high_freq) + med_freq) / pre_freq
 
     # replace with nan
     IS = IS.replace(0, np.nan)
@@ -185,24 +190,20 @@ def test_rank(IS_normed, all_pairs, mix_index):
     transform[['AD', 'AD_BC']] = transform['AD_name'].str.split('_', expand=True)
     # merge cols
     transform['Interaction'] = transform.AD.str.cat(transform.DB, sep="_")
-    
     # only get certain index
     sort = transform.sort_values(["Score"], ascending=False).groupby(['Interaction'])
     df = sort.nth(1).dropna(how="any")
     df[["AD_name", "DB_name", "Score"]].to_csv("DK_norm_score_bc2.csv", index=False)
-
     merged = pd.merge(all_pairs, transform, on="Interaction")
-    g = merged.sort_values(["Score"], ascending=False).groupby(['Interaction'])
-    
-
+    g = merged.sort_values(["Score"], ascending=False).groupby(['Interaction']) 
+ 
     for i in mix_index:
         d_name = "is_{}".format(i)
         dicts[d_name] = g.nth(i).dropna(how='any')
-        print(dicts)    
     return dicts
 
 
-def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st):
+def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st, mode):
         
     # to find optimum set of parameters
     # we test all possible combinations
@@ -228,18 +229,16 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st):
     # find intersection
     AD_intersect = list(set(AD_GOLD) & set(AD_NAMES))
     DB_intersect = list(set(DB_GOLD) & set(DB_NAMES))
-    
     all_pairs = list(itertools.product(AD_intersect, DB_intersect))
-    
     #mix_index = [0,1,2,3]
-    mix_index = [1] 
+    mix_index = param.mix_index 
     # optimization
  
     output_csv = pd.DataFrame({}, columns=["precision","recall","mcc","rank","weight", "floor"])
     for s in comb:
         weight = s[0]
         floor = s[1]
-        
+
         row_cut = row_sorted[int(round(total_rows/floor))]
         col_cut = col_sorted[int(round(total_cols/floor))]
 
@@ -251,8 +250,7 @@ def score_main(GFP_pre, GFP_high, GFP_med, weights, floor_perc, gold_st):
         
         pre_freq = pd.DataFrame(data = freq_mx, columns = DB_freq.index.tolist(), index = AD_freq.index.tolist())
     
-        IS_normed = get_norm_score(weight, high_freq, med_freq, pre_freq)
-        
+        IS_normed = get_norm_score(weight, high_freq, med_freq, pre_freq, mode)
         # test which set of bc we want to use
         # in this case, we will have max 4 min 1 score(s) for each orf pair
         
@@ -292,19 +290,39 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='BFG-Y2H Scores')
     parser.add_argument("--sample", help="Path for read counts files")
+    parser.add_argument("--mode", help="yeast or human")
 
     args = parser.parse_args()
     counts = args.sample
+    mode = args.mode
 
     sample_name = os.path.basename(counts)    
     
     os.chdir(counts)
     # find the optimized parameters
-    yi = load_YI1(param.GOLD)
+    
+    if mode == "yeast":
+        yi = load_YI1(param.yGOLD)
+        dk_out_file = "DK_mcc_summary_yi1.csv"
+        noz_out_file = "noz_mcc_summary_yi1.csv"
+        litbm = evaluation.load_litbm(param.ylitBM13)
+    elif mode == "human":
+        yi = load_YI1(param.hGOLD)
+        dk_out_file = "DK_mcc_summary_FIPP.csv"
+        noz_out_file = "noz_mcc_summary_FIPP.csv"
+        litbm = evaluation.load_litbm(param.hlitBM)
+    else: 
+        print("Please provide valid mode: yeast or human")
+        exit(1)
+    
+    print(mode)
+    GFP_pre, GFP_med, GFP_high = pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
     for f in os.listdir(counts):
+        print(f)
         if not f.endswith("_combined_counts.csv"):
             continue
-        fname = "./"+f        
+        fname = "./"+f
+        print(f)
         if "pre" in f:
             GFP_pre = pd.read_table(fname, sep=",", index_col=0)
         elif "med" in f:
@@ -312,21 +330,26 @@ if __name__ == "__main__":
         elif "high" in f:
             GFP_high = pd.read_table(fname, sep =",", index_col=0)
     
-    output_csv, row_freq, col_freq, med_freq, high_freq, AD_NAMES, DB_NAMES = score_main(GFP_pre, GFP_high, GFP_med, param.weights, param.floor_perc, yi)
-    output_csv.to_csv("DK_mcc_summary_yi1.csv", index=False)
-    max_weight, max_rank, max_floor = load_summary("DK_mcc_summary_yi1.csv")
+    # calculate score based on DK's method
+    output_csv, row_freq, col_freq, med_freq, high_freq, AD_NAMES, DB_NAMES = score_main(GFP_pre, GFP_high, GFP_med, param.weights, param.floor_perc, yi, mode)
+    output_csv.to_csv(dk_out_file, index=False)
+    
+    max_weight, max_rank, max_floor = load_summary(dk_out_file)
+
     maxmcc = pd.DataFrame({"max_weight": [max_weight], "max_rank": [max_rank], "max_floor": [max_floor]})
+    print(maxmcc)
     print "max param found"
     # evaluation
-    litbm = evaluation.load_litbm(param.litBM13)
-    evaluation.dk_main(litbm, max_weight, max_rank, max_floor, high_freq, med_freq, row_freq, col_freq, AD_NAMES, DB_NAMES, "dk_mcc_summary_litbm13")
+    print(litbm)    
+    evaluation.dk_main(litbm, max_weight, max_rank, max_floor, high_freq, med_freq, row_freq, col_freq, AD_NAMES, DB_NAMES, "dk_mcc_summary_litbm13", mode)
     
+    # calculate score based on Noz's method
     noz_main, raw_scores = noz_score.main(GFP_pre, GFP_med, GFP_high, yi)
 #    df = raw_scores.copy()
 #    df = df.unstack().reset_index()
 #    df.to_csv("noz_raw_score.csv", index=False)
-    noz_main.to_csv("noz_mcc_summary_yi1.csv", index=False)
-    max_rho, max_rank = noz_score.load_summary("noz_mcc_summary_yi1.csv")
+    noz_main.to_csv(noz_out_file, index=False)
+    max_rho, max_rank = noz_score.load_summary(noz_out_file)
     maxmcc["max_rho"] = [max_rho]
     maxmcc["noz_max_rank"] = [max_rank]
     maxmcc.to_csv("max_parameters.csv", index=False)
