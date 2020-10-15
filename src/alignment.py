@@ -33,7 +33,6 @@ def bowtie_align(fastq, ref, output):
     command = param.BOWTIE2 + params + input_f + " 2> " + log_f
 
     os.system(command)
-    print(command)
 
     align_log.info("Alignment finished for %s", fastq)
 
