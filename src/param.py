@@ -63,7 +63,8 @@ yDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_DB
 hDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_DB_RL.csv"
 # human with null
 hvDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_DB_RL_withNull.csv"
-
+# hedgy summary
+heDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20201014_hEDGY_Screen1_ORF_BC_list.csv"
 
 # virus
 vADNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vADNC_withNull.csv"
@@ -77,6 +78,8 @@ yREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/y_ref/"
 # added for virus
 hvREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/hv_ref/"
 vREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/v_ref/"
+# added for hedgy
+heREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/h_hedgy/"
 
 ###################################
 

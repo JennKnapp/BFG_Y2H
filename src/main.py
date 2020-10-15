@@ -120,21 +120,27 @@ if __name__ == "__main__":
             DB_REF = param.hvREF_PATH + "h_" + DB_GROUP
 
     elif args.mode == "hedgy":
+
         m = re.match(r"hAD([0-9]+)DBhe", ad_base)
         if int(m.group(1)) <10:
             AD_GROUP = "G0"+m.group(1)
         else:
             AD_GROUP = "G"+m.group(1)
-        DB_GROUP = "he"
-        AD_REF = param.hREF_PATH+"h_AD_"+AD_GROUP
-        DB_REF = param.hREF_PATH+"h_DB_"+DB_GROUP
+
+        DB_GROUP = "hedgy"
+
+        AD_REF = param.hvREF_PATH+"h_AD_"+AD_GROUP
+        DB_REF = param.heREF_PATH+"h_DB_"+DB_GROUP
 
     else:
-        print("Please provide valid mode: yeast, human or virus")
+        print("Please provide valid mode: yeast, human, virus or hedgy")
         exit(1)
 
     output_dir_name = ad_base.split("_GFP_")[0]+"/"
-    
+
+    logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf", disable_existing_loggers=False)
+    log = logging.getLogger("root")
+
     if output is None: 
         if args.r is None: 
             log.info("no output folder specified, exiting..")
@@ -151,9 +157,6 @@ if __name__ == "__main__":
     output = output_dir
         
     os.chdir(output)
-        
-    logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf", disable_existing_loggers=False)  
-    log = logging.getLogger("root")
 
     if param.ALIGNMENT:
     
@@ -242,7 +245,11 @@ if __name__ == "__main__":
             if "G" in DB_GROUP: # human
                 DB_GROUP = DB_GROUP.split("_")[-1]
             AD_genes, DB_genes = supplements.read_summary_virus(param.hvAD_summary, param.hvDB_summary, AD_group = AD_GROUP, DB_group = DB_GROUP)
-        
+
+        elif args.mode == "hedgy":
+            AD_GROUP = AD_GROUP.split("_")[-1]
+            AD_genes, DB_genes = supplements.read_summary_hedgy(param.hvAD_summary, param.heDB_summary,
+                                                                AD_group=AD_GROUP)
         else:
             print("Please pride valid mode: yeast or human orvirus")
             exit(1)
