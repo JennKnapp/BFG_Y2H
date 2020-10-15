@@ -338,7 +338,7 @@ if __name__ == "__main__":
 
     maxmcc = pd.DataFrame({"max_weight": [max_weight], "max_rank": [max_rank], "max_floor": [max_floor]})
     print(maxmcc)
-    print "max param found"
+    print("max param found")
     # evaluation
     print(litbm)    
     evaluation.dk_main(litbm, max_weight, max_rank, max_floor, high_freq, med_freq, row_freq, col_freq, AD_NAMES, DB_NAMES, "dk_mcc_summary_litbm13", mode)

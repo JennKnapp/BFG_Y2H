@@ -96,13 +96,13 @@ def plot_s(df, name):
 
 def bar_freq(pre_freq, med_freq, high_freq):
     # convert matrix to list and remove zeros
-    print "Making bar plot"
+    print("Making bar plot")
     all_freq = [pre_freq, med_freq, high_freq]
     
     for i in all_freq:
         l = i.values.tolist()
         l = reduce(lambda x,y:x+y,l)
-        print len(l)
+        print(len(l))
 
         l.sort()
         l = l[:1000]
@@ -112,7 +112,7 @@ def bar_freq(pre_freq, med_freq, high_freq):
         plt.title("Freq")
         plt.savefig("/home/rothlab/rli/www/html/bar_freq.png")
         plt.close()
-        print "done"
+        print("done")
         break
 
 def heat_freq(freq_matrix):

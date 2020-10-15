@@ -52,9 +52,9 @@ def read_noz_score(output_dir, genes):
             norm_scores = norm_f[(norm_f.DB.str.contains(row['DB'])) & (norm_f.AD.str.contains(row['AD']))]
             raw_scores["norm_score"] = norm_scores["norm_score"].tolist()
             raw_scores["group"] = d
-            print raw_scores 
+            print(raw_scores)
             frames.append(raw_scores)
-        print frames
+        print(frames)
     groups = pd.concat(frames).reset_index(drop=True)
     groups.to_csv("dayag_gene_scores.csv", index=False)
 
@@ -64,7 +64,7 @@ def read_dk_score(output_dir, gene_list):
     
     for d in os.listdir(output_dir):
         group = d
-        print group
+        print(group)
         for index, row in genes.iterrows():
             if row['group'] == group:
                 dk_s = pd.read_csv(output_dir+d+"/DK_norm_score.csv")
@@ -92,7 +92,7 @@ def read_all(output_dir, gene_list):
         summary[['DB','DB_BC']] = summary['DB'].str.split('_',expand=True)
         df = pd.merge(summary, gene_list, how='inner', on=['AD', 'DB'])
         df['group'] = d
-        print df
+        print(df)
         frames.append(df)
         #for index, row in genes.iterrows():
         #    raw_scores = raw_f[(raw_f.DB.str.contains(row['DB'])) & (raw_f.AD.str.contains(row['AD']))]
@@ -102,7 +102,7 @@ def read_all(output_dir, gene_list):
         #    raw_scores["dk_score"] = dk_scores["DK_score"].tolist()
         #    raw_scores["group"] = d
         #    frames.append(raw_scores) 
-        print d 
+        print(d)
     groups = pd.concat(frames).reset_index(drop=True)
     groups.to_csv("dayag_allbyall_scores.csv", index=False)
 

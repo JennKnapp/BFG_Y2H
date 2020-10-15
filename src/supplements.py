@@ -66,7 +66,7 @@ def parse_ds_ref(fasta):
         line =0
         while line in range(len(c)):
         #for line in c:
-            print line
+            # print line
             if ">c" in c[line]: 
                 line+=2 
                 continue
@@ -90,7 +90,7 @@ def get_pair_counts(AD, DB, f):
     df.columns = ["AD", "DB","c"]
     count = df[(df.AD.str.contains(AD))& (df.DB.str.contains(DB))]
     #print df[df.AD.str.contains(DB)]
-    print count
+    print(count)
 if __name__ == "__main__":
     fasta = "./ds_ref/barcodes.fasta"
     #parse_ds_ref(fasta)

@@ -95,6 +95,7 @@ def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0",
             db.write(dn_seq_name+"\n")
             db.write(param.DB_Dn1+row.DnTag_Sequence+param.DB_Dn2+"\n")
 
+# make fasta files for virus collection
 def create_fasta_virus(vADNC, vAD2u, vDBNC, output_path):
     """
     create fasta reference for these three sets of barcode
@@ -171,6 +172,23 @@ def create_fasta_miha(AD_summary, DB_summary, output_path):
             db.write(dn_seq_name+"\n")
             db.write(param.DB_Dn1+row.DnTag_Sequence+param.DB_Dn2+"\n")
 
+# make fasta files for hedgy collection
+def create_fasta_hedgy(DB_summary, output_path):
+    """
+    For the hEdgy project, the BC for the AD side is
+    """
+    db_hedgy_df = pd.read_csv(DB_summary)
+    f_db = os.path.join(output_path, "h_hedgy.fasta")
+
+    with open(f_db, "w") as db:
+        for index, row in db_hedgy_df.iterrows():
+            up_seq_name = ">"+row.Plate+";"+row["ORF"]+";"+row["mutation"]+";"+"up"
+            db.write(up_seq_name+"\n")
+            db.write(param.DB_Up1+row.UpTag_Sequence+param.DB_Up2+"\n") # add padding sequences
+
+            dn_seq_name = ">"+row.Plate+";"+row["ORF"]+";"+row["mutation"]+";"+"dn"
+            db.write(dn_seq_name+"\n")
+            db.write(param.DB_Dn1+row.DnTag_Sequence+param.DB_Dn2+"\n")
 
 def build_index(fasta_file, output_dir):
     """
@@ -227,8 +245,10 @@ def v_main():
 
 
 if __name__ == "__main__":
-
-    main(mode="yeast",null=True)
+    hdegy_db = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20201014_hEDGY_Screen1_ORF_BC_list.csv"
+    output_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/h_hedgy/"
+    create_fasta_hedgy(hdegy_db, output_path)
+    # main(mode="yeast",null=True)
     #v_main()
 
 

@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # parameters for cluster
     parser.add_argument("--fastq", help="Path to all fastq files you want to analyze")
     parser.add_argument("--output", help="Output path for sam files")
-    parser.add_argument("--mode", help="pick yeast or human or virus", required=True)
+    parser.add_argument("--mode", help="pick yeast or human or virus or hedgy", required=True)
     # for analysis
     parser.add_argument("--r1", help=".csv file for read one")
     parser.add_argument("--r2", help=".csv file for read two")
@@ -118,6 +118,16 @@ if __name__ == "__main__":
             DB_REF = param.vREF_PATH + "v_" + DB_GROUP
         elif m.group(4) == "h":
             DB_REF = param.hvREF_PATH + "h_" + DB_GROUP
+
+    elif args.mode == "hedgy":
+        m = re.match(r"hAD([0-9]+)DBhe", ad_base)
+        if int(m.group(1)) <10:
+            AD_GROUP = "G0"+m.group(1)
+        else:
+            AD_GROUP = "G"+m.group(1)
+        DB_GROUP = "he"
+        AD_REF = param.hREF_PATH+"h_AD_"+AD_GROUP
+        DB_REF = param.hREF_PATH+"h_DB_"+DB_GROUP
 
     else:
         print("Please provide valid mode: yeast, human or virus")

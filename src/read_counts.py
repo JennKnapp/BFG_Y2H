@@ -43,7 +43,7 @@ class Read_Count(object):
         lines = 0
         dn_pairs = {}
         up_pairs = {}
-        print datetime.datetime.now()
+        print(datetime.datetime.now())
         fail =0
         dn_count = 0
         while 1:
@@ -53,7 +53,7 @@ class Read_Count(object):
             
             if r1_line == ""  or r2_line == "":
                 i = False
-                print "end of file"
+                print("end of file")
                 break
 
             r1_line = r1_line.strip().split("\t")
