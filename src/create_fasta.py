@@ -182,13 +182,14 @@ def create_fasta_hedgy(DB_summary, output_path):
 
     with open(f_db, "w") as db:
         for index, row in db_hedgy_df.iterrows():
-            up_seq_name = ">"+row.Plate+";"+row["ORF"]+";"+row["mutation"]+";"+"up"
+            up_seq_name = ">"+row["Locus"]+";"+"up"
             db.write(up_seq_name+"\n")
             db.write(param.DB_Up1+row.UpTag_Sequence+param.DB_Up2+"\n") # add padding sequences
 
-            dn_seq_name = ">"+row.Plate+";"+row["ORF"]+";"+row["mutation"]+";"+"dn"
+            dn_seq_name = ">"+row["Locus"]+";"+"dn"
             db.write(dn_seq_name+"\n")
             db.write(param.DB_Dn1+row.DnTag_Sequence+param.DB_Dn2+"\n")
+
 
 def build_index(fasta_file, output_dir):
     """

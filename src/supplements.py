@@ -61,11 +61,9 @@ def read_summary_hedgy(AD_sum, DB_sum, AD_group="G0", DB_group="G0"):
     AD_summary = pd.read_table(AD_sum, sep=",")
     DB_summary = pd.read_table(DB_sum, sep=",")
 
-    if "G" in AD_group:
-        AD_summary = AD_summary[(AD_summary.Group==AD_group) | (AD_summary.Group=="null_setD") ]
-        AD_genes = AD_summary.Locus.tolist()
+    AD_summary = AD_summary[(AD_summary.Group==AD_group) | (AD_summary.Group=="null_setD") ]
+    AD_genes = AD_summary.Locus.tolist()
 
-    DB_summary = DB_summary[(DB_summary.Group==DB_group)]
     DB_genes = DB_summary.Locus.tolist()
     return AD_genes, DB_genes
 
