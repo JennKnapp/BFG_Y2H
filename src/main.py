@@ -129,7 +129,7 @@ if __name__ == "__main__":
 
         DB_GROUP = "hedgy"
 
-        AD_REF = param.hvREF_PATH+"h_AD_"+AD_GROUP
+        AD_REF = param.hvREF_PATH+"h_AD_wnull_"+AD_GROUP
         DB_REF = param.heREF_PATH+"h_DB_"+DB_GROUP
 
     else:
