@@ -91,7 +91,7 @@ if __name__ == "__main__":
     elif args.mode == "virus":
         # human vs virus pairwise
 
-        m = re.match(r"(h|v)(AD([0-9]+)|ADNC|AD2u)(h|v)(DB([0-9]+)|DBNC|DB2u)", ad_base)
+        m = re.match(r"(h|v)(AD([0-9]+)|ADNC|AD2u|ADall)(h|v)(DB([0-9]+)|DBNC|DB2u)", ad_base)
         
         if not m.group(3) is None:
             if int(m.group(3)) < 10:

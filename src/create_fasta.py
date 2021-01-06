@@ -15,7 +15,7 @@ def reverse_complement(seq):
         bases = bases.replace(v,k)
     return bases
 
-def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0", DB="G0", mode=None, null=None):
+def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0", DB="G0", mode=None, wnull=None):
 
     """
     Generate fasta file from summary
@@ -24,7 +24,7 @@ def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0",
     # set summary in param.py
     if group_spec: # make a group specific fasta file
         
-        if not null:
+        if not wnull:
             AD_summary = pd.read_csv(AD_summary, sep="\t")
             DB_summary = pd.read_csv(DB_summary, sep="\t")
 
@@ -60,12 +60,12 @@ def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0",
     else:
         if mode == "human":
             # can't use G0 for human
-            f_ad = "h_AD_all.fasta"
-            f_db = "h_DB_all.fasta"
+            f_ad = "h_ADall.fasta"
+            f_db = "h_DBall.fasta"
         if mode == "yeast":
             # can't use G0 for human
-            f_ad = "y_AD_all.fasta"
-            f_db = "y_DB_all.fasta"
+            f_ad = "y_ADall.fasta"
+            f_db = "y_DBall.fasta"
 
     with open(os.path.join(output_path,f_ad), "w") as ad:
         # grep sequence and sequence name from summary file
@@ -136,12 +136,12 @@ def create_fasta_virus(vADNC, vAD2u, vDBNC, vADall, output_path):
 
         for index, row in vADall_df.iterrows():
             up_seq_name = ">ADall;" + str(row.ORF) + ";" + "up"
-            ad2u.write(up_seq_name + "\n")
-            ad2u.write(param.AD_Up1 + row.UP + param.AD_Up2 + "\n")
+            adall.write(up_seq_name + "\n")
+            adall.write(param.AD_Up1 + row.UP + param.AD_Up2 + "\n")
 
             dn_seq_name = ">ADall;" + str(row.ORF) + ";" + "dn"
-            ad2u.write(dn_seq_name + "\n")
-            ad2u.write(param.AD_Dn1 + row.DN + param.AD_Dn2 + "\n")
+            adall.write(dn_seq_name + "\n")
+            adall.write(param.AD_Dn1 + row.DN + param.AD_Dn2 + "\n")
 
     vDBNC_df = pd.read_csv(vDBNC)
     vDBNC_fasta = "v_DBNC.fasta"
