@@ -58,6 +58,9 @@ def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0",
                 f_db = "y_DB_wnull_"+DB+".fasta"
 
     else:
+        AD_summary = pd.read_csv(AD_summary, sep=",")
+        DB_summary = pd.read_csv(DB_summary, sep=",")
+
         if mode == "human":
             # can't use G0 for human
             f_ad = "h_ADall.fasta"
@@ -84,14 +87,16 @@ def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0",
             else:
                 ad.write(param.AD_Dn1+row.DnTag_Sequence+param.AD_Dn2+"\n")
 
+    DB_summary = DB_summary.dropna(how="all")
+    print(DB_summary)
     with open(os.path.join(output_path, f_db), "w") as db:
             
         for index, row in DB_summary.iterrows():
-            up_seq_name = ">"+row.Group+";"+str(row.Locus)+";"+str(row.Index)+";DB;"+"up"
+            up_seq_name = ">"+str(row.Group)+";"+str(row.Locus)+";"+str(row.Index)+";DB;"+"up"
             db.write(up_seq_name+"\n")
             db.write(param.DB_Up1+row.UpTag_Sequence+param.DB_Up2+"\n")
 
-            dn_seq_name = ">"+row.Group+";"+str(row.Locus)+";"+str(row.Index)+";DB;"+"dn"
+            dn_seq_name = ">"+str(row.Group)+";"+str(row.Locus)+";"+str(row.Index)+";DB;"+"dn"
             db.write(dn_seq_name+"\n")
             db.write(param.DB_Dn1+row.DnTag_Sequence+param.DB_Dn2+"\n")
 
@@ -256,15 +261,20 @@ def v_main():
     vAD2u = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vAD2u_withNull.csv"
     vADall = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vADall_withNull.csv"
     vDBNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vDBNC_withNull.csv"
-    output_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/v_ref/"
+    output_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/v_ref/"
     create_fasta_virus(vADNC, vAD2u, vDBNC, vADall, output_path)
 
 
 if __name__ == "__main__":
-    hdegy_db = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20201014_hEDGY_Screen1_ORF_BC_list.csv"
-    output_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/h_hedgy/"
-    create_fasta_hedgy(hdegy_db, output_path)
-    # main(mode="yeast",null=True)
+    #hdegy_db = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20201014_hEDGY_Screen1_ORF_BC_list.csv"
+    #output_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/h_hedgy/"
+    #create_fasta_hedgy(hdegy_db, output_path)
+    #main(mode="yeast",null=True)
     #v_main()
+    ADsum = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_AD_RL_withNull.csv"
+    DBsum = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_DB_RL_withNull.csv"
+    output_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/hv_ref/"
+
+    create_fasta(ADsum, DBsum, output_path, group_spec=False, AD="G0", DB="G0", mode="human", wnull=True)
 
 
