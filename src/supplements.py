@@ -46,13 +46,22 @@ def read_summary_virus(AD_sum, DB_sum, AD_group="G0", DB_group="G0"):
         vAD2u_df = pd.read_csv(param.vAD2u)
         AD_genes = vAD2u_df.ORF.tolist()
 
-    if "G" in AD_group:
+    elif AD_group == "ADall":
+        vADall_df = pd.read_csv(param.vADall)
+        AD_genes = vADall_df.ORF.tolist()
+
+    if "G" in AD_group: # group sepecific
         AD_summary = AD_summary[(AD_summary.Group==AD_group) | (AD_summary.Group=="null_setD") ]
         AD_genes = AD_summary.Locus.tolist()
+    else: # all genes
+        AD_genes = AD_summary.Locus.tolist()
 
-    if "G" in DB_group:
+    if "G" in DB_group: # group specific
         DB_summary = DB_summary[(DB_summary.Group==DB_group) | (DB_summary.Group=="null_setD")]
         DB_genes = DB_summary.Locus.tolist()
+    else: # all genes
+        DB_genes = DB_summary.Locus.tolist()
+
     return AD_genes, DB_genes
 
 
