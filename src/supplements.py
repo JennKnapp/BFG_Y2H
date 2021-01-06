@@ -103,6 +103,7 @@ def get_pair_counts(AD, DB, f):
     count = df[(df.AD.str.contains(AD))& (df.DB.str.contains(DB))]
     #print df[df.AD.str.contains(DB)]
     print(count)
+
 if __name__ == "__main__":
     fasta = "./ds_ref/barcodes.fasta"
     #parse_ds_ref(fasta)

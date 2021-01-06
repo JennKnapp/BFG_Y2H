@@ -96,7 +96,7 @@ def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0",
             db.write(param.DB_Dn1+row.DnTag_Sequence+param.DB_Dn2+"\n")
 
 # make fasta files for virus collection
-def create_fasta_virus(vADNC, vAD2u, vDBNC, output_path):
+def create_fasta_virus(vADNC, vAD2u, vDBNC, vADall, output_path):
     """
     create fasta reference for these three sets of barcode
     """
@@ -128,6 +128,20 @@ def create_fasta_virus(vADNC, vAD2u, vDBNC, output_path):
             dn_seq_name = ">AD2u;"+str(row.ORF)+";"+"dn"
             ad2u.write(dn_seq_name+"\n")
             ad2u.write(param.AD_Dn1+row.DN+param.AD_Dn2+"\n")
+
+    vADall_df = pd.read_csv(vADall)
+    vADall_fasta = "v_ADall.fasta"
+
+    with open(os.path.join(output_path, vADall_fasta), "w") as adall:
+
+        for index, row in vADall_df.iterrows():
+            up_seq_name = ">ADall;" + str(row.ORF) + ";" + "up"
+            ad2u.write(up_seq_name + "\n")
+            ad2u.write(param.AD_Up1 + row.UP + param.AD_Up2 + "\n")
+
+            dn_seq_name = ">ADall;" + str(row.ORF) + ";" + "dn"
+            ad2u.write(dn_seq_name + "\n")
+            ad2u.write(param.AD_Dn1 + row.DN + param.AD_Dn2 + "\n")
 
     vDBNC_df = pd.read_csv(vDBNC)
     vDBNC_fasta = "v_DBNC.fasta"
@@ -240,9 +254,10 @@ def v_main():
 
     vADNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vADNC_withNull.csv"
     vAD2u = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vAD2u_withNull.csv"
+    vADall = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vADall_withNull.csv"
     vDBNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vDBNC_withNull.csv"
     output_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/v_ref/"
-    create_fasta_virus(vADNC, vAD2u, vDBNC, output_path)
+    create_fasta_virus(vADNC, vAD2u, vDBNC, vADall, output_path)
 
 
 if __name__ == "__main__":
