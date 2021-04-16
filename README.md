@@ -3,8 +3,7 @@
 **Requirements**
 
 * Python 2.7
-* Bowtie 2 and Bowtie2 build (change path in `param.py`)
-* Samtools1.4 (change path in `param.py`)
+* Bowtie 2 and Bowtie2 build
 
 ### Create fasta files from summary table ###
 
