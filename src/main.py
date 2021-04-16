@@ -67,7 +67,7 @@ if __name__ == "__main__":
     
     # when mode == yeast
     if args.mode == "yeast":
-        m = re.match(r"yAD([1-9]|M)DB([1-9]|M)", ad_base)
+        m = re.match(r"yAD([1-9]|M|all)DB([1-9]|M|all)", ad_base)
         
         AD_GROUP = "G"+m.group(1)
         DB_GROUP = "G"+m.group(2)
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     elif args.mode == "virus":
         # human vs virus pairwise
 
-        m = re.match(r"(h|v)(AD([0-9]+)|ADNC|AD2u|ADall)(h|v)(DB([0-9]+)|DBNC|DB2u)", ad_base)
+        m = re.match(r"(h|v)(AD([0-9]+)|ADNC|AD2u|ADall)(h|v)(DB([0-9]+)|DBNC|DB2u|DBall)", ad_base)
         
         if not m.group(3) is None:
             if int(m.group(3)) < 10:

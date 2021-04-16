@@ -22,18 +22,19 @@ done
 
 printf "Reading fastq files from %s\n" "$FASTQ"
 printf "The output will be saved to %s\n" "$OUTPUT"
-printf "Mode %s" "$FASTQ"
+printf "Mode %s\n" "$MODE"
 
 # create the directory and run script
 # attention: if outpur dir exists it will be removed
 #rm -r $OUTPUT; mkdir $OUTPUT
 if [[ ! -z "${FASTQ// }" ]]; then
-  for fastq in $FASTQ/*R1*.fastq.gz; do
+  for fastq in $FASTQ/*_R1_*.fastq.gz; do
     echo $fastq
+    echo "here"
   # get AD and DB group info from file name
 
   #/home/rothlab/rli/py/bin/python2.7 ./src/main.py --fastq $fastq --output $OUTPUT
-  qsub -N $(basename $fastq .fastq.gz) ./sge_sub.sh $fastq $OUTPUT $MODE
+  qsub -l "h_vmem=40G" -N $(basename $fastq .fastq.gz) ./sge_sub.sh $fastq $OUTPUT $MODE
 done
 fi
 

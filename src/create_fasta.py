@@ -162,6 +162,32 @@ def create_fasta_virus(vADNC, vAD2u, vDBNC, vADall, output_path):
             dbnc.write(dn_seq_name+"\n")
             dbnc.write(param.DB_Dn1+row.DN+param.DB_Dn2+"\n")
 
+# Modified version to make fasta files for all yeast ORFs with null. 
+# for both AD and DB
+def create_fasta_all_yeast(AD_summary, DB_summary, output_path):
+    AD_summary = pd.read_csv(AD_summary)
+    DB_summary = pd.read_csv(DB_summary)
+    
+    f_ad = "y_AD_withnull_all.fasta"
+    f_db = "y_DB_withnull_all.fasta"
+    with open(os.path.join(output_path,f_ad), "w") as ad:
+        for index, row in AD_summary.iterrows():
+            up_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"up"
+            ad.write(up_seq_name+"\n")
+            ad.write(param.AD_Up1+row.UpTag_Sequence+param.AD_Up2+"\n") # add padding sequences
+            dn_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"dn"
+            ad.write(dn_seq_name+"\n")
+            ad.write(param.AD_Dn1+row.DnTag_Sequence+param.AD_Dn2+"\n")
+
+    with open(os.path.join(output_path, f_db), "w") as db:
+        for index, row in DB_summary.iterrows():
+            up_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"up"
+            db.write(up_seq_name+"\n")
+            db.write(param.DB_Up1+row.UpTag_Sequence+param.DB_Up2+"\n")
+            dn_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"dn"
+            db.write(dn_seq_name+"\n")
+            db.write(param.DB_Dn1+row.DnTag_Sequence+param.DB_Dn2+"\n")
+
 
 # Modified version to make fasta files for Miha's ORFs. 
 def create_fasta_miha(AD_summary, DB_summary, output_path):
@@ -275,6 +301,11 @@ if __name__ == "__main__":
     DBsum = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_DB_RL_withNull.csv"
     output_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/hv_ref/"
 
-    create_fasta(ADsum, DBsum, output_path, group_spec=False, AD="G0", DB="G0", mode="human", wnull=True)
+    #create_fasta(ADsum, DBsum, output_path, group_spec=False, AD="G0", DB="G0", mode="human", wnull=True)
+    
+    ADyeast_sum = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_byORFeome_AD_withNCnull.csv"
+    DByeast_sum = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_byORFeome_DB_AA_withNCnull.csv"
+    output_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/y_ref/"
+    create_fasta_all_yeast(ADyeast_sum, DByeast_sum, output_path)
 
 

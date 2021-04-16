@@ -12,13 +12,13 @@ def read_summary(AD_sum, DB_sum, AD_group="G0", DB_group="G0"):
     DB_summary = pd.read_table(DB_sum, sep=",")
     
     # grep group 
-    if AD_group!="G0":
+    if AD_group!="Gall":
         if AD_group == 'GM':
             AD_summary = AD_summary[(AD_summary.Plate.str.contains("Miha"))|(AD_summary.Group=="null_setD")] 
         else:
             AD_summary = AD_summary[(AD_summary.Group==AD_group) | (AD_summary.Group=="null_setD") ]
     
-    if DB_group!="G0":
+    if DB_group!="Gall":
         if DB_group == 'GM':
             DB_summary = DB_summary[(DB_summary.Plate.str.contains("Miha")) | (DB_summary.Group=="null_setD")] 
         else:
