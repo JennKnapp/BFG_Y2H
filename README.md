@@ -32,14 +32,12 @@ b) Input argument:
 ```
 --fastq /path/to/fastq_file    # we take R1 as input file, there should be an _R2 file in the folder 
 --output /path/to/output_dir/  # make this directory before you run the pipeline
+--mode human or yeast or virus 
 ```
-
-c) To run the pipeline on one pair of fastq files
-`python ./src/main.py --fastq /path/to/fastq_file --output /path/to/output_dir/`
 
 (NOTE: we assume all the reference files are named in the format: y_AD* or y_DB*)
 
-(NOTE: we assume all the fastq files have "yAD*DB*" in the file name)
+(NOTE: we assume all the fastq files have "yAD*DB*" or "hAD*DB*" in the file name)
 
 (NOTE: we use these filenames to match group with reference group)
 
@@ -47,8 +45,8 @@ d) To run the pipeline on sge
 ```
 # this will run the pipeline using sun grid engine                                        
 # all the fastq files in the given folder will be processed                               
-# The script checks how many jobs are running for this user, change user name accordingly 
-./sge.sh -f /path/to/fastq_files/ -o /path/to/output_dir/                                 
+./sge.sh -f /path/to/fastq_files/ -o /path/to/output_dir/  -m "yeast or human or virus or hedgy
+"                               
 ```
 (NOTE: More about [Sun Grid Engine](http://gridscheduler.sourceforge.net/howto/GridEngineHowto.html)) 
 

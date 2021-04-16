@@ -137,8 +137,8 @@ if __name__ == "__main__":
         exit(1)
 
     output_dir_name = ad_base.split("_GFP_")[0]+"/"
-
-    logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf", disable_existing_loggers=False)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    logging.config.fileConfig(current_dir+ "logging.conf", disable_existing_loggers=False)
     log = logging.getLogger("root")
 
     if output is None: 

@@ -30,7 +30,7 @@ def bowtie_align(fastq, ref, output):
     
     log_f = os.path.join(output, sam_file.replace(".sam", "_bowtie.log"))
     
-    command = param.BOWTIE2 + params + input_f + " 2> " + log_f
+    command = "bowtie2 " + params + input_f + " 2> " + log_f
 
     os.system(command)
 
@@ -57,7 +57,7 @@ def bowtie_align_hap(fastq, ref, output):
 
     input_f = "-x " + ref + " -U " + fastq + " -S " + os.path.join(output, sam_file)
     log_f = os.path.join(output, sam_file.replace(".sam", "_bowtie.log"))
-    command = param.BOWTIE2 + params + input_f + " 2> " + log_f
+    command = "bowtie2 " + params + input_f + " 2> " + log_f
     os.system(command)
 
     return os.path.join(output, sam_file)
