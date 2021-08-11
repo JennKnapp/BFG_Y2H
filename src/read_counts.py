@@ -56,8 +56,8 @@ class Read_Count(object):
                 print("end of file")
                 break
 
-            r1_line = r1_line.strip().split("\t")
-            r2_line = r2_line.strip().split("\t")
+            r1_line = r1_line.strip().split()
+            r2_line = r2_line.strip().split()
             
             # both files are sorted by name, if name is different, log error
             if r1_line[0] != r2_line[0]:

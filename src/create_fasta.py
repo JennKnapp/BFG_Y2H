@@ -1,9 +1,18 @@
+#!/usr/bin/env python3.7
+
+# Author: Roujia Li
+# email: Roujia.li@mail.utoronto.ca
+
+# Making fasta reference for different input reference sequences
+
 import pandas as pd
 import os
 import param
 
-
 def reverse_complement(seq):
+    """
+    return the reverse complement of seq
+    """
     alt_map = {'ins':'0'}
     complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
     for k,v in alt_map.iteritems():
@@ -15,8 +24,8 @@ def reverse_complement(seq):
         bases = bases.replace(v,k)
     return bases
 
-def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0", DB="G0", mode=None, wnull=None):
 
+def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0", DB="G0", mode=None, wnull=None):
     """
     Generate fasta file from summary
     See example_summary as templete

@@ -1,10 +1,16 @@
+#!/usr/bin/env python3.7
+
+# Author: Roujia Li
+# email: Roujia.li@mail.utoronto.ca
+
+# Functions used for making alignment command
+
 import param
 import os
 import logging
 import logging.config
 import argparse
 
-#logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/src/logging.conf")
 align_log = logging.getLogger("alignments")
 
 def bowtie_align(fastq, ref, output):
@@ -30,7 +36,7 @@ def bowtie_align(fastq, ref, output):
     
     log_f = os.path.join(output, sam_file.replace(".sam", "_bowtie.log"))
     
-    command = "bowtie2 " + params + input_f + " 2> " + log_f
+    command = f"bowtie2 {params} {input_f} 2> {log_f}"
 
     os.system(command)
 
@@ -57,7 +63,7 @@ def bowtie_align_hap(fastq, ref, output):
 
     input_f = "-x " + ref + " -U " + fastq + " -S " + os.path.join(output, sam_file)
     log_f = os.path.join(output, sam_file.replace(".sam", "_bowtie.log"))
-    command = "bowtie2 " + params + input_f + " 2> " + log_f
+    command = f"bowtie2 {params} {input_f} 2> {log_f}"
     os.system(command)
 
     return os.path.join(output, sam_file)
