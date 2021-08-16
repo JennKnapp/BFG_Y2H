@@ -1,4 +1,6 @@
-#!/usr/bin/env python3.7
+#!/usr/bin/env python#VERSION#
 
 # Author: Roujia Li
 # email: Roujia.li@mail.utoronto.ca
+
+

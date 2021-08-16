@@ -33,7 +33,7 @@ if [[ ! -z "${FASTQ// }" ]]; then
     echo "here"
   # get AD and DB group info from file name
 
-  #/home/rothlab/rli/py/bin/python2.7 ./src/main.py --fastq $fastq --output $OUTPUT
+  #/home/rothlab/rli/py/bin/python2.7 ./bfg_analysis/main.py --fastq $fastq --output $OUTPUT
   qsub -l "h_vmem=40G" -N $(basename $fastq .fastq.gz) ./sge_sub.sh $fastq $OUTPUT $MODE
 done
 fi
@@ -57,7 +57,7 @@ while [ $i -eq 1 ]; do
       #med=$sample"_med"$matrix
       #high=$sample"_high"$matrix
       qsub -N $(basename $sample) ./sge_score_sub.sh $sample
-      #/home/rothlab/rli/py/bin/python2.7 ./src/score.py --sample $sample 
+      #/home/rothlab/rli/py/bin/python2.7 ./bfg_analysis/score.py --sample $sample
     done
     i=0
   else
