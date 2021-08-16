@@ -17,5 +17,4 @@ DK_pipeline/*
 *.log
 *.csv
 *_retest/
-*_analysis/
 *.txt
