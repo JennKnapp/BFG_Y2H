@@ -20,7 +20,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/RyogaLi/BFG_Y2H",
-	# scripts=['bin/tileseq_mut'],
+	scripts=['bin/bfg'],
 	# For a list of valid classifiers, see https://pypi.org/classifiers/
 	classifiers=[  # Optional
 		# How mature is this project? Common values are

@@ -1,11 +1,9 @@
-from __future__ import division
+#!/usr/bin/env python3.7
+
 import pandas as pd
 import numpy as np
 import os
-import datetime
-import math
-import plot
-import param
+from legacy import param
 import score
 # calculating scores based on nozomu's paper
 # load the file in the same way as score.py

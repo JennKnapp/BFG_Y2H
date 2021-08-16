@@ -1,5 +1,8 @@
+#!/usr/bin/env python3.7
+
 import pandas as pd
-import param 
+from legacy import param
+
 
 def read_summary(AD_sum, DB_sum, AD_group, DB_group):
     """

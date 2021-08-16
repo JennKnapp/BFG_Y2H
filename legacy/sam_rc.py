@@ -19,9 +19,9 @@ def preprocess_sam(r1_sam, r2_sam):
 
     sorted_r1 = os.path.join(dir_name, r1_basename.replace(".sam", "_sorted.sam"))
     
-    sort_r1 = param.SAMTOOLS+"sort -n -o "+sorted_r1+" "+r1_sam
+    sort_r1 = param.SAMTOOLS + "sort -n -o " + sorted_r1 + " " + r1_sam
     sorted_r2 = os.path.join(dir_name, r2_basename.replace(".sam","_sorted.sam"))
-    sort_r2 = param.SAMTOOLS+"sort -n -o "+sorted_r2+" "+r2_sam
+    sort_r2 = param.SAMTOOLS + "sort -n -o " + sorted_r2 + " " + r2_sam
 
     # remove headers
     r1 = os.path.join(dir_name, r1_basename.replace(".sam", "_noh.sam"))

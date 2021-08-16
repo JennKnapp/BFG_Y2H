@@ -6,7 +6,7 @@ import logging.config
 import os
 import glob
 import re
-import param
+from legacy import param
 import alignment
 import read_counts
 
@@ -171,8 +171,8 @@ def parse_input_files(mode, ad_base):
         AD_GROUP = "G"+m.group(1)
         DB_GROUP = "G"+m.group(2)
 
-        AD_REF = param.yREF_PATH+"y_AD_wnull_"+AD_GROUP
-        DB_REF = param.yREF_PATH+"y_DB_wnull_"+DB_GROUP
+        AD_REF = param.yREF_PATH + "y_AD_wnull_" + AD_GROUP
+        DB_REF = param.yREF_PATH + "y_DB_wnull_" + DB_GROUP
 
     elif mode == "human":
         m = re.match(r"hAD([0-9]+)DB([0-9]+)", ad_base)
@@ -184,8 +184,8 @@ def parse_input_files(mode, ad_base):
             DB_GROUP = "G0"+m.group(2)
         else:
             DB_GROUP = "G"+m.group(2)
-        AD_REF = param.hREF_PATH+"h_AD_"+AD_GROUP
-        DB_REF = param.hREF_PATH+"h_DB_"+DB_GROUP
+        AD_REF = param.hREF_PATH + "h_AD_" + AD_GROUP
+        DB_REF = param.hREF_PATH + "h_DB_" + DB_GROUP
 
     elif mode == "virus":
         # human vs virus pairwise
@@ -208,9 +208,9 @@ def parse_input_files(mode, ad_base):
             DB_GROUP = m.group(5)
 
         if m.group(1) == "v": #virus
-            AD_REF = param.vREF_PATH+"v_"+AD_GROUP
+            AD_REF = param.vREF_PATH + "v_" + AD_GROUP
         else:
-            AD_REF = param.hvREF_PATH+"h_"+AD_GROUP
+            AD_REF = param.hvREF_PATH + "h_" + AD_GROUP
 
         if m.group(4) == "v": # virus
             DB_REF = param.vREF_PATH + "v_" + DB_GROUP
@@ -227,8 +227,8 @@ def parse_input_files(mode, ad_base):
 
         DB_GROUP = "hedgy"
 
-        AD_REF = param.hvREF_PATH+"h_AD_wnull_"+AD_GROUP
-        DB_REF = param.heREF_PATH+"h_DB_"+DB_GROUP
+        AD_REF = param.hvREF_PATH + "h_AD_wnull_" + AD_GROUP
+        DB_REF = param.heREF_PATH + "h_DB_" + DB_GROUP
 
     else:
         raise ValueError("Please provide valid mode: yeast, human, virus or hedgy")

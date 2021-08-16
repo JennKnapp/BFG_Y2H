@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.7
+
 import pandas as pd
 import os
 import itertools

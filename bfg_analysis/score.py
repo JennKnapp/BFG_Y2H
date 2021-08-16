@@ -1,20 +1,16 @@
-from __future__ import division
+#!/usr/bin/env python3.7
+
 import os
 import argparse
-import datetime
 import math
 import numpy as np
 import pandas as pd
-import logging
-import logging.config
 import itertools
 import noz_score
-import param
+from legacy import param
 import evaluation
-import plot
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import precision_recall_curve
-from sklearn.metrics import matthews_corrcoef
+
+
 #from noz_score import *
 
 

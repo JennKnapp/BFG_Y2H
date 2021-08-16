@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.7
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt

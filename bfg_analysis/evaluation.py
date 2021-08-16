@@ -1,6 +1,8 @@
+#!/usr/bin/env python3.7
+
 import score
 import noz_score
-import param
+from legacy import param
 import itertools
 import pandas as pd
 import numpy as np
