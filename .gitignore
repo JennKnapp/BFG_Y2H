@@ -13,8 +13,8 @@ tmp/*
 *_test/*
 *.e*
 *.o*
-DK_pipeline/*
 *.log
 *.csv
 *_retest/
 *.txt
+bfg_data/*
