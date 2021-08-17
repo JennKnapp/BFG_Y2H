@@ -20,15 +20,12 @@ def bowtie_align(ad, db, AD_ref, DB_ref, output, sh_dir):
     error_log = os.path.join(sh_dir, f"{basename.replace('.fastq.gz', '')}")
     bowtie_log = os.path.join(sh_dir, f"{basename.replace('.fastq.gz', '_bowtie.log')}")
     print(bowtie_log)
-    # write commmands to sh_dir
+    # write header to sh_dir
     header = f"#!/bin/bash\n#SBATCH --time=24:00:00\n#SBATCH --job-name={basename}\n#SBATCH " \
              f"--cores-per-socket=8\n#SBATCH --error={error_log}-%j.log\n#SBATCH --mem=10G\n#SBATCH " \
              f"--output={error_log}-%j.log\n"
-    # align_log.info("Starts aligning... %s", fastq)
-    # align_log.info("Reference: %s", ref)
-    # align_log.info("Output: %s", output)
+
     # command for AD
-    basename = os.path.basename(ad)
     params_r1 = "-q --norc --local --very-sensitive-local -t -p 8 --reorder "
     sam_file_r1 = os.path.join(output, basename.replace('.fastq.gz','_AD_BC.sam'))
     
@@ -60,6 +57,7 @@ def bowtie_align(ad, db, AD_ref, DB_ref, output, sh_dir):
     cut_csv_r1 = f"cut -f 1-5 {r1} > {r1_csv}"
     cut_csv_r2 = f"cut -f 1-5 {r2} > {r2_csv}"
 
+    # write all commands to file for submitting jobs
     with open(os.path.join(sh_dir, f"{basename.replace('.fastq.gz', '.sh')}"), "w") as f:
         f.write(header+"\n")
 

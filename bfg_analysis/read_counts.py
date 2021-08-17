@@ -1,10 +1,14 @@
 #!/usr/bin/env python3.7
 
 import pandas as pd
-import datetime
-from bfg_analysis.main import *
 import logging.config
 import argparse
+from bfg_analysis import supplements
+from bfg_analysis import plot
+
+# Author: Roujia Li
+# email: Roujia.li@mail.utoronto.ca
+
 #logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_analysis/logging.conf")
 analysis_log = logging.getLogger("analysis")
 # set global variables
@@ -16,27 +20,27 @@ analysis_log = logging.getLogger("analysis")
 
 # summary for AD (all the genes and group)
 # yeast
-yAD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_AD.csv"
+yAD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/20180627_byORFeome_AD.csv"
 # human
-hAD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_AD_RL.csv"
+hAD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/20180927_bhORFeome_AD_RL.csv"
 # human with null
-hvAD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_AD_RL_withNull.csv"
+hvAD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/20180927_bhORFeome_AD_RL_withNull.csv"
 
 # summary for DB (all the genes and group)
 # yeast
-yDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_DB_AA.csv"
+yDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/20180627_byORFeome_DB_AA.csv"
 # human
-hDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_DB_RL.csv"
+hDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/20180927_bhORFeome_DB_RL.csv"
 # human with null
-hvDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_DB_RL_withNull.csv"
+hvDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/20180927_bhORFeome_DB_RL_withNull.csv"
 # hedgy summary
-heDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20201014_hEDGY_Screen1_ORF_BC_list.csv"
+heDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/20201014_hEDGY_Screen1_ORF_BC_list.csv"
 
 # virus
-vADNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vADNC_withNull.csv"
-vAD2u = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vAD2u_withNull.csv"
-vDBNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vDBNC_withNull.csv"
-vADall = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vADall_withNull.csv"
+vADNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/vADNC_withNull.csv"
+vAD2u = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/vAD2u_withNull.csv"
+vDBNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/vDBNC_withNull.csv"
+vADall = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/vADall_withNull.csv"
 
 
 
@@ -51,6 +55,8 @@ class Read_Count(object):
 
         self._uptag_file = f"{output_dir}/{sam_cutoff}_{r1.replace('.csv', '')}_uptag_rawcounts.csv"
         self._dntag_file = f"{output_dir}/{sam_cutoff}_{r2.replace('.csv', '')}_dntag_rawcounts.csv"
+
+        self._cutoff = sam_cutoff
 
         ####### log ########
         analysis_log.info("r1 csv file: %s", r1)
@@ -71,11 +77,8 @@ class Read_Count(object):
         f1 = open(self._r1, "rb")
         f2 = open(self._r2, "rb")
         
-        i=True
-        lines = 0
         dn_pairs = {}
         up_pairs = {}
-        print(datetime.datetime.now())
         fail =0
         dn_count = 0
         while 1:
@@ -84,7 +87,6 @@ class Read_Count(object):
             r2_line = f2.readline() # DB
             
             if r1_line == ""  or r2_line == "":
-                i = False
                 print("end of file")
                 break
 
@@ -94,13 +96,12 @@ class Read_Count(object):
             # both files are sorted by name, if name is different, log error
             if r1_line[0] != r2_line[0]:
                 #log error and exit
-                i = False
                 analysis_log.error("# READ ID DOES NOT MATCH #")
                 analysis_log.error("From read one (AD): %s", r1_line[0])
                 analysis_log.error("From read two (DB): %s", r2_line[0])
                 break
 
-            if int(r1_line[4]) < param.cut_off or int(r2_line[4]) < param.cut_off: # check quality
+            if int(r1_line[4]) < self._cutoff or int(r2_line[4]) < self._cutoff: # check quality
                 fail += 1
                 continue
 
@@ -137,6 +138,7 @@ class Read_Count(object):
         uptag_matrix.to_csv(self._uptag_file)
         return uptag_matrix, dntag_matrix
 
+
 def RCmain(r1, r2, AD_GROUP, DB_GROUP, mode, output_dir, sam_cutoff):
 
     # get AD and DB genes from different files based on the mode
@@ -159,7 +161,6 @@ def RCmain(r1, r2, AD_GROUP, DB_GROUP, mode, output_dir, sam_cutoff):
     else:
         raise ValueError("Please pride valid mode: yeast or human orvirus")
 
-#    analysis_log.info("test")
     rc = Read_Count(AD_genes, DB_genes, r1, r2, output_dir, sam_cutoff)
     # create empty matrix
     rc._BuildMatrix()
@@ -181,12 +182,12 @@ if __name__ == "__main__":
     # parser.add_argument('--pfasta', help="Path to fasta file")
 
     # parameters for cluster
-    parser.add_argument("-r1", help="Path to all fastq files you want to analyze")
-    parser.add_argument("-r2", help="Output path for sam files")
-    parser.add_argument("--AD_GROUP", help="Output path for sam files")
-    parser.add_argument("--DB_GROUP", help="Output path for sam files")
-    parser.add_argument("--mode", help="Output path for sam files")
-    parser.add_argument("--cutoff", help="Output path for sam files")
-    parser.add_argument("-o", "--output", help="Output path for sam files")
+    parser.add_argument("-r1", help="Read 1 SAM file")
+    parser.add_argument("-r2", help="Read 2 SAM file")
+    parser.add_argument("--AD_GROUP", help="AD group number")
+    parser.add_argument("--DB_GROUP", help="DB group number")
+    parser.add_argument("--mode", help="Mode (yeast, human, virus, hedgy)")
+    parser.add_argument("--cutoff", help="SAM reads quality cutoff")
+    parser.add_argument("-o", "--output", help="Output path")
     args = parser.parse_args()
     RCmain(args.r1, args.r2, args.AD_GROUP, args.DB_GROUP, args.mode, args.output, args.cutoff)
