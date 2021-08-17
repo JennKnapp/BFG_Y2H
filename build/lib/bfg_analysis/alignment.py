@@ -16,10 +16,12 @@ def bowtie_align(ad, db, AD_ref, DB_ref, output, sh_dir):
     Align r1 and r2 to reference
     Log bowtie output 
     """
-    error_log = os.path.join(sh_dir, f"{ad}")
-    bowtie_log = os.path.join(sh_dir, f"{ad}_bowtie.log")
+    basename = os.path.basename(ad)
+    error_log = os.path.join(sh_dir, f"{basename.replace('.fastq.gz', '')}")
+    bowtie_log = os.path.join(sh_dir, f"{basename.replace('.fastq.gz', '_bowtie.log')}")
+    print(bowtie_log)
     # write commmands to sh_dir
-    header = f"#!/bin/bash\n#SBATCH --time=24:00:00\n#SBATCH --job-name={ad}\n#SBATCH " \
+    header = f"#!/bin/bash\n#SBATCH --time=24:00:00\n#SBATCH --job-name={basename}\n#SBATCH " \
              f"--cores-per-socket=8\n#SBATCH --error={error_log}-%j.log\n#SBATCH --mem=10G\n#SBATCH " \
              f"--output={error_log}-%j.log\n"
     # align_log.info("Starts aligning... %s", fastq)
@@ -28,13 +30,14 @@ def bowtie_align(ad, db, AD_ref, DB_ref, output, sh_dir):
     # command for AD
     basename = os.path.basename(ad)
     params_r1 = "-q --norc --local --very-sensitive-local -t -p 8 --reorder "
-    sam_file_r1 = basename.replace('.fastq.gz','_AD_BC.sam')
-    input_f_r1 = f"-x {AD_ref} -U {ad} -S {os.path.join(output, sam_file_r1)}"
+    sam_file_r1 = os.path.join(output, basename.replace('.fastq.gz','_AD_BC.sam'))
+    
+    input_f_r1 = f"-x {AD_ref} -U {ad} -S {sam_file_r1}"
     commandr1 = f"bowtie2 {params_r1} {input_f_r1} 2> {bowtie_log}"
     # command for DB
     params_r2 = "-q --nofw --local --very-sensitive-local -t -p 8 --reorder "
-    sam_file_r2 = basename.replace('.fastq.gz','_DB_BC.sam')
-    input_f_r2 = f"-x {DB_ref} -U {db} -S {os.path.join(output, sam_file_r2)}"
+    sam_file_r2 = os.path.join(output, basename.replace('.fastq.gz','_DB_BC.sam'))
+    input_f_r2 = f"-x {DB_ref} -U {db} -S {sam_file_r2}"
     commandr2 = f"bowtie2 {params_r2} {input_f_r2} 2> {bowtie_log}"
 
     # sort r1_sam
@@ -57,7 +60,7 @@ def bowtie_align(ad, db, AD_ref, DB_ref, output, sh_dir):
     cut_csv_r1 = f"cut -f 1-5 {r1} > {r1_csv}"
     cut_csv_r2 = f"cut -f 1-5 {r2} > {r2_csv}"
 
-    with open(os.path.join(sh_dir, f"{basename}.sh"), "w") as f:
+    with open(os.path.join(sh_dir, f"{basename.replace('.fastq.gz', '.sh')}"), "w") as f:
         f.write(header+"\n")
 
         f.write(commandr1+"\n")

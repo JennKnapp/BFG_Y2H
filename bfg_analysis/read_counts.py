@@ -188,5 +188,5 @@ if __name__ == "__main__":
     parser.add_argument("--mode", help="Output path for sam files")
     parser.add_argument("--cutoff", help="Output path for sam files")
     parser.add_argument("-o", "--output", help="Output path for sam files")
-
+    args = parser.parse_args()
     RCmain(args.r1, args.r2, args.AD_GROUP, args.DB_GROUP, args.mode, args.output, args.cutoff)

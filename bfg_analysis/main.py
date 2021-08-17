@@ -44,13 +44,13 @@ vDBNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vDBNC_withNull.csv"
 vADall = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vADall_withNull.csv"
 
 # Directory to store all the reference sequences
-hREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/h_ref/"
-yREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/y_ref/"
+hREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/h_ref/"
+yREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/y_ref/"
 # added for virus
-hvREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/hv_ref/"
-vREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/v_ref/"
+hvREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/hv_ref/"
+vREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/v_ref/"
 # added for hedgy
-heREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/h_hedgy/"
+heREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/h_hedgy/"
 
 ###################################
 
@@ -74,8 +74,9 @@ AD_Up2 = "CACTCCGTTCGTCACTCAATAA"
 
 def check_args(arguments):
 
-    if not os.path.isdir(arguments.o):
-        os.mkdir(arguments.o)
+    # make output dir if it doesn't exist
+    if not os.path.isdir(arguments.output):
+        os.mkdir(arguments.output)
 
     if not os.path.isdir(arguments.fastq):
         raise NotADirectoryError("Cannot find dir: {arguments.fastq}")
@@ -88,35 +89,43 @@ def main(arguments):
     # if no alignment is required and r1, r2 is provided
     # we will skip to read counts
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    logging.config.fileConfig(current_dir+ "logging.conf", disable_existing_loggers=False)
+    logging.config.fileConfig(os.path.join(current_dir, "logging.conf"), disable_existing_loggers=False)
     log = logging.getLogger("root")
+    
+    # get abs path of output dir
+    output_master = os.path.abspath(arguments.output)
 
     # gor through fastq files in the input folder
-    all_fastq = glob.glob(arguments.fastq)
+    all_fastq = glob.glob(f"{arguments.fastq}/*.fastq.gz")
     for f in all_fastq:
         # read 1 is AD and read 2 is DB
         if not "_R1" in os.path.basename(f):
             # ignore R2
             continue
-        ad_base = os.path.basename(f).split("_R1")[0]
-        dir_name = os.path.dirname(f)
+        # extract sample name
+        # assume all input fastq follow the same pattern: y|hAD*DB*_GFP_(pre|med|high)_R1_*.fastq.gz
+        regex = re.compile("(^.*_GFP_(pre|med|high))_.*.fastq.gz")
+        ad_base = regex.match(os.path.basename(f)).group(1)
+        #ad_base = os.path.basename(f).split("_")[0]
+
         # find DB
-        db = [i for i in all_fastq if "_R2" in i and i.split("_R2")[0]==ad_base][0]
-        db = os.path.join(dir_name, db)
+        print(ad_base)
+        db = [i for i in all_fastq if "_R2" in i and ad_base in i][0]
+        db = os.path.join(arguments.fastq, db)
 
         # process AD and DB to extract group information
         # this depends on the input mode
         AD_GROUP, DB_GROUP, AD_REF, DB_REF = parse_input_files(arguments.mode, ad_base)
-
+        
         # assume all the fastq files have the filename: y/hAD*DB*_GFP_*
         output_dir_name = ad_base.split("_GFP_")[0]+"/"
-        output_dir = os.path.join(arguments.o, output_dir_name)
+        output_dir = os.path.join(output_master, output_dir_name)
         if not os.path.isdir(output_dir):
             os.system("mkdir -p "+output_dir)
 
         # make sh dir to save submission scripts
-        sh_dir = os.path.join(arguments.o, "GALEN_jobs")
-        if not os.path.isdir(output_dir):
+        sh_dir = os.path.join(output_master, "GALEN_jobs")
+        if not os.path.isdir(sh_dir):
             os.system("mkdir -p "+sh_dir)
 
         r1_csv, r2_csv = "N", "N"
@@ -133,7 +142,8 @@ def main(arguments):
 
             with open(sh_file, "a") as f:
                 f.write(rc_cmd+"\n")
-            os.system(f"sbatch {sh_file}")
+            
+            #os.system(f"sbatch {sh_file}")
         else:
             # retrieve r1_csv and r2_csv
             for f in os.listdir(output_dir):
@@ -148,7 +158,6 @@ def main(arguments):
                 raise FileNotFoundError("Alignment script did not finish properly, check log")
 
             read_counts.RCmain(r1_csv, r2_csv, AD_GROUP, DB_GROUP, arguments.mode, output_dir, arguments.cutOff)
-
 
 
 
@@ -170,8 +179,8 @@ def parse_input_files(mode, ad_base):
         AD_GROUP = "G"+m.group(1)
         DB_GROUP = "G"+m.group(2)
 
-        AD_REF = param.yREF_PATH + "y_AD_wnull_" + AD_GROUP
-        DB_REF = param.yREF_PATH + "y_DB_wnull_" + DB_GROUP
+        AD_REF = yREF_PATH + "y_AD_wnull_" + AD_GROUP
+        DB_REF = yREF_PATH + "y_DB_wnull_" + DB_GROUP
 
     elif mode == "human":
         m = re.match(r"hAD([0-9]+)DB([0-9]+)", ad_base)
@@ -183,8 +192,8 @@ def parse_input_files(mode, ad_base):
             DB_GROUP = "G0"+m.group(2)
         else:
             DB_GROUP = "G"+m.group(2)
-        AD_REF = param.hREF_PATH + "h_AD_" + AD_GROUP
-        DB_REF = param.hREF_PATH + "h_DB_" + DB_GROUP
+        AD_REF = hREF_PATH + "h_AD_" + AD_GROUP
+        DB_REF = hREF_PATH + "h_DB_" + DB_GROUP
 
     elif mode == "virus":
         # human vs virus pairwise
@@ -207,14 +216,14 @@ def parse_input_files(mode, ad_base):
             DB_GROUP = m.group(5)
 
         if m.group(1) == "v": #virus
-            AD_REF = param.vREF_PATH + "v_" + AD_GROUP
+            AD_REF = vREF_PATH + "v_" + AD_GROUP
         else:
-            AD_REF = param.hvREF_PATH + "h_" + AD_GROUP
+            AD_REF = hvREF_PATH + "h_" + AD_GROUP
 
         if m.group(4) == "v": # virus
-            DB_REF = param.vREF_PATH + "v_" + DB_GROUP
+            DB_REF = vREF_PATH + "v_" + DB_GROUP
         else:
-            DB_REF = param.hvREF_PATH + "h_" + DB_GROUP
+            DB_REF = hvREF_PATH + "h_" + DB_GROUP
 
     elif mode == "hedgy":
 
@@ -226,8 +235,8 @@ def parse_input_files(mode, ad_base):
 
         DB_GROUP = "hedgy"
 
-        AD_REF = param.hvREF_PATH + "h_AD_wnull_" + AD_GROUP
-        DB_REF = param.heREF_PATH + "h_DB_" + DB_GROUP
+        AD_REF = hvREF_PATH + "h_AD_wnull_" + AD_GROUP
+        DB_REF = heREF_PATH + "h_DB_" + DB_GROUP
 
     else:
         raise ValueError("Please provide valid mode: yeast, human, virus or hedgy")
@@ -249,10 +258,8 @@ if __name__ == "__main__":
     parser.add_argument("--mode", help="pick yeast or human or virus or hedgy", required=True)
 
     parser.add_argument("--alignment", action="store_true", help= "turn on alignment")
-    parser.add_argument("--readCount", action="store_true", help= "turn on read counting")
-
-    parser.add_argument("-r", help= "redirect output files to this dir")
+    #parser.add_argument("--readCount", action="store_true", help= "turn on read counting")
     parser.add_argument("--cutOff", type=int, help = "assign cut off", default=20)
 
     args = parser.parse_args()
-
+    main(args)
