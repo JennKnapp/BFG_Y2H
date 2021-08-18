@@ -2,22 +2,21 @@
 
 **Requirements**
 
-* Python 2.7
+* Python 3.7
 * Bowtie 2 and Bowtie2 build
 
-### Create fasta files from summary table ###
+### Files required ###
 
-a) In param.py, set full path to `AD/DB_summary.csv`
+The pipeline requires reference files and summary files before running. They can be found on GALEN: 
+```
+all summary files contain summary of barcode information in csv format for yeast, human and virus
+path: /home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/
+all reference files contain all the barcodes in fasta format
+path: /home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/
+```
+Before running the pipeline, you need to copy everything in these two folders to your designated directory.
 
-b) In param.py, set path to reference (`REF_PATH`:A folder to save the output fasta filees)
-
-c) In param.py, set padding sequences (optional)
-
-d) In the summary table (AD and DB), the following columns are required: Group, Locus, Index
-
-e) Run the command: `python create_fasta.py`
-
-f) An example sequence in output fasta file:
+An example sequence in output fasta file:
 ```
 >G1;YDL169C_BC-1;7;up
 CCCTTAGAACCGAGAGTGTGGGTTAAATGGGTGAATTCAGGGATTCACTCCGTTCGTCACTCAATAA
@@ -25,29 +24,32 @@ CCCTTAGAACCGAGAGTGTGGGTTAAATGGGTGAATTCAGGGATTCACTCCGTTCGTCACTCAATAA
 
 ### Running the pipeline  ###
 
-a) Set parameters in param.py (refer to the comments)
-
-b) Input argument: 
+1. Input arguments: 
 ```
---fastq /path/to/fastq_file    # we take R1 as input file, there should be an _R2 file in the folder 
---output /path/to/output_dir/  # make this directory before you run the pipeline
---mode human or yeast or virus 
+usage: bfg [-h] [--fastq FASTQ] [--output OUTPUT] --mode MODE [--alignment]
+           [--cutOff CUTOFF]
+
+BFG-Y2H
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --fastq FASTQ    Path to all fastq files you want to analyze
+  --output OUTPUT  Output path for sam files
+  --mode MODE      pick yeast or human or virus or hedgy
+  --alignment      turn on alignment
+  --summary      path to summary files (default is set to /home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/)
+  --ref      path to reference files (default is set to /home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/)
+  --cutOff CUTOFF  assign cut off (default is set to 20)
 ```
 
-(NOTE: we assume all the reference files are named in the format: y_AD* or y_DB*)
+2. All the input fastq files should have names following the format: y|hAD*DB*_GFP_(pre|med|high) (for human and yeast) 
 
-(NOTE: we assume all the fastq files have "yAD*DB*" or "hAD*DB*" in the file name)
-
-(NOTE: we use these filenames to match group with reference group)
-
-d) To run the pipeline on sge
+3) To run the pipeline on GALEN
 ```
-# this will run the pipeline using sun grid engine                                        
+# this will run the pipeline using slurm         
 # all the fastq files in the given folder will be processed                               
-./sge.sh -f /path/to/fastq_files/ -o /path/to/output_dir/  -m "yeast or human or virus or hedgy
-"                               
+bfg --fastq /path/to/fastq_files/ --output /path/to/output_dir/  --mode yeast/human/virus/hedgy
 ```
-(NOTE: More about [Sun Grid Engine](http://gridscheduler.sourceforge.net/howto/GridEngineHowto.html)) 
 
 ### Output files  ###
 
@@ -60,18 +62,3 @@ c) `*_sorted.sam`: Raw sam files generated from bowtie2
 d) `*_noh.csv`: shrinked sam files, used for scoring
 
 e) `*_counts.csv`: barcode counts for uptags, dntags, and combined (up+dn)
-
-f) `raw_score.csv`: raw scores (see supplimentary docs for calculating scores)
-
-g) `Noz/DK_norm_score.csv`: normalized scores based on Nozumu or DK's method
-
-h) `*_mcc_summary.csv`: precision, recall and MCC calculated based on DK/nozumu's method
-
-i) `max_parameters.csv`: optimized parameters
-
-### Supplimentary documents ###
-
-a) [Flowchart of the pipeline](https://docs.google.com/presentation/d/1Mq1AKUprorP4ogN_J6207qoM5w3asWGtySbuzTitibs/edit?usp=sharing)
-
-b) [Calulating scores](https://docs.google.com/document/d/1w9PZou3icaU2AYSyzv1xSJa6oN9RlrFMkvfpLUnas_I/edit?usp=sharing)
-

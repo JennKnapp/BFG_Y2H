@@ -12,17 +12,7 @@ from bfg_analysis import read_counts
 # Author: Roujia Li
 # email: Roujia.li@mail.utoronto.ca
 
-# set global variables
-###################################
-# Directory to store all the reference sequences
-hREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/h_ref/"
-yREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/y_ref/"
-# added for virus
-hvREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/hv_ref/"
-vREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/v_ref/"
-# added for hedgy
-heREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/h_hedgy/"
-
+# set global variable
 ###################################
 
 # Padding sequences used
@@ -50,7 +40,13 @@ def check_args(arguments):
         os.mkdir(arguments.output)
 
     if not os.path.isdir(arguments.fastq):
-        raise NotADirectoryError("Cannot find dir: {arguments.fastq}")
+        raise NotADirectoryError(f"Cannot find dir: {arguments.fastq}")
+
+    if not os.path.isdir(arguments.summary):
+        raise NotADirectoryError(f"Cannot find dir: {arguments.summary}")
+
+    if not os.path.isdir(arguments.ref):
+        raise NotADirectoryError(f"Cannot find dir: {arguments.ref}")
 
 
 def main(arguments):
@@ -108,7 +104,7 @@ def main(arguments):
             # read count script
             rc_script = os.path.join(current_dir, "read_counts.py")
             rc_cmd = f"{rc_script} -r1 {r1_csv} -r2 {r2_csv} --AD_GROUP {AD_GROUP} --DB_GROUP {DB_GROUP} --mode {arguments.mode} " \
-                     f"--cutoff {arguments.cutOff} -o {output_dir}"
+                     f"--cutoff {arguments.cutOff} -o {output_dir} --summary {arguments.summary}"
             with open(sh_file, "a") as f:
                 f.write(rc_cmd+"\n")
             os.system(f"sbatch {sh_file}")
@@ -127,11 +123,11 @@ def main(arguments):
                 continue
                 #raise FileNotFoundError("Alignment script did not finish properly, check log")
 
-            read_counts.RCmain(r1_csv, r2_csv, AD_GROUP, DB_GROUP, arguments.mode, output_dir, arguments.cutOff)
+            read_counts.RCmain(r1_csv, r2_csv, AD_GROUP, DB_GROUP, arguments.mode, output_dir, arguments.cutOff, arguments.summary)
 
 
 
-def parse_input_files(mode, ad_base):
+def parse_input_files(mode, ad_base, ref_path):
     """
     This function is customized to read different input files and assign them different reference sequences
     Currently we can take yeast/human/virus/hedgy
@@ -142,6 +138,15 @@ def parse_input_files(mode, ad_base):
     For virus: h|v(AD(0-9|NC|2u|all)h|v(DB(0-9|NC|2u|all)), numbers stands for pooling groups, e.g hAD4vDBNC, human AD group 4 vs virus DBNC
     For hedgy:
     """
+    ###################################
+    # Directory to store all the reference sequences
+    hREF_PATH = os.path.join(ref_path, "h_ref/")
+    yREF_PATH = os.path.join(ref_path, "y_ref/")
+    # added for virus
+    hvREF_PATH = os.path.join(ref_path, "hv_ref/")
+    vREF_PATH = os.path.join(ref_path, "v_ref/")
+    # added for hedgy
+    heREF_PATH = os.path.join(ref_path, "h_hedgy/")
 
     if mode == "yeast":
         m = re.match(r"yAD([1-9]|M|all)DB([1-9]|M|all)", ad_base)
@@ -217,10 +222,6 @@ def parse_input_files(mode, ad_base):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='BFG-Y2H')
-    
-    # make fasta from summary file (AD and DB)
-    # -- create: creates fasta file from summary.csv
-    # parser.add_argument('--pfasta', help="Path to fasta file")
 
     # parameters for cluster
     parser.add_argument("--fastq", help="Path to all fastq files you want to analyze")
@@ -228,6 +229,8 @@ if __name__ == "__main__":
     parser.add_argument("--mode", help="pick yeast or human or virus or hedgy", required=True)
 
     parser.add_argument("--alignment", action="store_true", help= "turn on alignment")
+    parser.add_argument("--summary", help="path to all summary files", default="/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/")
+    parser.add_argument("--ref", help="path to all reference files", default="/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/")
     #parser.add_argument("--readCount", action="store_true", help= "turn on read counting")
     parser.add_argument("--cutOff", type=int, help = "assign cut off", default=20)
 
