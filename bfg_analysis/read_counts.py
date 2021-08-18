@@ -49,13 +49,12 @@ class Read_Count(object):
     def __init__(self, AD_GENES, DB_GENES, r1, r2, output_dir, sam_cutoff):
         self._r1 = r1 # sorted sam file for r1
         self._r2 = r2 # sorted sam file for r2
-        
         self._ad_genes = AD_GENES # list of AD gene names
         self._db_genes = DB_GENES # list of DB gene names
 
-        self._uptag_file = f"{output_dir}/{sam_cutoff}_{r1.replace('.csv', '')}_uptag_rawcounts.csv"
-        self._dntag_file = f"{output_dir}/{sam_cutoff}_{r2.replace('.csv', '')}_dntag_rawcounts.csv"
-
+        self._uptag_file = f"{r1.replace('.csv', '')}_uptag_rawcounts.csv"
+        self._dntag_file = f"{r2.replace('.csv', '')}_dntag_rawcounts.csv"
+        
         self._cutoff = sam_cutoff
 
         ####### log ########
@@ -74,8 +73,8 @@ class Read_Count(object):
 
     def _ReadCounts(self):
         
-        f1 = open(self._r1, "rb")
-        f2 = open(self._r2, "rb")
+        f1 = open(self._r1, "r")
+        f2 = open(self._r2, "r")
         
         dn_pairs = {}
         up_pairs = {}
@@ -92,7 +91,6 @@ class Read_Count(object):
 
             r1_line = r1_line.strip().split()
             r2_line = r2_line.strip().split()
-            
             # both files are sorted by name, if name is different, log error
             if r1_line[0] != r2_line[0]:
                 #log error and exit
@@ -108,7 +106,6 @@ class Read_Count(object):
             if r1_line[2] == "*" or r2_line[2] =="*": # if one of the read didnt map
                 fail += 1
                 continue
-            
             r1_name = r1_line[2].split(";")
             r2_name = r2_line[2].split(";")
 
@@ -168,11 +165,12 @@ def RCmain(r1, r2, AD_GROUP, DB_GROUP, mode, output_dir, sam_cutoff):
 
     combined = uptag_matrix + dntag_matrix
 
-    combined.to_csv(f"{output_dir}/{sam_cutoff}_{r1.replace('.csv', '')}_combined_counts.csv")
+    combined.to_csv(f"{r1.replace('.csv', '')}_combined_counts.csv")
 
     # plot up and dn corr
     # sample_bc_corr.png
-    plot.bc_corr(r1.replace('.csv', ''), uptag_matrix, dntag_matrix, output_dir)
+    plot.bc_corr(r1.replace('.csv', ''), uptag_matrix, dntag_matrix)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='BFG-Y2H')

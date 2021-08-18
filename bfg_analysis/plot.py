@@ -9,7 +9,7 @@ import seaborn as sns
 from scipy.stats.stats import pearsonr
 
 
-def bc_corr(sample_name, uptag_matrix, dntag_matrix, output="./"):
+def bc_corr(sample_name, uptag_matrix, dntag_matrix):
     # convert matrix to list
     uptag_matrix = uptag_matrix.astype(int)
     dntag_matrix = dntag_matrix.astype(int)
@@ -28,7 +28,7 @@ def bc_corr(sample_name, uptag_matrix, dntag_matrix, output="./"):
     plt.text(1, 14, "pcc:"+str(round(pcc[0], 2))+" uptag RC:"+str(sum(up_tag_list))+" dntag RC:"+str(sum(dn_tag_list)))
 
     plt.title(sample_name+"bc_corr (log)", fontsize= 16)
-    plt.savefig(output+sample_name+"_bc_corr.png")
+    plt.savefig(sample_name+"_bc_corr.png")
     plt.close()
 
 

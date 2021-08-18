@@ -109,23 +109,23 @@ def main(arguments):
             rc_script = os.path.join(current_dir, "read_counts.py")
             rc_cmd = f"{rc_script} -r1 {r1_csv} -r2 {r2_csv} --AD_GROUP {AD_GROUP} --DB_GROUP {DB_GROUP} --mode {arguments.mode} " \
                      f"--cutoff {arguments.cutOff} -o {output_dir}"
-
             with open(sh_file, "a") as f:
                 f.write(rc_cmd+"\n")
-            
-            #os.system(f"sbatch {sh_file}")
+            os.system(f"sbatch {sh_file}")
+
         else:
             # retrieve r1_csv and r2_csv
             for f in os.listdir(output_dir):
                 # go through the output dir and find the csv files
                 if ad_base in f:
-                    if "_R1" in f and ".csv" in f:
-                        r1_csv = f
-                    if "_R2" in f and ".csv" in f:
-                        r2_csv = f
-             # check r1 and r2
+                    if "_R1_" in f and ".csv" in f and not f.endswith("counts.csv"):
+                        r1_csv = os.path.join(output_dir, f)
+                    if "_R2_" in f and ".csv" in f and not f.endswith("counts.csv"):
+                        r2_csv = os.path.join(output_dir, f)
+            # check r1 and r2
             if not os.path.isfile(r1_csv) or not os.path.isfile(r2_csv):
-                raise FileNotFoundError("Alignment script did not finish properly, check log")
+                continue
+                #raise FileNotFoundError("Alignment script did not finish properly, check log")
 
             read_counts.RCmain(r1_csv, r2_csv, AD_GROUP, DB_GROUP, arguments.mode, output_dir, arguments.cutOff)
 

@@ -33,7 +33,7 @@ def bowtie_align(ad, db, AD_ref, DB_ref, output, sh_dir):
     commandr1 = f"bowtie2 {params_r1} {input_f_r1} 2> {bowtie_log}"
     # command for DB
     params_r2 = "-q --nofw --local --very-sensitive-local -t -p 8 --reorder "
-    sam_file_r2 = os.path.join(output, basename.replace('.fastq.gz','_DB_BC.sam'))
+    sam_file_r2 = os.path.join(output, basename.replace("_R1_", "_R2_").replace('.fastq.gz','_DB_BC.sam'))
     input_f_r2 = f"-x {DB_ref} -U {db} -S {sam_file_r2}"
     commandr2 = f"bowtie2 {params_r2} {input_f_r2} 2> {bowtie_log}"
 
@@ -75,7 +75,7 @@ def bowtie_align(ad, db, AD_ref, DB_ref, output, sh_dir):
         f.write(f"rm {r1}\n")
         f.write(f"rm {r2}\n")
 
-    return r1_csv, r2_csv, os.path.join(sh_dir, f"{basename}.sh")
+    return r1_csv, r2_csv, os.path.join(sh_dir, f"{basename.replace('.fastq.gz', '.sh')}")
 
 
 # depreciated

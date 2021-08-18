@@ -14,35 +14,6 @@ from bfg_analysis import read_counts
 
 # set global variables
 ###################################
-# summary files are used to grep gene names, group information
-# and to create fasta reference files if needed
-
-# in the summary files, the following columns must exist: Group, Locus, Index, UpTag_Sequence, DnTag_Sequence
-
-# summary for AD (all the genes and group)
-# yeast
-yAD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_AD.csv"
-# human
-hAD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_AD_RL.csv"
-# human with null
-hvAD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_AD_RL_withNull.csv"
-
-# summary for DB (all the genes and group)
-# yeast
-yDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_DB_AA.csv"
-# human
-hDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_DB_RL.csv"
-# human with null
-hvDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_DB_RL_withNull.csv"
-# hedgy summary
-heDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20201014_hEDGY_Screen1_ORF_BC_list.csv"
-
-# virus
-vADNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vADNC_withNull.csv"
-vAD2u = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vAD2u_withNull.csv"
-vDBNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vDBNC_withNull.csv"
-vADall = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vADall_withNull.csv"
-
 # Directory to store all the reference sequences
 hREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/h_ref/"
 yREF_PATH = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/y_ref/"
@@ -133,29 +104,28 @@ def main(arguments):
         if arguments.alignment:
             r1_csv, r2_csv, sh_file = alignment.bowtie_align(f, db, AD_REF, DB_REF, output_dir, sh_dir)
             # submit job and wait
-            # os.system(f"sbatch {sh_file}")
             # with r1_csv and r2_csv, add python command for read counts
             # read count script
             rc_script = os.path.join(current_dir, "read_counts.py")
             rc_cmd = f"{rc_script} -r1 {r1_csv} -r2 {r2_csv} --AD_GROUP {AD_GROUP} --DB_GROUP {DB_GROUP} --mode {arguments.mode} " \
                      f"--cutoff {arguments.cutOff} -o {output_dir}"
-
             with open(sh_file, "a") as f:
                 f.write(rc_cmd+"\n")
-            
-            #os.system(f"sbatch {sh_file}")
+            os.system(f"sbatch {sh_file}")
+
         else:
             # retrieve r1_csv and r2_csv
             for f in os.listdir(output_dir):
                 # go through the output dir and find the csv files
                 if ad_base in f:
-                    if "_R1" in f and ".csv" in f:
-                        r1_csv = f
-                    if "_R2" in f and ".csv" in f:
-                        r2_csv = f
-             # check r1 and r2
+                    if "_R1_" in f and ".csv" in f and not f.endswith("counts.csv"):
+                        r1_csv = os.path.join(output_dir, f)
+                    if "_R2_" in f and ".csv" in f and not f.endswith("counts.csv"):
+                        r2_csv = os.path.join(output_dir, f)
+            # check r1 and r2
             if not os.path.isfile(r1_csv) or not os.path.isfile(r2_csv):
-                raise FileNotFoundError("Alignment script did not finish properly, check log")
+                continue
+                #raise FileNotFoundError("Alignment script did not finish properly, check log")
 
             read_counts.RCmain(r1_csv, r2_csv, AD_GROUP, DB_GROUP, arguments.mode, output_dir, arguments.cutOff)
 
