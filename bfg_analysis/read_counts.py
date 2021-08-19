@@ -19,7 +19,8 @@ class Read_Count(object):
         self._r2 = r2 # sorted sam file for r2
         self._ad_genes = AD_GENES # list of AD gene names
         self._db_genes = DB_GENES # list of DB gene names
-
+        print(self._r1)
+        print(self._r2)
         self._uptag_file = f"{r1.replace('.csv', '')}_uptag_rawcounts.csv"
         self._dntag_file = f"{r2.replace('.csv', '')}_dntag_rawcounts.csv"
         
@@ -186,7 +187,7 @@ if __name__ == "__main__":
     parser.add_argument("--AD_GROUP", help="AD group number")
     parser.add_argument("--DB_GROUP", help="DB group number")
     parser.add_argument("--mode", help="Mode (yeast, human, virus, hedgy)")
-    parser.add_argument("--cutoff", help="SAM reads quality cutoff")
+    parser.add_argument("--cutoff", help="SAM reads quality cutoff", type=int)
     parser.add_argument("--summary", help="path to all summary files", default="/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/")
     parser.add_argument("-o", "--output", help="Output path")
     args = parser.parse_args()

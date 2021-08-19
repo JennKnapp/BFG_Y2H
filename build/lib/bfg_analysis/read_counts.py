@@ -3,45 +3,13 @@
 import pandas as pd
 import logging.config
 import argparse
+import os
 from bfg_analysis import supplements
 from bfg_analysis import plot
 
 # Author: Roujia Li
 # email: Roujia.li@mail.utoronto.ca
-
-#logging.config.fileConfig("/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_analysis/logging.conf")
 analysis_log = logging.getLogger("analysis")
-# set global variables
-###################################
-# summary files are used to grep gene names, group information
-# and to create fasta reference files if needed
-
-# in the summary files, the following columns must exist: Group, Locus, Index, UpTag_Sequence, DnTag_Sequence
-
-# summary for AD (all the genes and group)
-# yeast
-yAD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/20180627_byORFeome_AD.csv"
-# human
-hAD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/20180927_bhORFeome_AD_RL.csv"
-# human with null
-hvAD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/20180927_bhORFeome_AD_RL_withNull.csv"
-
-# summary for DB (all the genes and group)
-# yeast
-yDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/20180627_byORFeome_DB_AA.csv"
-# human
-hDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/20180927_bhORFeome_DB_RL.csv"
-# human with null
-hvDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/20180927_bhORFeome_DB_RL_withNull.csv"
-# hedgy summary
-heDB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/20201014_hEDGY_Screen1_ORF_BC_list.csv"
-
-# virus
-vADNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/vADNC_withNull.csv"
-vAD2u = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/vAD2u_withNull.csv"
-vDBNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/vDBNC_withNull.csv"
-vADall = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/vADall_withNull.csv"
-
 
 
 class Read_Count(object):
@@ -51,7 +19,8 @@ class Read_Count(object):
         self._r2 = r2 # sorted sam file for r2
         self._ad_genes = AD_GENES # list of AD gene names
         self._db_genes = DB_GENES # list of DB gene names
-
+        print(self._r1)
+        print(self._r2)
         self._uptag_file = f"{r1.replace('.csv', '')}_uptag_rawcounts.csv"
         self._dntag_file = f"{r2.replace('.csv', '')}_dntag_rawcounts.csv"
         
@@ -136,7 +105,40 @@ class Read_Count(object):
         return uptag_matrix, dntag_matrix
 
 
-def RCmain(r1, r2, AD_GROUP, DB_GROUP, mode, output_dir, sam_cutoff):
+def RCmain(r1, r2, AD_GROUP, DB_GROUP, mode, output_dir, sam_cutoff, summary_dir):
+
+
+
+    # set global variables
+    ###################################
+    # summary files are used to grep gene names, group information
+    # and to create fasta reference files if needed
+
+    # in the summary files, the following columns must exist: Group, Locus, Index, UpTag_Sequence, DnTag_Sequence
+
+    # summary for AD (all the genes and group)
+    # yeast
+    yAD_summary = os.path.join(summary_dir, "20180627_byORFeome_AD.csv")
+    # human
+    hAD_summary = os.path.join(summary_dir, "20180927_bhORFeome_AD_RL.csv")
+    # human with null
+    hvAD_summary = os.path.join(summary_dir, "20180927_bhORFeome_AD_RL_withNull.csv")
+
+    # summary for DB (all the genes and group)
+    # yeast
+    yDB_summary = os.path.join(summary_dir, "20180627_byORFeome_DB_AA.csv")
+    # human
+    hDB_summary = os.path.join(summary_dir, "20180927_bhORFeome_DB_RL.csv")
+    # human with null
+    hvDB_summary = os.path.join(summary_dir, "20180927_bhORFeome_DB_RL_withNull.csv")
+    # hedgy summary
+    heDB_summary = os.path.join(summary_dir, "20201014_hEDGY_Screen1_ORF_BC_list.csv")
+
+    # virus
+    vADNC = os.path.join(summary_dir, "vADNC_withNull.csv")
+    vAD2u = os.path.join(summary_dir, "vAD2u_withNull.csv")
+    vDBNC = os.path.join(summary_dir, "vDBNC_withNull.csv")
+    vADall = os.path.join(summary_dir, "vADall_withNull.csv")
 
     # get AD and DB genes from different files based on the mode
     if mode == "yeast":
@@ -185,7 +187,9 @@ if __name__ == "__main__":
     parser.add_argument("--AD_GROUP", help="AD group number")
     parser.add_argument("--DB_GROUP", help="DB group number")
     parser.add_argument("--mode", help="Mode (yeast, human, virus, hedgy)")
-    parser.add_argument("--cutoff", help="SAM reads quality cutoff")
+    parser.add_argument("--cutoff", help="SAM reads quality cutoff", type=int)
+    parser.add_argument("--summary", help="path to all summary files", default="/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/")
     parser.add_argument("-o", "--output", help="Output path")
     args = parser.parse_args()
-    RCmain(args.r1, args.r2, args.AD_GROUP, args.DB_GROUP, args.mode, args.output, args.cutoff)
+
+    RCmain(args.r1, args.r2, args.AD_GROUP, args.DB_GROUP, args.mode, args.output, args.cutoff, args.summary)

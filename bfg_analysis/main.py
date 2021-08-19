@@ -76,13 +76,12 @@ def main(arguments):
         #ad_base = os.path.basename(f).split("_")[0]
 
         # find DB
-        print(ad_base)
         db = [i for i in all_fastq if "_R2" in i and ad_base in i][0]
         db = os.path.join(arguments.fastq, db)
 
         # process AD and DB to extract group information
         # this depends on the input mode
-        AD_GROUP, DB_GROUP, AD_REF, DB_REF = parse_input_files(arguments.mode, ad_base)
+        AD_GROUP, DB_GROUP, AD_REF, DB_REF = parse_input_files(arguments.mode, ad_base, arguments.ref)
         
         # assume all the fastq files have the filename: y/hAD*DB*_GFP_*
         output_dir_name = ad_base.split("_GFP_")[0]+"/"
@@ -122,8 +121,20 @@ def main(arguments):
             if not os.path.isfile(r1_csv) or not os.path.isfile(r2_csv):
                 continue
                 #raise FileNotFoundError("Alignment script did not finish properly, check log")
+            # make sh file for r1 and r2 csv files 
+            # write header to sh_dir
+            header = f"#!/bin/bash\n#SBATCH --time=1:00:00\n#SBATCH --job-name={ad_base}\n#SBATCH --error={os.path.join(sh_dir, ad_base)}-%j.log\n#SBATCH --mem=2G\n#SBATCH --output={os.path.join(sh_dir, ad_base)}-%j.log\n"
+            sh_file = os.path.join(sh_dir, f"{ad_base}_rc.sh")
+            rc_script = os.path.join(current_dir, "read_counts.py")
+            rc_cmd = f"{rc_script} -r1 {r1_csv} -r2 {r2_csv} --AD_GROUP {AD_GROUP} --DB_GROUP {DB_GROUP} --mode {arguments.mode} " \
+                     f"--cutoff {arguments.cutOff} -o {output_dir} --summary {arguments.summary}"
+            with open(sh_file, "a") as f:
+                f.write(header)
+                f.write(rc_cmd+"\n")
+            print(ad_base) 
+            os.system(f"sbatch {sh_file}")
 
-            read_counts.RCmain(r1_csv, r2_csv, AD_GROUP, DB_GROUP, arguments.mode, output_dir, arguments.cutOff, arguments.summary)
+            #read_counts.RCmain(r1_csv, r2_csv, AD_GROUP, DB_GROUP, arguments.mode, output_dir, arguments.cutOff, arguments.summary)
 
 
 

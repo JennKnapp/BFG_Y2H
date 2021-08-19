@@ -7,7 +7,7 @@
 
 import pandas as pd
 import os
-from legacy import param
+#from legacy import param
 
 
 def reverse_complement(seq):
