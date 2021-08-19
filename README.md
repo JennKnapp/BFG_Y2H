@@ -53,18 +53,24 @@ optional arguments:
 3. Run the pipeline on GALEN
 ```
 # this will run the pipeline using slurm         
-# all the fastq files in the given folder will be processed                               
-bfg --fastq /path/to/fastq_files/ --output /path/to/output_dir/  --mode yeast/human/virus/hedgy
+# all the fastq files in the given folder will be processed
+# run with alignment 
+bfg --fastq /path/to/fastq_files/ --output /path/to/output_dir/ --mode yeast/human/virus/hedgy --alignment
+
+# if alignment was finished, you want to only do read counts
+bfg --fastq /path/to/fastq_files/ --output /path/to/output_dir/ --mode yeast/human/virus/hedgy
 ```
 
 ### Output files  ###
 
-a) After running the pipeline, one folder will be generated for each group pair (yAD*DB*)
+* After running the pipeline, one folder will be generated for each group pair (yAD*DB*)
 
-b) In the output folder for each group pair, we aligned R1 and R2 separately to the reference sequences for GFP_pre, GFP_med and GFP_high.
+* The folder called `GALEN_jobs` saves all the bash scripts submited to GALEN
+  
+* In the output folder for each group pair, we aligned R1 and R2 separately to the reference sequences for GFP_pre, GFP_med and GFP_high.
 
-c) `*_sorted.sam`: Raw sam files generated from bowtie2
+* `*_sorted.sam`: Raw sam files generated from bowtie2
 
-d) `*_noh.csv`: shrinked sam files, used for scoring
+* `*_noh.csv`: shrinked sam files, used for scoring
 
-e) `*_counts.csv`: barcode counts for uptags, dntags, and combined (up+dn)
+* `*_counts.csv`: barcode counts for uptags, dntags, and combined (up+dn)
