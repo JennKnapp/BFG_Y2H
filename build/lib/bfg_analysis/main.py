@@ -56,7 +56,9 @@ def main(arguments):
     # if no alignment is required and r1, r2 is provided
     # we will skip to read counts
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    logging.config.fileConfig(os.path.join(current_dir, "logging.conf"), disable_existing_loggers=False)
+    config_file = os.path.join(current_dir, "data/logging.conf")
+    print(config_file)
+    logging.config.fileConfig(config_file, disable_existing_loggers=False)
     log = logging.getLogger("root")
     
     # get abs path of output dir
@@ -131,8 +133,8 @@ def main(arguments):
             with open(sh_file, "a") as f:
                 f.write(header)
                 f.write(rc_cmd+"\n")
-            
-            #os.system(f"sbatch {sh_file}")
+            print(ad_base) 
+            os.system(f"sbatch {sh_file}")
 
             #read_counts.RCmain(r1_csv, r2_csv, AD_GROUP, DB_GROUP, arguments.mode, output_dir, arguments.cutOff, arguments.summary)
 

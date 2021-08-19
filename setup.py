@@ -21,7 +21,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/RyogaLi/BFG_Y2H",
 	scripts=['bin/bfg'],
-	package_data={'bfg_analysis': ['data/*.config']},
+	package_data={'bfg_analysis': ['data/*']},
 	# For a list of valid classifiers, see https://pypi.org/classifiers/
 	classifiers=[  # Optional
 		# How mature is this project? Common values are
