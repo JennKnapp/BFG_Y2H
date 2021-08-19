@@ -56,7 +56,8 @@ def main(arguments):
     # if no alignment is required and r1, r2 is provided
     # we will skip to read counts
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    logging.config.fileConfig(os.path.join(current_dir, "logging.conf"), disable_existing_loggers=False)
+    config_file = os.path.join(os.path.dirname(current_dir), "data/logging.conf")
+    logging.config.fileConfig(config_file, disable_existing_loggers=False)
     log = logging.getLogger("root")
     
     # get abs path of output dir

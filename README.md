@@ -24,6 +24,12 @@ CCCTTAGAACCGAGAGTGTGGGTTAAATGGGTGAATTCAGGGATTCACTCCGTTCGTCACTCAATAA
 
 ### Running the pipeline  ###
 
+0. Install from github
+```
+1. download the package 
+2. run ./update.sh
+```
+
 1. Input arguments: 
 ```
 usage: bfg [-h] [--fastq FASTQ] [--output OUTPUT] --mode MODE [--alignment]
@@ -44,7 +50,7 @@ optional arguments:
 
 2. All the input fastq files should have names following the format: y|hAD*DB*_GFP_(pre|med|high) (for human and yeast) 
 
-3) To run the pipeline on GALEN
+3. Run the pipeline on GALEN
 ```
 # this will run the pipeline using slurm         
 # all the fastq files in the given folder will be processed                               
