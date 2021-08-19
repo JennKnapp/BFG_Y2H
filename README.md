@@ -24,10 +24,12 @@ CCCTTAGAACCGAGAGTGTGGGTTAAATGGGTGAATTCAGGGATTCACTCCGTTCGTCACTCAATAA
 
 ### Running the pipeline  ###
 
-0. Install from github
+* Install from pypi (recommend): `python -m pip install BFG-Y2H==0.0.1`
+
+* Install and build from github
 ```
-1. download the package 
-2. run ./update.sh
+1. download the package from github
+2. inside the root folder, run ./update.sh
 ```
 
 1. Input arguments: 
