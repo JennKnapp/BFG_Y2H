@@ -57,7 +57,6 @@ def main(arguments):
     # we will skip to read counts
     current_dir = os.path.dirname(os.path.abspath(__file__))
     config_file = os.path.join(current_dir, "data/logging.conf")
-    print(config_file)
     logging.config.fileConfig(config_file, disable_existing_loggers=False)
     log = logging.getLogger("root")
     
@@ -66,6 +65,8 @@ def main(arguments):
 
     # gor through fastq files in the input folder
     all_fastq = glob.glob(f"{arguments.fastq}/*.fastq.gz")
+    if all_fastq == []:
+        raise FileNotFoundError("NO FASTQ.GZ FILES FOUND IN THE INPUT FOLDER!")
     for f in all_fastq:
         # read 1 is AD and read 2 is DB
         if not "_R1" in os.path.basename(f):
@@ -79,7 +80,7 @@ def main(arguments):
 
         # find DB
         db = [i for i in all_fastq if "_R2" in i and ad_base in i][0]
-        db = os.path.join(arguments.fastq, db)
+        # db = os.path.join(arguments.fastq, db)
 
         # process AD and DB to extract group information
         # this depends on the input mode
