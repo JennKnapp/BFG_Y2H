@@ -104,8 +104,8 @@ def main(arguments):
             # submit job and wait
             # with r1_csv and r2_csv, add python command for read counts
             # read count script
-            rc_script = os.path.join(current_dir, "read_counts.py")
-            rc_cmd = f"{rc_script} -r1 {r1_csv} -r2 {r2_csv} --AD_GROUP {AD_GROUP} --DB_GROUP {DB_GROUP} --mode {arguments.mode} " \
+            # rc_script = os.path.join(current_dir, "read_counts.py")
+            rc_cmd = f"rc -r1 {r1_csv} -r2 {r2_csv} --AD_GROUP {AD_GROUP} --DB_GROUP {DB_GROUP} --mode {arguments.mode} " \
                      f"--cutoff {arguments.cutOff} -o {output_dir} --summary {arguments.summary}"
             with open(sh_file, "a") as f:
                 f.write(rc_cmd+"\n")
@@ -129,7 +129,7 @@ def main(arguments):
             header = f"#!/bin/bash\n#SBATCH --time=1:00:00\n#SBATCH --job-name={ad_base}\n#SBATCH --error={os.path.join(sh_dir, ad_base)}-%j.log\n#SBATCH --mem=2G\n#SBATCH --output={os.path.join(sh_dir, ad_base)}-%j.log\n"
             sh_file = os.path.join(sh_dir, f"{ad_base}_rc.sh")
             rc_script = os.path.join(current_dir, "read_counts.py")
-            rc_cmd = f"{rc_script} -r1 {r1_csv} -r2 {r2_csv} --AD_GROUP {AD_GROUP} --DB_GROUP {DB_GROUP} --mode {arguments.mode} " \
+            rc_cmd = f"rc -r1 {r1_csv} -r2 {r2_csv} --AD_GROUP {AD_GROUP} --DB_GROUP {DB_GROUP} --mode {arguments.mode} " \
                      f"--cutoff {arguments.cutOff} -o {output_dir} --summary {arguments.summary}"
             with open(sh_file, "w") as f:
                 f.write(header)
@@ -138,7 +138,6 @@ def main(arguments):
             os.system(f"sbatch {sh_file}")
 
             #read_counts.RCmain(r1_csv, r2_csv, AD_GROUP, DB_GROUP, arguments.mode, output_dir, arguments.cutOff, arguments.summary)
-
 
 
 def parse_input_files(mode, ad_base, ref_path):
