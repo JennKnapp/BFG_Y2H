@@ -131,7 +131,7 @@ def main(arguments):
             rc_script = os.path.join(current_dir, "read_counts.py")
             rc_cmd = f"{rc_script} -r1 {r1_csv} -r2 {r2_csv} --AD_GROUP {AD_GROUP} --DB_GROUP {DB_GROUP} --mode {arguments.mode} " \
                      f"--cutoff {arguments.cutOff} -o {output_dir} --summary {arguments.summary}"
-            with open(sh_file, "a") as f:
+            with open(sh_file, "w") as f:
                 f.write(header)
                 f.write(rc_cmd+"\n")
             print(ad_base) 
