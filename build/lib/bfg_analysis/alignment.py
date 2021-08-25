@@ -21,20 +21,20 @@ def bowtie_align(ad, db, AD_ref, DB_ref, output, sh_dir):
     bowtie_log = os.path.join(sh_dir, f"{basename.replace('.fastq.gz', '_bowtie.log')}")
     # write header to sh_dir
     header = f"#!/bin/bash\n#SBATCH --time=24:00:00\n#SBATCH --job-name={basename}\n#SBATCH " \
-             f"--cores-per-socket=8\n#SBATCH --error={error_log}-%j.log\n#SBATCH --mem=10G\n#SBATCH " \
+             f"--cpus-per-task=16\n#SBATCH --error={error_log}-%j.log\n#SBATCH --mem=10G\n#SBATCH " \
              f"--output={error_log}-%j.log\n"
 
     # command for AD
-    params_r1 = "-q --norc --local --very-sensitive-local -t -p 8 --reorder "
+    params_r1 = "-q --norc --local --very-sensitive-local -t -p 16 "
     sam_file_r1 = os.path.join(output, basename.replace('.fastq.gz','_AD_BC.sam'))
     
     input_f_r1 = f"-x {AD_ref} -U {ad} -S {sam_file_r1}"
     commandr1 = f"bowtie2 {params_r1} {input_f_r1} 2> {bowtie_log}"
     # command for DB
-    params_r2 = "-q --nofw --local --very-sensitive-local -t -p 8 --reorder "
+    params_r2 = "-q --nofw --local --very-sensitive-local -t -p 16 "
     sam_file_r2 = os.path.join(output, basename.replace("_R1", "_R2").replace('.fastq.gz','_DB_BC.sam'))
     input_f_r2 = f"-x {DB_ref} -U {db} -S {sam_file_r2}"
-    commandr2 = f"bowtie2 {params_r2} {input_f_r2} 2> {bowtie_log}"
+    commandr2 = f"bowtie2 {params_r2} {input_f_r2} 2>> {bowtie_log}"
 
     # sort r1_sam
     sorted_r1 = sam_file_r1.replace(".sam", "_sorted.sam")
