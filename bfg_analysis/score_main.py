@@ -60,18 +60,25 @@ def calculate_IS(GFP_pre, GFP_med, GFP_high, preFloor, weightHigh):
     GFP_high_freq = freq(GFP_high)
     # use GFP_pre, med and high to calculate IS
     IS = ((weightHigh * GFP_high_freq) + GFP_med_freq) / GFP_pre_freq
-    print(IS)
     #score normalization
     IS_norm = IS.sub(IS.median(axis=1), axis=0).sub(IS.median(axis=0), axis=1)
+    print(IS_norm)
     # first normalize with AD
-    IS_norm = IS_norm.apply(
+    IS_norm = IS_norm.apply(lambda x: normalization(x), axis=1)
+    print(IS_norm)
+    # then normalize with DB
+    IS_norm = IS_norm.apply(lambda x: normalization(x), axis=0)
+    print(IS_norm)
 
 # help functions
 def normalization(vector):
     """
     Normalize scores in this vector
     """
-    pass
+    x = vector[vector>0]
+    beta = x.quantile(0.9)
+    updated_vector = vector/beta
+    return updated_vector
 
 
 def freq(matrix):
