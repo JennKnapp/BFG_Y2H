@@ -21,7 +21,7 @@ def bowtie_align(ad, db, AD_ref, DB_ref, output, sh_dir):
     bowtie_log = os.path.join(sh_dir, f"{basename.replace('.fastq.gz', '_bowtie.log')}")
     # write header to sh_dir
     header = f"#!/bin/bash\n#SBATCH --time=24:00:00\n#SBATCH --job-name={basename}\n#SBATCH " \
-             f"--cores-per-socket=16\n#SBATCH --error={error_log}-%j.log\n#SBATCH --mem=10G\n#SBATCH " \
+             f"--cpus-per-task=16\n#SBATCH --error={error_log}-%j.log\n#SBATCH --mem=10G\n#SBATCH " \
              f"--output={error_log}-%j.log\n"
 
     # command for AD

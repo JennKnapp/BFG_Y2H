@@ -33,10 +33,10 @@ def read_files(arguments):
         med = [s for s in count_files if "_GFP_med_" in s][0]
         high = [s for s in count_files if "_GFP_high_" in s][0]
         
-        calculate_IS(pre, med, high, arguments.preFloor)
+        calculate_IS(pre, med, high, arguments.preFloor, arguments.weight)
 
 
-def calculate_IS(GFP_pre, GFP_med, GFP_high, preFloor):
+def calculate_IS(GFP_pre, GFP_med, GFP_high, preFloor, weightHigh):
     """
     Input files contains a list of file paths for a specific AD and DB combination
     Required: GFP_pre, GFP_med, GFP_high
@@ -46,32 +46,39 @@ def calculate_IS(GFP_pre, GFP_med, GFP_high, preFloor):
     GFP_pre = pd.read_csv(GFP_pre, index_col=0)
     GFP_med = pd.read_csv(GFP_med, index_col=0)
     GFP_high = pd.read_csv(GFP_high, index_col=0)
-    print(GFP_pre)
 
     # calculate marginal frequencies for GFP_pre
     GFP_pre_ADfreq, GFP_pre_DBfreq = marginal_freq(GFP_pre)
-    print(GFP_pre_ADfreq)
     # floor values in AD and DB
     GFP_pre_ADfreq = GFP_pre_ADfreq.clip(lower=preFloor)
     GFP_pre_DBfreq = GFP_pre_DBfreq.clip(lower=preFloor)
-    print(GFP_pre_ADfreq)
     # rebuild matrix from two vectors
     freq_mx = np.outer(GFP_pre_ADfreq, GFP_pre_DBfreq)
     GFP_pre_freq = pd.DataFrame(data = freq_mx, columns = GFP_pre_DBfreq.index.tolist(), index = GFP_pre_ADfreq.index.tolist())
-    print(GFP_pre_freq) 
     # calculate frequencies for GFP_med and GFP_high
     GFP_med_freq = freq(GFP_med)
     GFP_high_freq = freq(GFP_high)
-
+    # use GFP_pre, med and high to calculate IS
+    IS = ((weightHigh * GFP_high_freq) + GFP_med_freq) / GFP_pre_freq
+    print(IS)
+    #score normalization
+    IS_norm = IS.sub(IS.median(axis=1), axis=0).sub(IS.median(axis=0), axis=1)
+    # first normalize with AD
+    IS_norm = IS_norm.apply(
 
 # help functions
+def normalization(vector):
+    """
+    Normalize scores in this vector
+    """
+    pass
+
 
 def freq(matrix):
 
     # sum of matrix
     total = matrix.values.sum()
     freq_df = matrix / total
-
     return freq_df
 
 
