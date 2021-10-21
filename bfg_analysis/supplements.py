@@ -80,6 +80,27 @@ def read_summary_hedgy(AD_sum, DB_sum, AD_group="G0", DB_group="G0"):
     return AD_genes, DB_genes
 
 
+def read_summary_LAgag(AD_sum, DB_sum, LA_summary, AD_GROUP, DB_GROUP):
+    
+    AD_summary = pd.read_csv(AD_sum)
+    DB_summary = pd.read_csv(DB_sum)
+    
+    LA_df = pd.read_csv(LA_summary)
+
+    if AD_GROUP == "ADgag":
+        # select all AD from LA_df
+        AD_genes = LA_df[LA_df["Sample"].str.contains("AD")]["Sample"].tolist()
+    else:  # AD all
+        AD_genes = AD_summary[AD_summary.Group!="null_setD"].Locus.tolist()
+    
+
+    if DB_GROUP == "DBgag":
+        DB_genes = LA_df[LA_df["Sample"].str.contains("DB")]["Sample"].tolist()
+    else: # DB 1-4
+        DB_genes = DB_summary[DB_summary.Group==DB_GROUP].Locus.tolist()
+    return AD_genes, DB_genes
+
+
 def parse_ds_ref(fasta):
     """
     separate dayag's fasta file

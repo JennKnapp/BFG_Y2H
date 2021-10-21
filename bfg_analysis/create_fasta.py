@@ -8,6 +8,21 @@
 import pandas as pd
 import os
 #from legacy import param
+# Padding sequences used 
+# Padding sequences are the same for human and yeast
+# DB down tags
+DB_Dn1 = "TCGATAGGTGCGTGTGAAGG"
+DB_Dn2 = "CCTCAGTCGCTCAGTCAAG"
+# DB up tags
+DB_Up1 = "CCATACGAGCACATTACGGG"
+DB_Up2 = "CTAACTCGCATACCTCTGATAAC"
+
+# AD down tags
+AD_Dn1 = "CTCCAGGGTTAGGCAGATG"
+AD_Dn2 = "CAATCGCACTATCCCGCTG"
+# AD up tags
+AD_Up1 = "CCCTTAGAACCGAGAGTGTG"
+AD_Up2 = "CACTCCGTTCGTCACTCAATAA"
 
 
 def reverse_complement(seq):
@@ -239,11 +254,11 @@ def create_fasta_hedgy(DB_summary, output_path):
         for index, row in db_hedgy_df.iterrows():
             up_seq_name = ">"+row.Plate+";"+row["Locus"]+";"+"up"
             db.write(up_seq_name+"\n")
-            db.write(param.DB_Up1 + row.UpTag_Sequence + param.DB_Up2 + "\n") # add padding sequences
+            db.write(DB_Up1 + row.UpTag_Sequence + DB_Up2 + "\n") # add padding sequences
 
             dn_seq_name = ">"+row.Plate+";"+row["Locus"]+";"+"dn"
             db.write(dn_seq_name+"\n")
-            db.write(param.DB_Dn1 + row.DnTag_Sequence + param.DB_Dn2 + "\n")
+            db.write(DB_Dn1 + row.DnTag_Sequence + DB_Dn2 + "\n")
 
 
 def build_index(fasta_file, output_dir):
@@ -255,6 +270,7 @@ def build_index(fasta_file, output_dir):
     cmd = "bowtie2-build "+fasta_file+" "+os.path.join(output_dir,basename)
     #print cmd
     os.system(cmd)
+
 
 def main(mode="n/a", null=False):
     if mode == "human": 
@@ -273,6 +289,7 @@ def main(mode="n/a", null=False):
         n = 11
     if mode == "yeast":
         n = 5
+
     for i in range(1,n):
         if i < 10:
             create_fasta(AD_summary, DB_summary, ref_path, group_spec=True, AD="G"+str(i), DB="G"+str(i), mode=mode, null=null)
@@ -290,6 +307,38 @@ def main(mode="n/a", null=False):
     list_fasta = os.listdir(ref_path)
     for fasta in list_fasta:
         build_index(os.path.join(ref_path, fasta), ref_path)
+
+
+def create_fasta_yeast_LAgag(LAnull_file, output_path):
+    """
+    Build AD null + AD LA gag
+    Build DB null + DB LA gag
+    """
+    
+    la_df = pd.read_csv(LAnull_file)
+
+    fdb = os.path.join(output_path, "DBgag.fasta")
+    fad = os.path.join(output_path, "ADgag.fasta")
+    with open(fdb, "w") as db:
+        with open(fad, "w") as ad:
+            for index, row in la_df.iterrows():
+                up_seq_name = row.Sample+";"+row["96_Well"]+";"+"up"
+                dn_seq_name = row.Sample+";"+row["96_Well"]+";"+"dn"
+
+                if "AD" in up_seq_name:
+                    ad.write(f">AD;{up_seq_name}"+"\n")
+                    ad.write(AD_Up1 + row.UpTag + AD_Up2 + "\n") # add padding sequences
+
+                    ad.write(f">AD;{dn_seq_name}"+"\n")
+                    ad.write(AD_Dn1 + row.DownTag + AD_Dn2 + "\n")
+
+                if "DB" in up_seq_name:
+                    db.write(f">DB;{up_seq_name}"+"\n")
+                    db.write(DB_Up1 + row.UpTag + DB_Up2 + "\n") # add padding sequences
+
+                    db.write(f">DB;{dn_seq_name}"+"\n")
+                    db.write(DB_Dn1 + row.DownTag + DB_Dn2 + "\n")
+
 
 def v_main():
 
@@ -315,7 +364,11 @@ if __name__ == "__main__":
     
     ADyeast_sum = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_byORFeome_AD_withNCnull.csv"
     DByeast_sum = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_byORFeome_DB_AA_withNCnull.csv"
-    output_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/y_ref/"
-    create_fasta_all_yeast(ADyeast_sum, DByeast_sum, output_path)
 
+    output_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/y_ref/"
+    # LAgag and null file 
+    LAnull_file = "/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/LAgag_and_Null_barcodes_2021_01_21.csv"
+    #output_LA = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/yeast_LAnull/"
+    #create_fasta_all_yeast(ADyeast_sum, DByeast_sum, output_path)
+    create_fasta_yeast_LAgag(LAnull_file, output_path)
 

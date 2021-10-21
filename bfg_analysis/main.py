@@ -69,15 +69,19 @@ def main(arguments):
         raise FileNotFoundError("NO FASTQ.GZ FILES FOUND IN THE INPUT FOLDER!")
     for f in all_fastq:
         # read 1 is AD and read 2 is DB
-        if not "_R1" in os.path.basename(f):
+        if not "_R1" in os.path.basename(f) or "Undetermined" in f:
             # ignore R2
             continue
         # extract sample name
         # assume all input fastq follow the same pattern: y|hAD*DB*_GFP_(pre|med|high)_R1_*.fastq.gz
-        regex = re.compile("(^.*_GFP_(pre|med|high))_.*.fastq.gz")
-        ad_base = regex.match(os.path.basename(f)).group(1)
-        #ad_base = os.path.basename(f).split("_")[0]
+        if "GFP" in f:
+            regex = re.compile("(^.*_GFP_(pre|med|high))_.*.fastq.gz")
+            ad_base = regex.match(os.path.basename(f)).group(1)
+            output_dir_name = ad_base.split("_GFP_")[0]+"/"
 
+        else:
+            ad_base = os.path.basename(f).split("_")[0]
+            output_dir_name = ad_base
         # find DB
         db = [i for i in all_fastq if "_R2" in i and ad_base in i][0]
         # db = os.path.join(arguments.fastq, db)
@@ -87,7 +91,6 @@ def main(arguments):
         AD_GROUP, DB_GROUP, AD_REF, DB_REF = parse_input_files(arguments.mode, ad_base, arguments.ref)
         
         # assume all the fastq files have the filename: y/hAD*DB*_GFP_*
-        output_dir_name = ad_base.split("_GFP_")[0]+"/"
         output_dir = os.path.join(output_master, output_dir_name)
         if not os.path.isdir(output_dir):
             os.system("mkdir -p "+output_dir)
@@ -225,6 +228,23 @@ def parse_input_files(mode, ad_base, ref_path):
 
         AD_REF = hvREF_PATH + "h_AD_wnull_" + AD_GROUP
         DB_REF = heREF_PATH + "h_DB_" + DB_GROUP
+
+    elif mode == "LAgag":
+
+        m = re.match(r"yAD(all|gag)DB([1-4]|gag)", ad_base)
+        
+        if m.group(1) == "all":
+            AD_GROUP = "y_AD_all"
+        else:
+            AD_GROUP = "ADgag"
+        if m.group(2) == "gag":
+            DB_GROUP = "DBgag"
+        else:
+            DB_GROUP = "y_DB_G" + m.group(2)
+        
+        AD_REF = os.path.join(yREF_PATH, AD_GROUP)
+        DB_REF = os.path.join(yREF_PATH, DB_GROUP)
+        #print(AD_REF, DB_REF)
 
     else:
         raise ValueError("Please provide valid mode: yeast, human, virus or hedgy")
