@@ -7,8 +7,7 @@
 
 import pandas as pd
 import os
-#from legacy import param
-# Padding sequences used 
+#from legacy import # Padding sequences used
 # Padding sequences are the same for human and yeast
 # DB down tags
 DB_Dn1 = "TCGATAGGTGCGTGTGAAGG"
@@ -46,14 +45,13 @@ def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0",
     Generate fasta file from summary
     See example_summary as templete
     """
-    # set summary in param.py
+    # set summary in py
     if group_spec: # make a group specific fasta file
         
         if not wnull:
             AD_summary = pd.read_csv(AD_summary, sep="\t")
             DB_summary = pd.read_csv(DB_summary, sep="\t")
 
-            print(AD_summary)
             # select the group from AD and DB
             AD_summary = AD_summary[AD_summary.Group==AD]
             DB_summary = DB_summary[DB_summary.Group==DB]
@@ -102,15 +100,15 @@ def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0",
         for index, row in AD_summary.iterrows():
             up_seq_name = ">"+row.Group+";"+str(row.Locus)+";"+str(row.Index)+";AD;"+"up"
             ad.write(up_seq_name+"\n")
-            ad.write(param.AD_Up1 + row.UpTag_Sequence + param.AD_Up2 + "\n") # add padding sequences
+            ad.write(AD_Up1 + row.UpTag_Sequence + AD_Up2 + "\n") # add padding sequences
             dn_seq_name = ">"+row.Group+";"+str(row.Locus)+";"+str(row.Index)+";AD;"+"dn"
             ad.write(dn_seq_name+"\n")
             
             if mode == "human": # for human AD barcode, take the RC
                 rc = reverse_complement(row.DnTag_Sequence)
-                ad.write(param.AD_Dn1 + rc + param.AD_Dn2 + "\n")
+                ad.write(AD_Dn1 + rc + AD_Dn2 + "\n")
             else:
-                ad.write(param.AD_Dn1 + row.DnTag_Sequence + param.AD_Dn2 + "\n")
+                ad.write(AD_Dn1 + row.DnTag_Sequence + AD_Dn2 + "\n")
 
     DB_summary = DB_summary.dropna(how="all")
     print(DB_summary)
@@ -119,11 +117,11 @@ def create_fasta(AD_summary, DB_summary, output_path, group_spec=False, AD="G0",
         for index, row in DB_summary.iterrows():
             up_seq_name = ">"+str(row.Group)+";"+str(row.Locus)+";"+str(row.Index)+";DB;"+"up"
             db.write(up_seq_name+"\n")
-            db.write(param.DB_Up1 + row.UpTag_Sequence + param.DB_Up2 + "\n")
+            db.write(DB_Up1 + row.UpTag_Sequence + DB_Up2 + "\n")
 
             dn_seq_name = ">"+str(row.Group)+";"+str(row.Locus)+";"+str(row.Index)+";DB;"+"dn"
             db.write(dn_seq_name+"\n")
-            db.write(param.DB_Dn1 + row.DnTag_Sequence + param.DB_Dn2 + "\n")
+            db.write(DB_Dn1 + row.DnTag_Sequence + DB_Dn2 + "\n")
 
 # make fasta files for virus collection
 def create_fasta_virus(vADNC, vAD2u, vDBNC, vADall, output_path):
@@ -140,10 +138,10 @@ def create_fasta_virus(vADNC, vAD2u, vDBNC, vADall, output_path):
         for index, row in vADNC_df.iterrows():
             up_seq_name = ">ADNC;"+str(row.ORF)+";"+"up"
             adnc.write(up_seq_name+"\n")
-            adnc.write(param.AD_Up1 + row.UP + param.AD_Up2 + "\n") # add padding sequences
+            adnc.write(AD_Up1 + row.UP + AD_Up2 + "\n") # add padding sequences
             dn_seq_name = ">ADNC;"+str(row.ORF)+";"+"dn"
             adnc.write(dn_seq_name+"\n")
-            adnc.write(param.AD_Dn1 + row.DN + param.AD_Dn2 + "\n")
+            adnc.write(AD_Dn1 + row.DN + AD_Dn2 + "\n")
     
     vAD2u_df = pd.read_csv(vAD2u)
     vAD2u_fasta = "v_AD2u.fasta"
@@ -153,11 +151,11 @@ def create_fasta_virus(vADNC, vAD2u, vDBNC, vADall, output_path):
         for index, row in vAD2u_df.iterrows():
             up_seq_name = ">AD2u;"+str(row.ORF)+";"+"up"
             ad2u.write(up_seq_name+"\n")
-            ad2u.write(param.AD_Up1 + row.UP + param.AD_Up2 + "\n")
+            ad2u.write(AD_Up1 + row.UP + AD_Up2 + "\n")
 
             dn_seq_name = ">AD2u;"+str(row.ORF)+";"+"dn"
             ad2u.write(dn_seq_name+"\n")
-            ad2u.write(param.AD_Dn1 + row.DN + param.AD_Dn2 + "\n")
+            ad2u.write(AD_Dn1 + row.DN + AD_Dn2 + "\n")
 
     vADall_df = pd.read_csv(vADall)
     vADall_fasta = "v_ADall.fasta"
@@ -167,11 +165,11 @@ def create_fasta_virus(vADNC, vAD2u, vDBNC, vADall, output_path):
         for index, row in vADall_df.iterrows():
             up_seq_name = ">ADall;" + str(row.ORF) + ";" + "up"
             adall.write(up_seq_name + "\n")
-            adall.write(param.AD_Up1 + row.UP + param.AD_Up2 + "\n")
+            adall.write(AD_Up1 + row.UP + AD_Up2 + "\n")
 
             dn_seq_name = ">ADall;" + str(row.ORF) + ";" + "dn"
             adall.write(dn_seq_name + "\n")
-            adall.write(param.AD_Dn1 + row.DN + param.AD_Dn2 + "\n")
+            adall.write(AD_Dn1 + row.DN + AD_Dn2 + "\n")
 
     vDBNC_df = pd.read_csv(vDBNC)
     vDBNC_fasta = "v_DBNC.fasta"
@@ -181,11 +179,11 @@ def create_fasta_virus(vADNC, vAD2u, vDBNC, vADall, output_path):
         for index, row in vDBNC_df.iterrows():
             up_seq_name = ">DBNC;"+str(row.ORF)+";"+"up"
             dbnc.write(up_seq_name+"\n")
-            dbnc.write(param.DB_Up1 + row.UP + param.DB_Up2 + "\n")
+            dbnc.write(DB_Up1 + row.UP + DB_Up2 + "\n")
 
             dn_seq_name = ">DBNC;"+str(row.ORF)+";"+"dn"
             dbnc.write(dn_seq_name+"\n")
-            dbnc.write(param.DB_Dn1 + row.DN + param.DB_Dn2 + "\n")
+            dbnc.write(DB_Dn1 + row.DN + DB_Dn2 + "\n")
 
 # Modified version to make fasta files for all yeast ORFs with null. 
 # for both AD and DB
@@ -199,19 +197,19 @@ def create_fasta_all_yeast(AD_summary, DB_summary, output_path):
         for index, row in AD_summary.iterrows():
             up_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"up"
             ad.write(up_seq_name+"\n")
-            ad.write(param.AD_Up1 + row.UpTag_Sequence + param.AD_Up2 + "\n") # add padding sequences
+            ad.write(AD_Up1 + row.UpTag_Sequence + AD_Up2 + "\n") # add padding sequences
             dn_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"dn"
             ad.write(dn_seq_name+"\n")
-            ad.write(param.AD_Dn1 + row.DnTag_Sequence + param.AD_Dn2 + "\n")
+            ad.write(AD_Dn1 + row.DnTag_Sequence + AD_Dn2 + "\n")
 
     with open(os.path.join(output_path, f_db), "w") as db:
         for index, row in DB_summary.iterrows():
             up_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"up"
             db.write(up_seq_name+"\n")
-            db.write(param.DB_Up1 + row.UpTag_Sequence + param.DB_Up2 + "\n")
+            db.write(DB_Up1 + row.UpTag_Sequence + DB_Up2 + "\n")
             dn_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"dn"
             db.write(dn_seq_name+"\n")
-            db.write(param.DB_Dn1 + row.DnTag_Sequence + param.DB_Dn2 + "\n")
+            db.write(DB_Dn1 + row.DnTag_Sequence + DB_Dn2 + "\n")
 
 
 # Modified version to make fasta files for Miha's ORFs. 
@@ -228,19 +226,19 @@ def create_fasta_miha(AD_summary, DB_summary, output_path):
         for index, row in mihas_AD.iterrows():
             up_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"up"
             ad.write(up_seq_name+"\n")
-            ad.write(param.AD_Up1 + row.UpTag_Sequence + param.AD_Up2 + "\n") # add padding sequences
+            ad.write(AD_Up1 + row.UpTag_Sequence + AD_Up2 + "\n") # add padding sequences
             dn_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"dn"
             ad.write(dn_seq_name+"\n")
-            ad.write(param.AD_Dn1 + row.DnTag_Sequence + param.AD_Dn2 + "\n")
+            ad.write(AD_Dn1 + row.DnTag_Sequence + AD_Dn2 + "\n")
 
     with open(os.path.join(output_path, f_db), "w") as db:
         for index, row in mihas_DB.iterrows():
             up_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"up"
             db.write(up_seq_name+"\n")
-            db.write(param.DB_Up1 + row.UpTag_Sequence + param.DB_Up2 + "\n")
+            db.write(DB_Up1 + row.UpTag_Sequence + DB_Up2 + "\n")
             dn_seq_name = ">"+row.Group+";"+row.Locus+";"+str(row.Index)+";"+"dn"
             db.write(dn_seq_name+"\n")
-            db.write(param.DB_Dn1 + row.DnTag_Sequence + param.DB_Dn2 + "\n")
+            db.write(DB_Dn1 + row.DnTag_Sequence + DB_Dn2 + "\n")
 
 # make fasta files for hedgy collection
 def create_fasta_hedgy(DB_summary, output_path):
@@ -274,21 +272,20 @@ def build_index(fasta_file, output_dir):
 
 def main(mode="n/a", null=False):
     if mode == "human": 
-        AD_summary = param.hAD_summary
-        DB_summary = param.hDB_summary
-        ref_path = param.hREF_PATH
+        AD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_AD_RL.csv"
+        DB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_DB_RL.csv"
+        ref_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/h_ref/"
     if mode == "yeast":
-        AD_summary = param.yAD_summary
-        DB_summary = param.yDB_summary
-        ref_path = param.yREF_PATH
+        AD_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_AD.csv"
+        DB_summary = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180627_byORFeome_DB_AA.csv"
+        ref_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/y_ref/"
 
     # set for our experiment 
     # AD G1-4
     # DB G1-4
+    n = 5
     if mode == "human":
         n = 11
-    if mode == "yeast":
-        n = 5
 
     for i in range(1,n):
         if i < 10:
@@ -296,12 +293,6 @@ def main(mode="n/a", null=False):
 
         else:
             create_fasta(AD_summary, DB_summary, ref_path, group_spec=True, AD="G"+str(i), DB="G"+str(i), mode=mode)
-
-    # example of create fasta for all
-    # create_fasta(AD_summary, DB_summary, fasta_output)
-    
-    # for Miha's ORFs
-    #create_fasta_miha(AD_summary, DB_summary, param.REF_PATH)
 
     # bowtie build
     list_fasta = os.listdir(ref_path)
@@ -356,11 +347,11 @@ if __name__ == "__main__":
     #create_fasta_hedgy(hdegy_db, output_path)
     #main(mode="yeast",null=True)
     #v_main()
-    ADsum = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_AD_RL_withNull.csv"
-    DBsum = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_DB_RL_withNull.csv"
-    output_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/hv_ref/"
-
-    #create_fasta(ADsum, DBsum, output_path, group_spec=False, AD="G0", DB="G0", mode="human", wnull=True)
+    # ADsum = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_AD_RL_withNull.csv"
+    # DBsum = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_bhORFeome_DB_RL_withNull.csv"
+    # output_path = "/home/rothlab/rli/02_dev/08_bfg_y2h/reference/hv_ref/"
+    #
+    # #create_fasta(ADsum, DBsum, output_path, group_spec=False, AD="G0", DB="G0", mode="human", wnull=True)
     
     ADyeast_sum = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_byORFeome_AD_withNCnull.csv"
     DByeast_sum = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/20180927_byORFeome_DB_AA_withNCnull.csv"

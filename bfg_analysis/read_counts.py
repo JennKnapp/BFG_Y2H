@@ -19,8 +19,6 @@ class Read_Count(object):
         self._r2 = r2 # sorted sam file for r2
         self._ad_genes = AD_GENES # list of AD gene names
         self._db_genes = DB_GENES # list of DB gene names
-        print(self._r1)
-        print(self._r2)
         self._uptag_file = f"{r1.replace('.csv', '')}_uptag_rawcounts.csv"
         self._dntag_file = f"{r2.replace('.csv', '')}_dntag_rawcounts.csv"
         
@@ -87,8 +85,6 @@ class Read_Count(object):
 
         analysis_log.info("Total reads for dn tags: %s", str(sum(dn_pairs.values())))
         analysis_log.info("Total reads for up tags: %s", str(sum(dn_pairs.values())))
-        print(dn_pairs)
-        print(up_pairs)
         if dn_pairs != {}:
             dntag_matrix = (pd.Series(dn_pairs)
                 .unstack(fill_value=0)
@@ -114,8 +110,6 @@ class Read_Count(object):
 
 
 def RCmain(r1, r2, AD_GROUP, DB_GROUP, mode, output_dir, sam_cutoff, summary_dir):
-
-
 
     # set global variables
     ###################################

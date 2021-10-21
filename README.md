@@ -16,15 +16,35 @@ path: /home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/
 ```
 Before running the pipeline, you need to copy everything in these two folders to your designated directory.
 
-An example sequence in output fasta file:
+
+#### Build new reference ###
+
+If you need to build a new reference for your analysis, please follow:
+    
+1. You can refer the create_fasta.py to build the new fasta file 
+2. Make sure the name for the sequences follows the format: `>*;ORF-BC-ID;*;up/dn`. In other words, the ORF-ID should always 
+   be the second item, and the up/dn identifier should always be the last item. (see examples below)
+3. Example sequences in output fasta file:
 ```
 >G1;YDL169C_BC-1;7;up
 CCCTTAGAACCGAGAGTGTGGGTTAAATGGGTGAATTCAGGGATTCACTCCGTTCGTCACTCAATAA
+
+>G1;YMR206W_BC-1;1.0;DB;up
+CCATACGAGCACATTACGGGGCTTGAGTTATATAGTCGATCCGGGCTAACTCGCATACCTCTGATAAC
+
+>G09;56346_BC-1;24126.0;DB;dn
+TCGATAGGTGCGTGTGAAGGATGTTCCCCCGGTCACCGGGCCAGTCCTCAGTCGCTCAGTCAAG
 ```
+4. After making the fasta file, build index with bowtie2-build
+`bowtie2-build filename.fasta filename`
+5. Update summary file for getting AD/DB targeted genes 
+   * Edit supplements.py to add a function which reads the input summary file, output AD and DB_gene names (list)
+   * The names should match the ORF-BC-ID in the fasta file
+   * Edit read_counts.py - RCmain() to read the corresponding file 
 
 ### Running the pipeline  ###
 
-* Install from pypi (recommend): `python -m pip install BFG-Y2H==0.0.1`
+* Install from pypi (recommend): `python -m pip install BFG-Y2H`
 
 * Install and build from github
 ```
