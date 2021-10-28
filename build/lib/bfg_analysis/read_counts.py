@@ -14,13 +14,14 @@ analysis_log = logging.getLogger("analysis")
 
 class Read_Count(object):
 
-    def __init__(self, AD_GENES, DB_GENES, r1, r2, output_dir, sam_cutoff):
+    def __init__(self, AD_GENES, DB_GENES, r1, r2, sam_cutoff):
+        """
+
+        """
         self._r1 = r1 # sorted sam file for r1
         self._r2 = r2 # sorted sam file for r2
         self._ad_genes = AD_GENES # list of AD gene names
         self._db_genes = DB_GENES # list of DB gene names
-        print(self._r1)
-        print(self._r2)
         self._uptag_file = f"{r1.replace('.csv', '')}_uptag_rawcounts.csv"
         self._dntag_file = f"{r2.replace('.csv', '')}_dntag_rawcounts.csv"
         
@@ -87,16 +88,22 @@ class Read_Count(object):
 
         analysis_log.info("Total reads for dn tags: %s", str(sum(dn_pairs.values())))
         analysis_log.info("Total reads for up tags: %s", str(sum(dn_pairs.values())))
-        dntag_matrix = (pd.Series(dn_pairs)
+        if dn_pairs != {}:
+            dntag_matrix = (pd.Series(dn_pairs)
                 .unstack(fill_value=0)
                 .T
                 .reindex(index=self._dntag_matrix.index, columns=self._dntag_matrix.columns, fill_value=0))
+        else:
+            dntag_matrix = pd.DataFrame({})
         #print dntag_matrix.shape
-        uptag_matrix = (pd.Series(up_pairs)
+        if up_pairs != {}:
+            uptag_matrix = (pd.Series(up_pairs)
                 .unstack(fill_value=0)
                 .T
                 .reindex(index=self._uptag_matrix.index, columns=self._uptag_matrix.columns, fill_value=0))
-        
+        else:
+            uptag_matrix = pd.DataFrame({})
+
         f1.close()
         f2.close()
         # save to file
@@ -105,62 +112,76 @@ class Read_Count(object):
         return uptag_matrix, dntag_matrix
 
 
-def RCmain(r1, r2, AD_GROUP, DB_GROUP, mode, output_dir, sam_cutoff, summary_dir):
+def RCmain(r1, r2, output_dir, sam_cutoff, genes_file):
 
+    # # set global variables
+    # ###################################
+    # # summary files are used to grep gene names, group information
+    # # and to create fasta reference files if needed
+    #
+    # # in the summary files, the following columns must exist: Group, Locus, Index, UpTag_Sequence, DnTag_Sequence
+    #
+    # # summary for AD (all the genes and group)
+    # # yeast
+    # yAD_summary = os.path.join(summary_dir, "20180627_byORFeome_AD.csv")
+    # # human
+    # hAD_summary = os.path.join(summary_dir, "20180927_bhORFeome_AD_RL.csv")
+    # # human with null
+    # hvAD_summary = os.path.join(summary_dir, "20180927_bhORFeome_AD_RL_withNull.csv")
+    #
+    # # summary for DB (all the genes and group)
+    # # yeast
+    # yDB_summary = os.path.join(summary_dir, "20180627_byORFeome_DB_AA.csv")
+    # # human
+    # hDB_summary = os.path.join(summary_dir, "20180927_bhORFeome_DB_RL.csv")
+    # # human with null
+    # hvDB_summary = os.path.join(summary_dir, "20180927_bhORFeome_DB_RL_withNull.csv")
+    # # hedgy summary
+    # heDB_summary = os.path.join(summary_dir, "20201014_hEDGY_Screen1_ORF_BC_list.csv")
+    #
+    # # virus
+    # vADNC = os.path.join(summary_dir, "vADNC_withNull.csv")
+    # vAD2u = os.path.join(summary_dir, "vAD2u_withNull.csv")
+    # vDBNC = os.path.join(summary_dir, "vDBNC_withNull.csv")
+    # vADall = os.path.join(summary_dir, "vADall_withNull.csv")
+    #
+    # # LAgag
+    # LA_summary = os.path.join(summary_dir, "LAgag_and_Null_barcodes_2021_01_21.csv")
+    #
+    # # get AD and DB genes from different files based on the mode
+    # if mode == "yeast":
+    #     AD_genes, DB_genes = supplements.read_summary(yAD_summary, yDB_summary, AD_GROUP, DB_GROUP)
+    #
+    # elif mode =="human":
+    #     AD_genes, DB_genes = supplements.read_summary(hAD_summary, hDB_summary, AD_GROUP, DB_GROUP)
+    #
+    # elif mode == "virus":
+    #     if "G" in AD_GROUP: # human
+    #         AD_GROUP = AD_GROUP.split("_")[-1]
+    #     if "G" in DB_GROUP: # human
+    #         DB_GROUP = DB_GROUP.split("_")[-1]
+    #     AD_genes, DB_genes = supplements.read_summary_virus(hvAD_summary, hvDB_summary, AD_GROUP, DB_GROUP)
+    #
+    # elif mode == "hedgy":
+    #     AD_GROUP = AD_GROUP.split("_")[-1]
+    #     AD_genes, DB_genes = supplements.read_summary_hedgy(hvAD_summary, heDB_summary, AD_GROUP)
+    # elif mode == "LAgag":
+    #     if "gag" not in AD_GROUP:
+    #         AD_GROUP = "ADall"
+    #     if "gag" not in DB_GROUP:
+    #         DB_GROUP = DB_GROUP.split("_")[-1]
+    #
+    #     AD_genes, DB_genes = supplements.read_summary_LAgag(yAD_summary, yDB_summary, LA_summary, AD_GROUP, DB_GROUP)
+    #
+    # else:
+    #     raise ValueError("Please pride valid mode: yeast or human or virus")
+    # parse genes df in the dir
+    # exit if genes_df not found
+    if not os.path.isfile(genes_file):
+        raise FileNotFoundError(f"{genes_file} not found")
+    genes_df = pd.read_csv(genes_file)
 
-
-    # set global variables
-    ###################################
-    # summary files are used to grep gene names, group information
-    # and to create fasta reference files if needed
-
-    # in the summary files, the following columns must exist: Group, Locus, Index, UpTag_Sequence, DnTag_Sequence
-
-    # summary for AD (all the genes and group)
-    # yeast
-    yAD_summary = os.path.join(summary_dir, "20180627_byORFeome_AD.csv")
-    # human
-    hAD_summary = os.path.join(summary_dir, "20180927_bhORFeome_AD_RL.csv")
-    # human with null
-    hvAD_summary = os.path.join(summary_dir, "20180927_bhORFeome_AD_RL_withNull.csv")
-
-    # summary for DB (all the genes and group)
-    # yeast
-    yDB_summary = os.path.join(summary_dir, "20180627_byORFeome_DB_AA.csv")
-    # human
-    hDB_summary = os.path.join(summary_dir, "20180927_bhORFeome_DB_RL.csv")
-    # human with null
-    hvDB_summary = os.path.join(summary_dir, "20180927_bhORFeome_DB_RL_withNull.csv")
-    # hedgy summary
-    heDB_summary = os.path.join(summary_dir, "20201014_hEDGY_Screen1_ORF_BC_list.csv")
-
-    # virus
-    vADNC = os.path.join(summary_dir, "vADNC_withNull.csv")
-    vAD2u = os.path.join(summary_dir, "vAD2u_withNull.csv")
-    vDBNC = os.path.join(summary_dir, "vDBNC_withNull.csv")
-    vADall = os.path.join(summary_dir, "vADall_withNull.csv")
-
-    # get AD and DB genes from different files based on the mode
-    if mode == "yeast":
-        AD_genes, DB_genes = supplements.read_summary(yAD_summary, yDB_summary, AD_GROUP, DB_GROUP)
-
-    elif mode =="human":
-        AD_genes, DB_genes = supplements.read_summary(hAD_summary, hDB_summary, AD_GROUP, DB_GROUP)
-
-    elif mode == "virus":
-        if "G" in AD_GROUP: # human
-            AD_GROUP = AD_GROUP.split("_")[-1]
-        if "G" in DB_GROUP: # human
-            DB_GROUP = DB_GROUP.split("_")[-1]
-        AD_genes, DB_genes = supplements.read_summary_virus(hvAD_summary, hvDB_summary, AD_GROUP, DB_GROUP)
-
-    elif mode == "hedgy":
-        AD_GROUP = AD_GROUP.split("_")[-1]
-        AD_genes, DB_genes = supplements.read_summary_hedgy(hvAD_summary, heDB_summary, AD_GROUP)
-    else:
-        raise ValueError("Please pride valid mode: yeast or human orvirus")
-
-    rc = Read_Count(AD_genes, DB_genes, r1, r2, output_dir, sam_cutoff)
+    rc = Read_Count(genes_df["AD_genes"].dropna().tolist(), genes_df["DB_genes"].dropna().tolist(), r1, r2, sam_cutoff)
     # create empty matrix
     rc._BuildMatrix()
     uptag_matrix, dntag_matrix = rc._ReadCounts()
@@ -171,7 +192,8 @@ def RCmain(r1, r2, AD_GROUP, DB_GROUP, mode, output_dir, sam_cutoff, summary_dir
 
     # plot up and dn corr
     # sample_bc_corr.png
-    plot.bc_corr(r1.replace('.csv', ''), uptag_matrix, dntag_matrix)
+    if not uptag_matrix.empty or dntag_matrix.empty:
+        plot.bc_corr(r1.replace('.csv', ''), uptag_matrix, dntag_matrix)
 
 
 if __name__ == "__main__":
@@ -184,12 +206,12 @@ if __name__ == "__main__":
     # parameters for cluster
     parser.add_argument("-r1", help="Read 1 SAM file")
     parser.add_argument("-r2", help="Read 2 SAM file")
-    parser.add_argument("--AD_GROUP", help="AD group number")
-    parser.add_argument("--DB_GROUP", help="DB group number")
-    parser.add_argument("--mode", help="Mode (yeast, human, virus, hedgy)")
+    # parser.add_argument("--AD_GROUP", help="AD group number")
+    # parser.add_argument("--DB_GROUP", help="DB group number")
+    # parser.add_argument("--mode", help="Mode (yeast, human, virus, hedgy)")
     parser.add_argument("--cutoff", help="SAM reads quality cutoff", type=int)
-    parser.add_argument("--summary", help="path to all summary files", default="/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/")
+    parser.add_argument("--genes", help="path to file that contains all gene (AD and DB) for this sample")
     parser.add_argument("-o", "--output", help="Output path")
     args = parser.parse_args()
 
-    RCmain(args.r1, args.r2, args.AD_GROUP, args.DB_GROUP, args.mode, args.output, args.cutoff, args.summary)
+    RCmain(args.r1, args.r2, args.output, args.cutoff, args.genes)

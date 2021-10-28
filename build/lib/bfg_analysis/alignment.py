@@ -14,7 +14,13 @@ align_log = logging.getLogger("alignments")
 def bowtie_align(ad, db, AD_ref, DB_ref, output, sh_dir):
     """
     Align r1 and r2 to reference
-    Log bowtie output 
+    Log bowtie output
+    @param ad: path to read 1
+    @param db: path to read 2
+    @param AD_ref: reference file to use for AD
+    @param DB_ref: reference file to use for DB
+    @param output: output dir
+    @param sh_dir: folder to dave all the sh files
     """
     basename = os.path.basename(ad)
     error_log = os.path.join(sh_dir, f"{basename.replace('.fastq.gz', '')}")

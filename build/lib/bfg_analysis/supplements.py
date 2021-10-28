@@ -1,8 +1,17 @@
 #!/usr/bin/env python3.7
 
 import pandas as pd
-#from legacy import param
 
+####
+# purpose of the scripts: read summary files for different projects and output AD genes/ DB genes
+
+
+
+# virus
+vADNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vADNC_withNull.csv"
+vAD2u = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vAD2u_withNull.csv"
+vDBNC = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vDBNC_withNull.csv"
+vADall = "/home/rothlab/rli/02_dev/08_bfg_y2h/summary/vADall_withNull.csv"
 
 def read_summary(AD_sum, DB_sum, AD_group, DB_group):
     """
@@ -38,19 +47,19 @@ def read_summary_virus(AD_sum, DB_sum, AD_group, DB_group):
     AD_summary = pd.read_table(AD_sum, sep=",")
     DB_summary = pd.read_table(DB_sum, sep=",")
     if DB_group == "DBNC":
-        vDBNC_df = pd.read_csv(param.vDBNC)
+        vDBNC_df = pd.read_csv(vDBNC)
         DB_genes = vDBNC_df.ORF.tolist()
 
     if AD_group == "ADNC":
-        vADNC_df = pd.read_csv(param.vADNC)
+        vADNC_df = pd.read_csv(vADNC)
         AD_genes = vADNC_df.ORF.tolist()
 
     elif AD_group == "AD2u":
-        vAD2u_df = pd.read_csv(param.vAD2u)
+        vAD2u_df = pd.read_csv(vAD2u)
         AD_genes = vAD2u_df.ORF.tolist()
 
     elif AD_group == "ADall":
-        vADall_df = pd.read_csv(param.vADall)
+        vADall_df = pd.read_csv(vADall)
         AD_genes = vADall_df.ORF.tolist()
 
     if "G" in AD_group: # group sepecific
@@ -77,6 +86,26 @@ def read_summary_hedgy(AD_sum, DB_sum, AD_group="G0", DB_group="G0"):
     AD_genes = AD_summary.Locus.tolist()
 
     DB_genes = DB_summary.Locus.tolist()
+    return AD_genes, DB_genes
+
+
+def read_summary_LAgag(AD_sum, DB_sum, LA_summary, AD_GROUP, DB_GROUP):
+    
+    AD_summary = pd.read_csv(AD_sum)
+    DB_summary = pd.read_csv(DB_sum)
+    
+    LA_df = pd.read_csv(LA_summary)
+
+    if AD_GROUP == "ADgag":
+        # select all AD from LA_df
+        AD_genes = LA_df[LA_df["Sample"].str.contains("AD")]["Sample"].tolist()
+    else:  # AD all
+        AD_genes = AD_summary[AD_summary.Group!="null_setD"].Locus.tolist()
+
+    if DB_GROUP == "DBgag":
+        DB_genes = LA_df[LA_df["Sample"].str.contains("DB")]["Sample"].tolist()
+    else: # DB 1-4
+        DB_genes = DB_summary[DB_summary.Group==DB_GROUP].Locus.tolist()
     return AD_genes, DB_genes
 
 
@@ -114,7 +143,7 @@ def get_pair_counts(AD, DB, f):
     df.columns = ["AD", "DB","c"]
     count = df[(df.AD.str.contains(AD))& (df.DB.str.contains(DB))]
     #print df[df.AD.str.contains(DB)]
-    print(count)
+
 
 if __name__ == "__main__":
     fasta = "./ds_ref/barcodes.fasta"
