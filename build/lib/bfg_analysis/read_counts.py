@@ -19,8 +19,6 @@ class Read_Count(object):
         self._r2 = r2 # sorted sam file for r2
         self._ad_genes = AD_GENES # list of AD gene names
         self._db_genes = DB_GENES # list of DB gene names
-        print(self._r1)
-        print(self._r2)
         self._uptag_file = f"{r1.replace('.csv', '')}_uptag_rawcounts.csv"
         self._dntag_file = f"{r2.replace('.csv', '')}_dntag_rawcounts.csv"
         
@@ -87,16 +85,22 @@ class Read_Count(object):
 
         analysis_log.info("Total reads for dn tags: %s", str(sum(dn_pairs.values())))
         analysis_log.info("Total reads for up tags: %s", str(sum(dn_pairs.values())))
-        dntag_matrix = (pd.Series(dn_pairs)
+        if dn_pairs != {}:
+            dntag_matrix = (pd.Series(dn_pairs)
                 .unstack(fill_value=0)
                 .T
                 .reindex(index=self._dntag_matrix.index, columns=self._dntag_matrix.columns, fill_value=0))
+        else:
+            dntag_matrix = pd.DataFrame({})
         #print dntag_matrix.shape
-        uptag_matrix = (pd.Series(up_pairs)
+        if up_pairs != {}:
+            uptag_matrix = (pd.Series(up_pairs)
                 .unstack(fill_value=0)
                 .T
                 .reindex(index=self._uptag_matrix.index, columns=self._uptag_matrix.columns, fill_value=0))
-        
+        else:
+            uptag_matrix = pd.DataFrame({})
+
         f1.close()
         f2.close()
         # save to file
@@ -106,8 +110,6 @@ class Read_Count(object):
 
 
 def RCmain(r1, r2, AD_GROUP, DB_GROUP, mode, output_dir, sam_cutoff, summary_dir):
-
-
 
     # set global variables
     ###################################
@@ -140,6 +142,9 @@ def RCmain(r1, r2, AD_GROUP, DB_GROUP, mode, output_dir, sam_cutoff, summary_dir
     vDBNC = os.path.join(summary_dir, "vDBNC_withNull.csv")
     vADall = os.path.join(summary_dir, "vADall_withNull.csv")
 
+    # LAgag
+    LA_summary = os.path.join(summary_dir, "LAgag_and_Null_barcodes_2021_01_21.csv")
+
     # get AD and DB genes from different files based on the mode
     if mode == "yeast":
         AD_genes, DB_genes = supplements.read_summary(yAD_summary, yDB_summary, AD_GROUP, DB_GROUP)
@@ -157,8 +162,16 @@ def RCmain(r1, r2, AD_GROUP, DB_GROUP, mode, output_dir, sam_cutoff, summary_dir
     elif mode == "hedgy":
         AD_GROUP = AD_GROUP.split("_")[-1]
         AD_genes, DB_genes = supplements.read_summary_hedgy(hvAD_summary, heDB_summary, AD_GROUP)
+    elif mode == "LAgag":
+        if "gag" not in AD_GROUP:
+            AD_GROUP = "ADall"
+        if "gag" not in DB_GROUP:
+            DB_GROUP = DB_GROUP.split("_")[-1]
+        
+        AD_genes, DB_genes = supplements.read_summary_LAgag(yAD_summary, yDB_summary, LA_summary, AD_GROUP, DB_GROUP)
+
     else:
-        raise ValueError("Please pride valid mode: yeast or human orvirus")
+        raise ValueError("Please pride valid mode: yeast or human or virus")
 
     rc = Read_Count(AD_genes, DB_genes, r1, r2, output_dir, sam_cutoff)
     # create empty matrix
@@ -171,7 +184,8 @@ def RCmain(r1, r2, AD_GROUP, DB_GROUP, mode, output_dir, sam_cutoff, summary_dir
 
     # plot up and dn corr
     # sample_bc_corr.png
-    plot.bc_corr(r1.replace('.csv', ''), uptag_matrix, dntag_matrix)
+    if not uptag_matrix.empty or dntag_matrix.empty:
+        plot.bc_corr(r1.replace('.csv', ''), uptag_matrix, dntag_matrix)
 
 
 if __name__ == "__main__":

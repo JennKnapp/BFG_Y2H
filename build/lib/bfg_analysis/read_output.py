@@ -60,6 +60,7 @@ def read_noz_score(output_dir, genes):
     groups = pd.concat(frames).reset_index(drop=True)
     groups.to_csv("dayag_gene_scores.csv", index=False)
 
+
 def read_dk_score(output_dir, gene_list):
     frames = []
     genes = pd.read_table(gene_list,skipinitialspace=True)
