@@ -26,7 +26,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="BFG-Y2H",
-    version="0.0.4",
+    version="0.1.0",
     author="ROUJIA LI",
     author_email="roujia.li@mail.utoronto.ca",
     description="Analysis scripts for BFG-Y2H data",

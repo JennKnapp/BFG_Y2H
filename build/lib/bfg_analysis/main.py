@@ -6,6 +6,9 @@ import logging.config
 import os
 import glob
 import re
+
+import pandas as pd
+
 from bfg_analysis import alignment
 from bfg_analysis import read_counts
 
@@ -89,13 +92,19 @@ def main(arguments):
         db = [i for i in all_fastq if "_R2" in i and ad_base in i][0]
         # db = os.path.join(arguments.fastq, db)
 
-        # process AD and DB to extract group information
+        # process AD and DB to get the right reference set
         # this depends on the input mode
-        AD_GROUP, DB_GROUP, AD_REF, DB_REF = parse_input_files(arguments.mode, ad_base, arguments.ref)
+        # modify parse_input_files to add new references
+        AD_REF, DB_REF, AD_GENES, DB_GENES = parse_input_files(arguments.mode, ad_base, arguments.ref)
         
         output_dir = os.path.join(output_master, output_dir_name)
         if not os.path.isdir(output_dir):
             os.system("mkdir -p "+output_dir)
+
+        # save list of genes for this pair of fastq files into the output dir
+        d = {"AD_genes": AD_GENES, "DB_genes": DB_GENES}
+        genes_df = pd.DataFrame({ key:pd.Series(value) for key, value in d.items() })
+        genes_df.to_csv(os.path.join(output_dir, "genes.csv"), index=False)
 
         # make sh dir to save submission scripts
         sh_dir = os.path.join(output_master, "GALEN_jobs")
@@ -110,8 +119,9 @@ def main(arguments):
             # with r1_csv and r2_csv, add python command for read counts
             # read count script
             # rc_script = os.path.join(current_dir, "read_counts.py")
-            rc_cmd = f"rc -r1 {r1_csv} -r2 {r2_csv} --AD_GROUP {AD_GROUP} --DB_GROUP {DB_GROUP} --mode {arguments.mode} " \
-                     f"--cutoff {arguments.cutOff} -o {output_dir} --summary {arguments.summary}"
+            rc_cmd = f"rc -r1 {r1_csv} -r2 {r2_csv} " \
+                     f"--cutoff {arguments.cutOff} -o {output_dir} --genes {os.path.join(output_dir, 'genes.csv')}"
+
             with open(sh_file, "a") as f:
                 f.write(rc_cmd+"\n")
             # submit alignment jobs
@@ -135,12 +145,13 @@ def main(arguments):
             header = f"#!/bin/bash\n#SBATCH --time=1:00:00\n#SBATCH --job-name={ad_base}\n#SBATCH " \
                      f"--error={os.path.join(sh_dir, ad_base)}-%j.log\n#SBATCH --mem=2G\n#SBATCH --output={os.path.join(sh_dir, ad_base)}-%j.log\n"
             sh_file = os.path.join(sh_dir, f"{ad_base}_rc.sh")
-            rc_cmd = f"rc -r1 {r1_csv} -r2 {r2_csv} --AD_GROUP {AD_GROUP} --DB_GROUP {DB_GROUP} --mode {arguments.mode} " \
-                     f"--cutoff {arguments.cutOff} -o {output_dir} --summary {arguments.summary}"
+            rc_cmd = f"rc -r1 {r1_csv} -r2 {r2_csv} " \
+                     f"--cutoff {arguments.cutOff} -o {output_dir} --genes {os.path.join(output_dir, 'genes.csv')}"
             with open(sh_file, "w") as f:
                 f.write(header)
                 f.write(rc_cmd+"\n")
             os.system(f"sbatch {sh_file}")
+
 
 def parse_input_files(mode, ad_base, ref_path):
     """
@@ -151,6 +162,8 @@ def parse_input_files(mode, ad_base, ref_path):
     For yeast: yAD(1-9|M|all)DB(1-9|M|all) - 1-9 means group, M stands for Miha, all stands for all groups. e.g yAD1DBall means AD group 1 x DB all
     For human: hAD(0-9)DB(0-9), numbers stands for pooling groups. e.g hAD1DB4 means AD group 1 x DB group 4,
     For virus: h|v(AD(0-9|NC|2u|all)h|v(DB(0-9|NC|2u|all)), numbers stands for pooling groups, e.g hAD4vDBNC, human AD group 4 vs virus DBNC
+    return AD_REF, DB_REF: path to reference (bowtie2 index, not fasta file)
+    return AD_GENES, DB_GENEs: list of genes for AD and DB
     """
     ###################################
     # Directory to store all the reference sequences
@@ -171,13 +184,16 @@ def parse_input_files(mode, ad_base, ref_path):
     # Contains group specific reference (with null; fasta)
     # Contains Miha, ADgag, DBgag and ADall
     if mode == "yeast":
-        m = re.match(r"yAD([1-4]|M|all|gag)DB([1-4]|M|all|gag)", ad_base)
+        m = re.match(r"yAD([1-4]|M|all)DB([1-4]|M|all)", ad_base)
 
         AD_GROUP = "G"+m.group(1)
         DB_GROUP = "G"+m.group(2)
 
-        AD_REF = yREF_PATH + "y_AD_wnull_" + AD_GROUP
-        DB_REF = yREF_PATH + "y_DB_wnull_" + DB_GROUP
+        AD_REF = yREF_PATH + "y_AD_" + AD_GROUP
+        DB_REF = yREF_PATH + "y_DB_" + DB_GROUP
+
+        AD_GENES = read_genes_from_fasta(f"{AD_REF}.fasta")
+        DB_GENES = read_genes_from_fasta(f"{DB_REF}.fasta")
     # For human: hAD(0-9)DB(0-9), numbers stands for pooling groups.
     # e.g hAD1DB4 means AD group 1 x DB group 4,
     # path: /home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/h_ref
@@ -193,6 +209,9 @@ def parse_input_files(mode, ad_base, ref_path):
             DB_GROUP = "G"+m.group(2)
         AD_REF = hREF_PATH + "h_AD_" + AD_GROUP
         DB_REF = hREF_PATH + "h_DB_" + DB_GROUP
+
+        AD_GENES = read_genes_from_fasta(f"{AD_REF}.fasta")
+        DB_GENES = read_genes_from_fasta(f"{DB_REF}.fasta")
     # For virus: h|v(AD(0-9|NC|2u|all)h|v(DB(0-9|NC|2u|all))
     # numbers stands for pooling groups, e.g hAD4vDBNC, human AD group 4 vs virus DBNC
     # path: /home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/v_ref
@@ -229,7 +248,8 @@ def parse_input_files(mode, ad_base, ref_path):
             DB_REF = vREF_PATH + "v_" + DB_GROUP
         else:
             DB_REF = hvREF_PATH + "h_" + DB_GROUP
-    #
+        AD_GENES = read_genes_from_fasta(f"{AD_REF}.fasta")
+        DB_GENES = read_genes_from_fasta(f"{DB_REF}.fasta")
     elif mode == "hedgy":
 
         m = re.match(r"hAD([0-9]+)DBhe", ad_base)
@@ -243,6 +263,8 @@ def parse_input_files(mode, ad_base, ref_path):
         AD_REF = hvREF_PATH + "h_AD_wnull_" + AD_GROUP
         DB_REF = heREF_PATH + "h_DB_" + DB_GROUP
 
+        AD_GENES = read_genes_from_fasta(f"{AD_REF}.fasta")
+        DB_GENES = read_genes_from_fasta(f"{DB_REF}.fasta")
     # specifically designed for L-A gag project
     # this is different from yeast because it doesn't use the same null
     elif mode == "LAgag":
@@ -261,12 +283,26 @@ def parse_input_files(mode, ad_base, ref_path):
         AD_REF = os.path.join(yREF_PATH, AD_GROUP)
         DB_REF = os.path.join(yREF_PATH, DB_GROUP)
         #print(AD_REF, DB_REF)
-
+        AD_GENES = read_genes_from_fasta(f"{AD_REF}.fasta")
+        DB_GENES = read_genes_from_fasta(f"{DB_REF}.fasta")
     else:
         raise ValueError("Please provide valid mode: yeast, human, virus, hedgy or LAgag")
 
-    return AD_GROUP, DB_GROUP, AD_REF, DB_REF
+    return AD_REF, DB_REF, AD_GENES, DB_GENES
 
+
+def read_genes_from_fasta(fasta_file):
+    """
+    Return a list of gene names from this fasta file
+    """
+    gene_list = []
+    with open(fasta_file, "r") as f:
+        for line in f:
+            if line.startswith(">"):
+                gene_name = line.split(";")[1]
+                gene_list.append(gene_name)
+
+    return gene_list
 
 if __name__ == "__main__":
 

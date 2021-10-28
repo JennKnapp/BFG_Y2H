@@ -102,7 +102,8 @@ def main(arguments):
             os.system("mkdir -p "+output_dir)
 
         # save list of genes for this pair of fastq files into the output dir
-        genes_df = pd.DataFrame({"AD_genes": AD_GENES, "DB_genes": DB_GENES})
+        d = {"AD_genes": AD_GENES, "DB_genes": DB_GENES}
+        genes_df = pd.DataFrame({ key:pd.Series(value) for key, value in d.items() })
         genes_df.to_csv(os.path.join(output_dir, "genes.csv"), index=False)
 
         # make sh dir to save submission scripts
@@ -313,7 +314,7 @@ if __name__ == "__main__":
     parser.add_argument("--mode", help="pick yeast or human or virus or hedgy", required=True)
 
     parser.add_argument("--alignment", action="store_true", help= "turn on alignment")
-    parser.add_argument("--summary", help="path to all summary files", default="/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/")
+    #parser.add_argument("--summary", help="path to all summary files", default="/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/")
     parser.add_argument("--ref", help="path to all reference files", default="/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/")
     parser.add_argument("--cutOff", type=int, help = "assign cut off", default=20)
 

@@ -181,7 +181,7 @@ def RCmain(r1, r2, output_dir, sam_cutoff, genes_file):
         raise FileNotFoundError(f"{genes_file} not found")
     genes_df = pd.read_csv(genes_file)
 
-    rc = Read_Count(genes_df["AD_genes"].tolist(), genes_df["DB_genes"].tolist(), r1, r2, sam_cutoff)
+    rc = Read_Count(genes_df["AD_genes"].dropna().tolist(), genes_df["DB_genes"].dropna().tolist(), r1, r2, sam_cutoff)
     # create empty matrix
     rc._BuildMatrix()
     uptag_matrix, dntag_matrix = rc._ReadCounts()
