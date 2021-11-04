@@ -285,6 +285,7 @@ def parse_input_files(mode, ad_base, ref_path):
         #print(AD_REF, DB_REF)
         AD_GENES = read_genes_from_fasta(f"{AD_REF}.fasta")
         DB_GENES = read_genes_from_fasta(f"{DB_REF}.fasta")
+
     else:
         raise ValueError("Please provide valid mode: yeast, human, virus, hedgy or LAgag")
 

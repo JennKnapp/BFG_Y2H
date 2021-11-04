@@ -14,7 +14,7 @@ from setuptools import setup, find_packages
 #    * Run `python -m pip install dist/BFG-Y2H-0.***.tar.gz`
 # 3. To upload to pypi
 #    * Run `python setup.py bdist_wheel`
-#    * Run `twine upload dist/BFG-Y2H-0.***.*`
+#    * Run `twine upload dist/BFG-Y2H-0.***.tar.gz`
 # 4. Note: to prevent potential problems of the wheel file, remove the older version before building a new one
 #     (remove build/ and dist/)
 ########################################

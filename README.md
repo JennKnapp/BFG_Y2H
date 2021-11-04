@@ -59,7 +59,7 @@ optional arguments:
   -h, --help       show this help message and exit
   --fastq FASTQ    Path to all fastq files you want to analyze
   --output OUTPUT  Output path for sam files
-  --mode MODE      pick yeast or human or virus or hedgy
+  --mode MODE      pick yeast or human or virus or hedgy or LAgag
   --alignment      turn on alignment
   --ref REF        path to all reference files
   --cutOff CUTOFF  assign cut off

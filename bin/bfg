@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser(description='BFG-Y2H')
 # parameters for cluster
 parser.add_argument("--fastq", help="Path to all fastq files you want to analyze")
 parser.add_argument("--output", help="Output path for sam files")
-parser.add_argument("--mode", help="pick yeast or human or virus or hedgy", required=True)
+parser.add_argument("--mode", help="pick yeast or human or virus or hedgy or LAgag", required=True)
 
 parser.add_argument("--alignment", action="store_true", help= "turn on alignment")
 parser.add_argument("--ref", help="path to all reference files", default="/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/")

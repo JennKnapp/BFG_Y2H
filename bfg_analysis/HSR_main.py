@@ -4,7 +4,7 @@ import pandas as pd
 import os
 import numpy as np
 import argparse
-from bfg_analysis import supplements
+
 # Author: Roujia Li
 # email: Roujia.li@mail.utoronto.ca
 
@@ -12,7 +12,6 @@ def read_files(arguments):
     """
     read count files for HSR
     """
-
     all_csv_files = glob.glob(f"{arguments.input}/*/*_combined_counts.csv")
     # extract all folder names
     all_groups = list(set([os.path.dirname(i).split("/")[-1] for i in all_csv_files]))
@@ -60,12 +59,6 @@ if __name__ == '__main__':
     # parameters for cluster
     parser.add_argument("--input", help="Path to all read count files you want to analyze")
     #parser.add_argument("--output", help="Output path for sam files")
-    parser.add_argument("--mode", help="pick yeast or human or virus or hedgy", default="yeast")
-
-    #parser.add_argument("--alignment", action="store_true", help= "turn on alignment")
-    parser.add_argument("--summary", help="path to all summary files", default="/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/")
-    #parser.add_argument("--ref", help="path to all reference files", default="/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/")
-    #parser.add_argument("--readCount", action="store_true", help= "turn on read counting")
 
     # arguments with default values set
     parser.add_argument("--preFloor", type=float, help="assign floor value for GFP pre marginal frequencies", default=0.00001)

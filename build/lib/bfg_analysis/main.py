@@ -314,7 +314,7 @@ if __name__ == "__main__":
     parser.add_argument("--mode", help="pick yeast or human or virus or hedgy", required=True)
 
     parser.add_argument("--alignment", action="store_true", help= "turn on alignment")
-    parser.add_argument("--summary", help="path to all summary files", default="/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/")
+    #parser.add_argument("--summary", help="path to all summary files", default="/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/summary/")
     parser.add_argument("--ref", help="path to all reference files", default="/home/rothlab/rli/02_dev/08_bfg_y2h/bfg_data/reference/")
     parser.add_argument("--cutOff", type=int, help = "assign cut off", default=20)
 
