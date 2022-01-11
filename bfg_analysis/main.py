@@ -45,9 +45,6 @@ def check_args(arguments):
     if not os.path.isdir(arguments.fastq):
         raise NotADirectoryError(f"Cannot find dir: {arguments.fastq}")
 
-    # if not os.path.isdir(arguments.summary):
-      #  raise NotADirectoryError(f"Cannot find dir: {arguments.summary}")
-
     if not os.path.isdir(arguments.ref):
         raise NotADirectoryError(f"Cannot find dir: {arguments.ref}")
 
